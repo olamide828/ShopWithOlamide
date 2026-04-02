@@ -1,5 +1,5 @@
 import React from 'react';
-import FounderImg from "/Users/user/Downloads/WhatsApp Image 2026-03-27 at 05.07.10.jpeg";
+import FounderImg from "/public/founderImg.jpeg";
 
 const AboutComponent = () => {
     return (
