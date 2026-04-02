@@ -1,23 +1,41 @@
-FROM richarvey/nginx-php-fpm:3.1.6
+# Use official PHP FPM image with PHP 8.2
+FROM php:8.2-fpm
 
+# Set working directory
+WORKDIR /var/www/html
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    default-mysql-client \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    git \
+    curl \
+    nodejs \
+    npm
+
+# Install PHP extensions
+RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
+
+# Copy project files
 COPY . .
 
-# 1. Install modern Node.js (v20+) and NPM
-RUN apk add --update nodejs-current npm
-
-# Image & Laravel config
-ENV WEBROOT /var/www/html/public
-ENV APP_ENV production
-ENV APP_DEBUG false
-
-# 2. Install PHP dependencies
+# Install composer dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# 3. Install React dependencies and build assets
+# Install Node packages and build assets
 RUN npm install && npm run build
 
-# 4. Optimize Laravel
+# Optimize Laravel
 RUN php artisan config:cache
 RUN php artisan route:cache
+RUN php artisan view:cache
 
-CMD ["/start.sh"]
+# Expose port for Nginx (if you use separate Nginx container, skip this)
+EXPOSE 9000
+
+# Start PHP-FPM
+CMD ["php-fpm"]
