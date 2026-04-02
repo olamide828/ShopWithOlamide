@@ -1,41 +1,42 @@
-# Use official PHP FPM image with PHP 8.2
 FROM php:8.2-fpm
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Install system dependencies
+# Install system packages
 RUN apt-get update && apt-get install -y \
-    default-mysql-client \
+    git \
+    curl \
+    unzip \
+    zip \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
-    zip \
-    unzip \
-    git \
-    curl \
+    default-mysql-client \
     nodejs \
     npm
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
 
-# Copy project files
+# Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Copy application files
 COPY . .
 
-# Install composer dependencies
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Install Node packages and build assets
+# Install frontend dependencies and build
 RUN npm install && npm run build
 
-# Optimize Laravel
+# Laravel optimizations
+RUN php artisan config:clear
+RUN php artisan cache:clear
 RUN php artisan config:cache
 RUN php artisan route:cache
 RUN php artisan view:cache
 
-# Expose port for Nginx (if you use separate Nginx container, skip this)
 EXPOSE 9000
 
-# Start PHP-FPM
 CMD ["php-fpm"]
