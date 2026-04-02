@@ -2,8 +2,8 @@ FROM richarvey/nginx-php-fpm:3.1.6
 
 COPY . .
 
-# 1. Install Node.js and NPM inside the container
-RUN apk add --update nodejs npm
+# 1. Install modern Node.js (v20+) and NPM
+RUN apk add --update nodejs-current npm
 
 # Image & Laravel config
 ENV WEBROOT /var/www/html/public
