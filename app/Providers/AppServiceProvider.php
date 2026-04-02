@@ -28,19 +28,25 @@ class AppServiceProvider extends ServiceProvider
      */
 
    
+    public function boot(\Illuminate\Routing\UrlGenerator $url)
+    {
+        // 1. Force HTTPS in production (Render requires this)
+        if (config('app.env') === 'production') {
+            $url->forceScheme('https');
+        }
 
-public function boot()
-{
-    Inertia::share([
-        'auth' => fn () => [
-            'user' => Auth::user(),
-        ],
+        // 2. Share data with Inertia (React)
+        Inertia::share([
+            'auth' => fn () => [
+                'user' => Auth::user(),
+            ],
 
-        'cartCount' => fn () => Auth::check()
-            ? Cart::where('user_id', Auth::id())->sum('quantity')
-            : 0,
-    ]);
-}
+            'cartCount' => fn () => Auth::check()
+                ? Cart::where('user_id', Auth::id())->sum('quantity')
+                : 0,
+        ]);
+    }
+
 
     /**
      * Configure default behaviors for production-ready applications.
