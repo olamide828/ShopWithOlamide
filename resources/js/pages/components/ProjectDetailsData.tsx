@@ -7,19 +7,39 @@ import {
     FaMoneyBill,
     FaRegClipboard,
     FaShare,
+    FaTimes,
 } from 'react-icons/fa';
 import { router } from '@inertiajs/react';
 
 const ProductDetailsData = () => {
-    const { product }: any = usePage().props;
+    const { product, auth }: any = usePage().props;
 
     const [copied, setCopied] = useState(false);
-    const addToCart = (id: number) => {
-        router.post('/cart', {
-            product_id: id,
-        });
-    };
+    const [toast, setToast] = useState<string | null>(null);
+    const [message, setMessage] = useState(false);
 
+    const isLoggedIn = auth.user;
+
+    const [loading, setLoading] = useState(false);
+
+    const addToCart = (id: number) => {
+    if (loading) return;
+    if (!isLoggedIn) {
+        setMessage(true);
+        setTimeout(() => setMessage(false), 3000);
+        return;
+    }
+
+    setLoading(true);
+
+    router.post('/cart', { product_id: id }, {
+        preserveScroll: true,
+        preserveState: false, // ⚠️ change this
+        onSuccess: (page) => {
+            setLoading(false);
+        },
+    });
+};
     const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         const { left, top, width, height } =
@@ -84,6 +104,18 @@ const ProductDetailsData = () => {
                 </div>
             )}
 
+            {toast && (
+                <div className="fixed top-6 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-black px-5 py-2 text-sm text-white shadow-lg">
+                    {toast}
+                </div>
+            )}
+
+            {message && (
+                <div className="fixed top-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-lg bg-black px-5 py-2 text-sm text-white shadow-lg">
+                    <FaTimes /> Log In to add to cart
+                </div>
+            )}
+
             <div className="mx-auto max-w-6xl rounded-2xl bg-white p-6 shadow-sm">
                 <div className="grid gap-10 lg:grid-cols-2">
                     {/* IMAGE SECTION */}
@@ -95,7 +127,7 @@ const ProductDetailsData = () => {
                                 '--y': mousePosition.y,
                             } as React.CSSProperties
                         }
-                        className="group relative h-105 w-full overflow-hidden rounded-xl border bg-gray-100"
+                        className="group relative h-105 w-full overflow-hidden rounded-xl border bg-white"
                     >
                         {/* Base Image */}
                         <img
@@ -160,14 +192,24 @@ const ProductDetailsData = () => {
 
                         {/* Actions */}
                         <div className="flex flex-col gap-3 pt-4">
-                            <button className="flex w-full cursor-pointer flex-row items-center justify-center gap-3 rounded-lg bg-indigo-600 py-3 font-medium text-white transition hover:bg-indigo-700">
+                            {/* <button className="flex w-full cursor-pointer flex-row items-center justify-center gap-3 rounded-lg bg-indigo-600 py-3 font-medium text-white transition hover:bg-indigo-700">
                                 <FaMoneyBill />
                                 Buy Now
-                            </button>
+                            </button> */}
 
-                            <button onClick={addToCart} className="flex w-full cursor-pointer flex-row items-center justify-center gap-3 rounded-lg border py-3 text-gray-700 transition hover:bg-gray-100">
+                            <button
+                                disabled={product.stock_quantity === 0}
+                                onClick={() => addToCart(product.id)}
+                                className={`flex w-full items-center justify-center gap-3 rounded-lg py-3 transition ${
+                                    product.stock_quantity === 0
+                                        ? 'cursor-not-allowed bg-gray-300'
+                                        : 'cursor-pointer border hover:bg-gray-100'
+                                }`}
+                            >
                                 <FaCartPlus />
-                                Add to Cart
+                                {product.stock_quantity === 0
+                                    ? 'Out of Stock'
+                                    : 'Add to Cart'}
                             </button>
 
                             <button

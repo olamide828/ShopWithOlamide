@@ -8,12 +8,25 @@ const ProductPageData = () => {
     const [search, setSearch] = React.useState('');
     const [sortOption, setSortOption] = React.useState('default');
     const [showFilter, setShowFilter] = React.useState(false);
-    const trimmedSearch = search.trimStart().trimEnd();
+    const [selectedCategory, setSelectedCategory] = React.useState('All');
 
-    // Search
-    let filteredProducts = products.filter((product: any) =>
-        product.name.toLowerCase().includes(trimmedSearch.toLowerCase()),
-    );
+    const trimmedSearch = search.trim();
+
+    // Extract unique categories
+    const categories = [
+        'All',
+        ...Array.from(new Set(products.map((p: any) => p.category))),
+    ];
+
+    // Filter by search & category
+    let filteredProducts = products.filter((product: any) => {
+        const matchesSearch = product.name
+            .toLowerCase()
+            .includes(trimmedSearch.toLowerCase());
+        const matchesCategory =
+            selectedCategory === 'All' || product.category === selectedCategory;
+        return matchesSearch && matchesCategory;
+    });
 
     // Sort
     const sortedProducts = [...filteredProducts].sort((a: any, b: any) => {
@@ -47,8 +60,6 @@ const ProductPageData = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Toast */}
-
             <div className="mx-auto max-w-7xl px-4 py-8">
                 {/* Header */}
                 <div className="mb-6">
@@ -60,8 +71,25 @@ const ProductPageData = () => {
                     </p>
                 </div>
 
+                {/* Category Tabs */}
+                <div className="mb-6 flex flex-wrap gap-2">
+                    {categories.map((cat) => (
+                        <button
+                            key={cat}
+                            onClick={() => setSelectedCategory(cat)}
+                            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                                selectedCategory === cat
+                                    ? 'bg-indigo-600 text-white'
+                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                </div>
+
                 {/* Toolbar */}
-                <div className="sticky top-0 z-40 mb-6 flex flex-col gap-3 rounded-xl bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
+                <div className="sticky top-18 z-40 mb-6 flex flex-col gap-3 rounded-xl bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
                     {/* Left - Search */}
                     <div className="relative w-full md:w-80">
                         <FaSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-gray-400" />
@@ -162,7 +190,7 @@ const ProductPageData = () => {
                                     {/* Actions */}
                                     <div className="mt-4 flex gap-2">
                                         <Link
-                                            href={`/products/${product.slug}`}
+                                            href={`/shop/u/products/${product.slug}`}
                                             className="flex-1 rounded-md bg-indigo-600 py-2 text-center text-sm font-medium text-white hover:bg-indigo-700"
                                         >
                                             View
@@ -177,7 +205,7 @@ const ProductPageData = () => {
                                 No products found
                             </p>
                             <p className="text-sm text-gray-500">
-                                Try a different search or filter
+                                Try a different search, filter or category
                             </p>
                         </div>
                     )}

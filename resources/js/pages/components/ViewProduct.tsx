@@ -47,15 +47,15 @@ const ViewProduct = () => {
             data.append("image", imageFile);
         }
 
-        router.post(`/products/${product.id}`, data, {
+        router.post(`/shop/u/products/${product.id}`, data, {
             onSuccess: () => setEditing(false),
         });
     };
 
     const handleDelete = () => {
-        router.delete(`/products/${product.id}`, {
+        router.delete(`/shop/u/products/${product.id}`, {
             onSuccess: () => {
-                router.visit("/dashboard/products");
+                router.visit("/admin/products");
             },
         });
     };
@@ -73,7 +73,7 @@ const ViewProduct = () => {
                     <div className="flex gap-3">
                         <button
                             onClick={() => setEditing(!editing)}
-                            className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
+                            className="flex items-center gap-2 cursor-pointer rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
                         >
                             <FaEdit />
                             {editing ? "Cancel" : "Edit"}
@@ -81,7 +81,7 @@ const ViewProduct = () => {
 
                         <button
                             onClick={() => setDeleteModal(true)}
-                            className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+                            className="flex items-center cursor-pointer gap-2 rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
                         >
                             <FaTrash />
                             Delete
@@ -92,10 +92,10 @@ const ViewProduct = () => {
                 <div className="grid md:grid-cols-2 gap-8 p-6">
                     
                     {/* Image */}
-                    <div className="relative group overflow-hidden rounded-xl border bg-gray-100">
+                    <div className="relative h-105 group overflow-hidden rounded-xl border bg-white">
                         <img
                             src={imagePreview}
-                            className="w-full h-[400px] object-contain transition-transform duration-300 group-hover:scale-110"
+                            className="w-full h-full object-contain  cursor-zoom-in transition-transform duration-300 group-hover:scale-110"
                         />
 
                         {editing && (
@@ -141,7 +141,7 @@ const ViewProduct = () => {
                                     className="w-full border rounded-lg px-4 py-2"
                                 />
 
-                                <button className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">
+                                <button className="w-full cursor-pointer bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">
                                     Save Changes
                                 </button>
                             </form>
@@ -161,6 +161,13 @@ const ViewProduct = () => {
 
                                 <div className="text-sm text-gray-600">
                                     Stock: {product.stock_quantity}
+                                </div>
+
+                                <div className="mt-10">
+                                    <button
+                                    className="bg-green-600 p-2 rounded-md cursor-pointer hover:bg-green-700/80 w-[100px]"
+                                    onClick={() => router.get("/admin/products")}
+                                    >Done</button>
                                 </div>
                             </>
                         )}
@@ -187,14 +194,14 @@ const ViewProduct = () => {
                         <div className="mt-6 flex justify-end gap-3">
                             <button
                                 onClick={() => setDeleteModal(false)}
-                                className="px-4 py-2 bg-gray-200 rounded-lg"
+                                className="px-4 cursor-pointer py-2 bg-gray-200 rounded-lg"
                             >
                                 Cancel
                             </button>
 
                             <button
                                 onClick={handleDelete}
-                                className="px-4 py-2 bg-red-600 text-white rounded-lg"
+                                className="px-4 py-2 cursor-pointer bg-red-600 text-white rounded-lg"
                             >
                                 Delete
                             </button>

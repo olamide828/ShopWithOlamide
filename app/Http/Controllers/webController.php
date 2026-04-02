@@ -15,8 +15,13 @@ class webController extends Controller
     {
         $products = Product::take(10)->get();
         return Inertia::render('Home/HomePage', [
-            "products"=>$products,
+            "products" => $products,
         ]);
+    }
+
+    public function about()
+    {
+        return Inertia::render('About');
     }
 
     public function login()
@@ -50,34 +55,67 @@ class webController extends Controller
             'fullName' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
+            'role' => 'nullable|string' // Allow role to be passed
         ]);
 
         User::create([
             'name' => $data['fullName'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'role' => $request->role ?? 'user', // Set default if not provided
         ]);
 
-        return back()->with('successMessage', $data);
-
+        // Redirect to login with a success message so the user knows it worked
+        return redirect('/login')->with('success', 'Account created! Please log in.');
     }
 
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required|string|min:8',
         ]);
 
-        if (!Auth::attempt($data)) {
-            return back()->with("error", "Invalid Credentials");
+        // Determine intended login type
+        $loginRole = $request->input('role', 'user'); // default 'user', can be 'admin'
+
+        if (!Auth::attempt($credentials)) {
+            return back()->withErrors(['email' => 'Invalid credentials']);
         }
 
         $request->session()->regenerate();
 
-        return Inertia::location('/dashboard');
+        $user = Auth::user();
 
+        // Strict role check
+        if ($loginRole === 'admin' && !$user->isAdmin()) {
+            Auth::logout();
+            return back()->withErrors(['email' => 'Invalid Admin Account']);
+        }
+
+        if ($loginRole === 'user' && $user->isAdmin()) {
+            Auth::logout();
+            return back()->withErrors(['email' => 'Invalid User Account']);
+        }
+
+        // Redirect based on role
+        if ($user->isAdmin()) {
+            return redirect('/admin');
+        }
+
+        return redirect('/dashboard');
+    }
+    public function contact()
+    {
+        return Inertia::render('ContactPage');
+    }
+    public function terms()
+    {
+        return Inertia::render('Terms');
     }
 
-
+    public function privacyPolicy()
+    {
+        return Inertia::render('PrivacyPolicy');
+    }
 }

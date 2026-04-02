@@ -6,8 +6,6 @@ import { usePage, Link, router } from '@inertiajs/react';
 const Products = () => {
     const [dialogueBox, setDialogueBox] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
-
-    // ✅ NEW: delete modal state
     const [deleteModal, setDeleteModal] = useState(false);
     const [productToDelete, setProductToDelete] = useState<any>(null);
 
@@ -16,13 +14,15 @@ const Products = () => {
         price: '',
         stock_quantity: '',
         description: '',
+        category: '', // ✅ New: category input
     });
 
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [imageFile, setImageFile] = useState<any>(null);
 
-    const { products } = usePage().props;
+    const { products }: any = usePage().props;
 
+    const [selectedCategory, setSelectedCategory] = useState('All'); // ✅ For filtering
     const showDialogueBox = () => {
         setSelectedProduct(null);
         setDialogueBox(true);
@@ -33,22 +33,18 @@ const Products = () => {
         setDialogueBox(true);
     };
 
-    // ✅ Open custom delete modal
     const confirmDelete = (product: any) => {
         setProductToDelete(product);
         setDeleteModal(true);
     };
 
-    // ✅ Execute delete
     const handleDeleteProduct = () => {
         if (!productToDelete) return;
-
         router.delete(`/products/${productToDelete.id}`, {
             onSuccess: () => {
                 router.reload({ only: ['products'] });
             },
         });
-
         setDeleteModal(false);
         setProductToDelete(null);
     };
@@ -69,8 +65,8 @@ const Products = () => {
                 price: selectedProduct.price || '',
                 stock_quantity: selectedProduct.stock_quantity || '',
                 description: selectedProduct.description || '',
+                category: selectedProduct.category || '', // ✅ Set category for edit
             });
-
             setImagePreview(selectedProduct.image || null);
         } else {
             setFormData({
@@ -78,6 +74,7 @@ const Products = () => {
                 price: '',
                 stock_quantity: '',
                 description: '',
+                category: '', // ✅ Reset category
             });
             setImagePreview(null);
         }
@@ -106,6 +103,7 @@ const Products = () => {
         data.append('price', formData.price);
         data.append('stock_quantity', formData.stock_quantity);
         data.append('description', formData.description);
+        data.append('category', formData.category); // ✅ Submit category
 
         if (imageFile) {
             data.append('image', imageFile);
@@ -113,13 +111,13 @@ const Products = () => {
 
         if (selectedProduct) {
             data.append('_method', 'PUT');
-            router.post(`/products/${selectedProduct.id}`, data, {
+            router.post(`/shop/u/products/${selectedProduct.id}`, data, {
                 onSuccess: () => {
                     router.reload({ only: ['products', 'stats'] });
                 },
             });
         } else {
-            router.post('/products', data, {
+            router.post('/shop/u/products/', data, {
                 onSuccess: () => {
                     router.reload({ only: ['products', 'stats'] });
                 },
@@ -129,11 +127,16 @@ const Products = () => {
         closeDialogueBox();
     };
 
+    // ✅ Extract categories from existing products
+    const categories = ['All', ...Array.from(new Set(products.data.map((p: any) => p.category || 'Uncategorized')))];
+
+    const filteredProducts = selectedCategory === 'All'
+        ? products.data
+        : products.data.filter((p: any) => p.category === selectedCategory);
+
     const formatTimeAgo = (dateString: string) => {
         const date = new Date(dateString);
-        const seconds = Math.floor(
-            (new Date().getTime() - date.getTime()) / 1000,
-        );
+        const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
 
         let interval = seconds / 31536000;
         if (interval >= 1) {
@@ -174,26 +177,38 @@ const Products = () => {
             {/* Header */}
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-800">
-                        Product Management
-                    </h1>
-                    <p className="text-gray-500">
-                        Manage your store products efficiently
-                    </p>
+                    <h1 className="text-3xl font-bold text-gray-800">Product Management</h1>
+                    <p className="text-gray-500">Manage your store products efficiently</p>
                 </div>
 
                 <button
                     onClick={showDialogueBox}
                     className="flex cursor-pointer items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-white shadow transition hover:bg-indigo-700"
                 >
-                    <FaBox />
-                    New Listing
+                    <FaBox /> New Listing
                 </button>
+            </div>
+
+            {/* ✅ Category Tabs */}
+            <div className="flex flex-wrap gap-2">
+                {categories.map((cat) => (
+                    <button
+                        key={cat}
+                        onClick={() => setSelectedCategory(cat)}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                            selectedCategory === cat
+                                ? 'bg-indigo-600 text-white'
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
+                    >
+                        {cat}
+                    </button>
+                ))}
             </div>
 
             {/* Products Grid */}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {products.data.map((product: any) => (
+                {filteredProducts.map((product: any) => (
                     <div
                         key={product.id}
                         className="relative flex flex-col justify-between overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:shadow-xl"
@@ -209,25 +224,14 @@ const Products = () => {
 
                         {/* Content */}
                         <div className="flex flex-1 flex-col space-y-2 p-4">
-                            <h2 className="text-lg font-semibold text-gray-800">
-                                {product.name}
-                            </h2>
-
-                            <p className="text-xl font-bold text-indigo-600">
-                                $ {product.price}
-                            </p>
-
+                            <h2 className="text-lg font-semibold text-gray-800">{product.name}</h2>
+                            <p className="text-xl font-bold text-indigo-600">$ {product.price}</p>
                             <div className="flex justify-between text-sm text-gray-500">
                                 <span>Stock: {product.stock_quantity}</span>
                                 <span>{formatTimeAgo(product.created_at)}</span>
                             </div>
-
-                            {/* ✅ Make button stick to bottom */}
                             <div className="mt-auto">
-                                <Link
-                                    href={`/dashboard/products/${product.slug}`}
-                                    className="cursor-pointer"
-                                >
+                                <Link href={`/admin/products/${product.slug}`}>
                                     <button className="mt-3 w-full cursor-pointer rounded-lg bg-gray-900 py-2 text-white transition hover:bg-black">
                                         View Product
                                     </button>
@@ -235,15 +239,12 @@ const Products = () => {
                             </div>
                         </div>
 
-                        {/* Actions */}
                         <button
                             onClick={() => handleEditProduct(product)}
                             className="absolute top-3 right-3 rounded-full bg-white p-2 shadow hover:bg-gray-100"
                         >
                             <FaEdit />
                         </button>
-
-                        {/* Delete */}
                     </div>
                 ))}
             </div>
@@ -264,7 +265,7 @@ const Products = () => {
                 ))}
             </div>
 
-            {/* Dialogue Box */}
+            {/* Dialogue Box (Create/Edit Product) */}
             {dialogueBox && (
                 <section
                     onClick={closeDialogueBox}
@@ -275,135 +276,71 @@ const Products = () => {
                         className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl"
                     >
                         <h2 className="mb-4 text-center text-2xl font-bold">
-                            {selectedProduct
-                                ? 'Edit Product'
-                                : 'Create Product'}
+                            {selectedProduct ? 'Edit Product' : 'Create Product'}
                         </h2>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             {/* Image Upload */}
                             <div className="space-y-2">
-                                <input
-                                    type="file"
-                                    id="image"
-                                    accept="image/*"
-                                    onChange={handleImageChange}
-                                    className="hidden"
-                                />
-
+                                <input type="file" id="image" accept="image/*" onChange={handleImageChange} className="hidden" />
                                 <div className="relative flex h-40 items-center justify-center overflow-hidden rounded-xl border-2 border-dashed bg-gray-50">
                                     {imagePreview ? (
                                         <>
-                                            <img
-                                                src={imagePreview}
-                                                className="h-full w-full object-contain"
-                                            />
-
-                                            <button
-                                                type="button"
-                                                onClick={removeImage}
-                                                className="absolute top-2 right-2 rounded-full bg-black/70 p-2 text-white hover:scale-110"
-                                            >
+                                            <img src={imagePreview} className="h-full w-full object-contain" />
+                                            <button type="button" onClick={removeImage} className="absolute top-2 right-2 rounded-full bg-black/70 p-2 text-white hover:scale-110">
                                                 <FaTimes size={10} />
                                             </button>
                                         </>
                                     ) : (
-                                        <label
-                                            htmlFor="image"
-                                            className="flex cursor-pointer flex-col items-center gap-2 text-gray-500"
-                                        >
-                                            <FaHourglass />
-                                            Upload Image
+                                        <label htmlFor="image" className="flex cursor-pointer flex-col items-center gap-2 text-gray-500">
+                                            <FaHourglass /> Upload Image
                                         </label>
                                     )}
                                 </div>
-
                                 {imagePreview && (
-                                    <label
-                                        htmlFor="image"
-                                        className="block cursor-pointer text-center text-sm text-indigo-600 hover:underline"
-                                    >
+                                    <label htmlFor="image" className="block cursor-pointer text-center text-sm text-indigo-600 hover:underline">
                                         Update Image
                                     </label>
                                 )}
                             </div>
 
                             {/* Inputs */}
-                            <input
-                                name="name"
-                                value={formData.name}
-                                onChange={handleChange}
-                                placeholder="Product Name"
-                                className="w-full rounded-lg border px-4 py-2 focus:ring-2 focus:ring-indigo-500"
-                            />
-
-                            <input
-                                name="price"
-                                value={formData.price}
-                                onChange={handleChange}
-                                type="number"
-                                placeholder="Price"
-                                className="w-full rounded-lg border px-4 py-2 focus:ring-2 focus:ring-indigo-500"
-                            />
-
-                            <input
-                                name="stock_quantity"
-                                value={formData.stock_quantity}
-                                onChange={handleChange}
-                                type="number"
-                                placeholder="Stock Quantity"
-                                className="w-full rounded-lg border px-4 py-2 focus:ring-2 focus:ring-indigo-500"
-                            />
-
-                            <textarea
-                                name="description"
-                                value={formData.description}
-                                onChange={handleChange}
-                                placeholder="Description"
-                                className="w-full rounded-lg border px-4 py-2 focus:ring-2 focus:ring-indigo-500"
-                            />
+                            <input name="name" value={formData.name} onChange={handleChange} placeholder="Product Name" className="w-full rounded-lg border px-4 py-2 focus:ring-2 focus:ring-indigo-500" />
+                            <input name="price" value={formData.price} onChange={handleChange} type="number" placeholder="Price" className="w-full rounded-lg border px-4 py-2 focus:ring-2 focus:ring-indigo-500" />
+                            <input name="stock_quantity" value={formData.stock_quantity} onChange={handleChange} type="number" placeholder="Stock Quantity" className="w-full rounded-lg border px-4 py-2 focus:ring-2 focus:ring-indigo-500" />
+                            {/* ✅ Category Select */}
+                            <select name="category" value={formData.category} onChange={handleChange} className="w-full rounded-lg border px-4 py-2 focus:ring-2 focus:ring-indigo-500">
+                                <option value="">Select Category</option>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Clothing">Clothing</option>
+                                <option value="Home & Garden">Home & Garden</option>
+                                <option value="Sports">Sports</option>
+                                <option value="Toys">Toys</option>
+                                <option value="Uncategorized">Uncategorized</option>
+                            </select>
+                            <textarea name="description" value={formData.description} onChange={handleChange} placeholder="Description" className="w-full rounded-lg border px-4 py-2 focus:ring-2 focus:ring-indigo-500" />
 
                             <button className="w-full cursor-pointer rounded-lg bg-indigo-600 py-2 text-white transition hover:bg-indigo-700">
-                                {selectedProduct
-                                    ? 'Update Product'
-                                    : 'Create Product'}
+                                {selectedProduct ? 'Update Product' : 'Create Product'}
                             </button>
                         </form>
                     </div>
                 </section>
             )}
 
-            {/* ✅ DELETE CONFIRMATION MODAL */}
+            {/* DELETE CONFIRMATION MODAL */}
             {deleteModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
                     <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-                        <h2 className="text-xl font-bold text-gray-800">
-                            Delete Product
-                        </h2>
-
+                        <h2 className="text-xl font-bold text-gray-800">Delete Product</h2>
                         <p className="mt-2 text-gray-600">
-                            Are you sure you want to delete{' '}
-                            <span className="font-semibold">
-                                {productToDelete?.name}
-                            </span>
-                            ?
+                            Are you sure you want to delete <span className="font-semibold">{productToDelete?.name}</span>?
                         </p>
-
                         <div className="mt-6 flex justify-end gap-3">
-                            <button
-                                onClick={() => {
-                                    setDeleteModal(false);
-                                    setProductToDelete(null);
-                                }}
-                                className="cursor-pointer rounded-lg bg-gray-200 px-4 py-2 hover:bg-gray-300"
-                            >
+                            <button onClick={() => { setDeleteModal(false); setProductToDelete(null); }} className="cursor-pointer rounded-lg bg-gray-200 px-4 py-2 hover:bg-gray-300">
                                 Cancel
                             </button>
-
-                            <button
-                                onClick={handleDeleteProduct}
-                                className="cursor-pointer rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
-                            >
+                            <button onClick={handleDeleteProduct} className="cursor-pointer rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700">
                                 Yes, Delete
                             </button>
                         </div>

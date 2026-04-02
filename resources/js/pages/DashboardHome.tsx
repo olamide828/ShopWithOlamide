@@ -1,137 +1,154 @@
 import React from 'react';
+import {
+  FaBox,
+  FaUsers,
+  FaChartLine,
+  FaPlus,
+  FaClock,
+  FaBan,
+  FaTrash,
+} from 'react-icons/fa';
+import { Link } from '@inertiajs/react';
 import Dashboard from './Home/Dashboard';
-import { FaBox, FaUsers, FaChartLine, FaPlus } from 'react-icons/fa';
-import { Link, usePage } from '@inertiajs/react';
 
-const DashboardHome = () => {
-    const { stats } = usePage().props;
-
-    const statsArray = [
-        {
-            title: 'Total Products',
-            value: stats.products,
-            icon: <FaBox />,
-            color: 'bg-indigo-600',
-        },
-        {
-            title: 'Total Users',
-            value: stats.users,
-            icon: <FaUsers />,
-            color: 'bg-green-600',
-        },
-        {
-            title: 'Sales',
-            value: stats.sales,
-            icon: <FaChartLine />,
-            color: 'bg-yellow-500',
-        },
-    ];
-
-    const activities = [
-        { text: 'New product added', time: '2 mins ago' },
-        { text: 'User registered', time: '10 mins ago' },
-        { text: 'Product updated', time: '1 hour ago' },
-        { text: 'New order placed', time: '3 hours ago' },
-    ];
-
-    return (
-        <div className="space-y-8">
-            {/* Header */}
-            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold">Dashboard</h1>
-                    <p className="text-gray-500">
-                        Overview of your store performance
-                    </p>
-                </div>
-
-                <Link
-                    href="/dashboard/products"
-                    className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
-                >
-                    <FaPlus />
-                    Add Product
-                </Link>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {statsArray.map((stat, index) => (
-                    <div
-                        key={index}
-                        className="flex items-center justify-between rounded-2xl bg-white p-6 shadow-sm transition hover:shadow-md"
-                    >
-                        <div>
-                            <p className="text-gray-500">{stat.title}</p>
-                            <h2 className="text-2xl font-bold">{stat.value}</h2>
-                        </div>
-
-                        <div
-                            className={`flex h-12 w-12 items-center justify-center rounded-xl text-white ${stat.color}`}
-                        >
-                            {stat.icon}
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* Main Content */}
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                {/* Recent Activity */}
-                <div className="rounded-2xl bg-white p-6 shadow-sm lg:col-span-2">
-                    <h2 className="mb-4 text-xl font-semibold">
-                        Recent Activity
-                    </h2>
-
-                    <div className="space-y-4">
-                        {activities.map((activity, index) => (
-                            <div
-                                key={index}
-                                className="flex items-center justify-between border-b pb-3 last:border-none"
-                            >
-                                <p className="text-gray-700">{activity.text}</p>
-                                <span className="text-sm text-gray-400">
-                                    {activity.time}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Quick Actions */}
-                <div className="rounded-2xl bg-white p-6 shadow-sm">
-                    <h2 className="mb-4 text-xl font-semibold">
-                        Quick Actions
-                    </h2>
-
-                    <div className="flex flex-col gap-3">
-                        <Link
-                            href="/dashboard/products"
-                            className="rounded-lg bg-indigo-600 px-4 py-3 text-center text-white hover:bg-indigo-700"
-                        >
-                            Manage Products
-                        </Link>
-
-                        <Link
-                            href="#"
-                            className="rounded-lg bg-gray-100 px-4 py-3 text-center hover:bg-gray-200"
-                        >
-                            View Orders
-                        </Link>
-
-                        <Link
-                            href="#"
-                            className="rounded-lg bg-gray-100 px-4 py-3 text-center hover:bg-gray-200"
-                        >
-                            Manage Users
-                        </Link>
-                    </div>
-                </div>
-            </div>
+const DashboardHome = ({ stats, activities, users, deleteUser, toggleBan }) => {
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <header className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Admin Overview</h1>
+          <p className="text-gray-500">Real-time metrics for your marketplace.</p>
         </div>
-    );
+        <Link
+          href="/admin/products"
+          className="flex w-fit items-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 font-semibold text-white shadow-md transition hover:bg-indigo-700"
+        >
+          <FaPlus /> Add Product
+        </Link>
+      </header>
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <AdminStatCard
+          label="Total Products"
+          value={stats.products}
+          icon={<FaBox className="text-blue-600" />}
+          color="bg-blue-50"
+        />
+        <AdminStatCard
+          label="Registered Users"
+          value={stats.users}
+          icon={<FaUsers className="text-purple-600" />}
+          color="bg-purple-50"
+        />
+        <AdminStatCard
+          label="Monthly Sales"
+          value={`$${stats.sales}`}
+          icon={<FaChartLine className="text-green-600" />}
+          color="bg-green-50"
+        />
+      </div>
+
+      {/* Recent Activity + Quick Management */}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        {/* Recent Activity */}
+        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm lg:col-span-2">
+          <h2 className="mb-6 text-lg font-bold">Recent Activity</h2>
+          <div className="space-y-6">
+            {activities.map((activity, idx) => (
+              <div key={idx} className="flex items-start gap-4">
+                <div className="mt-1 rounded-lg bg-gray-50 p-2 text-xs">{activity.icon}</div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-800">{activity.text}</p>
+                  <p className="flex items-center gap-1 text-xs text-gray-400">
+                    <FaClock className="text-[10px]" /> {activity.time}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Quick Management */}
+        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+          <h2 className="mb-4 text-lg font-bold">Quick Management</h2>
+          <div className="space-y-3">
+            <QuickLink href="/admin/products" label="Inventory Report" />
+            <QuickLink href="/admin/users" label="User Permissions" />
+            <QuickLink href="#" label="Sales Analytics" />
+            <QuickLink href="#" label="System Settings" />
+          </div>
+        </div>
+      </div>
+
+      {/* Manage Users */}
+      <div className="mt-8 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <h2 className="mb-4 text-lg font-bold">Manage Users</h2>
+        {users.length === 0 ? (
+          <p className="text-gray-400 italic">No users found.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left">
+              <thead>
+                <tr className="border-b border-gray-100">
+                  <th className="px-4 py-2 font-semibold text-gray-500">Name</th>
+                  <th className="px-4 py-2 font-semibold text-gray-500">Email</th>
+                  <th className="px-4 py-2 font-semibold text-gray-500">Status</th>
+                  <th className="px-4 py-2 font-semibold text-gray-500">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {users.map((user) => (
+                  <tr key={user.id}>
+                    <td className="px-4 py-3">{user.name}</td>
+                    <td className="px-4 py-3">{user.email}</td>
+                    <td className="px-4 py-3">{user.is_banned ? 'Banned' : 'Active'}</td>
+                    <td className="flex gap-2 px-4 py-3 flex-wrap">
+                      <button
+                        onClick={() => toggleBan(user)}
+                        className="flex items-center gap-1 rounded bg-yellow-50 px-3 py-1 text-yellow-700 hover:bg-yellow-100"
+                      >
+                        <FaBan /> {user.is_banned ? 'Unban' : 'Ban'}
+                      </button>
+                      <button
+                        onClick={() => deleteUser(user.id)}
+                        className="flex items-center gap-1 rounded bg-red-50 px-3 py-1 text-red-700 hover:bg-red-100"
+                      >
+                        <FaTrash /> Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
+const AdminStatCard = ({ label, value, icon, color }) => (
+  <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+    <div className={`rounded-xl p-4 ${color} text-2xl`}>{icon}</div>
+    <div>
+      <p className="text-sm font-medium tracking-wider text-gray-500 uppercase">{label}</p>
+      <h3 className="text-2xl font-bold text-gray-900">{value}</h3>
+    </div>
+  </div>
+);
+
+const QuickLink = ({ href, label }) => (
+  <Link
+    href={href}
+    className="block w-full rounded-xl border border-gray-50 bg-gray-50/50 px-4 py-3 text-left text-sm font-semibold text-gray-700 transition hover:bg-indigo-50 hover:text-indigo-600"
+  >
+    {label}
+  </Link>
+);
+
+// Wrap page in Dashboard layout
 DashboardHome.layout = (page: any) => <Dashboard>{page}</Dashboard>;
 
 export default DashboardHome;

@@ -18,3 +18,7 @@
 .group:hover img {
     transform: scale(1.5);
 }
+
+.no-scroll {
+    overflow: hidden;
+}
