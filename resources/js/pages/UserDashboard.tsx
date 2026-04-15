@@ -9,24 +9,33 @@ import {
     FaSignOutAlt,
     FaChevronRight,
     FaBoxOpen,
+    FaRegEye,
+    FaRegEyeSlash,
 } from 'react-icons/fa';
 import { useForm } from '@inertiajs/react';
 
 const UserDashboard = ({ children }: PropsWithChildren) => {
-    const { auth, carts, total, orders = [] } = usePage().props;
+    const {
+        auth,
+        carts = [],
+        total = 0,
+        orders = [],
+        wishlist = [],
+    } = usePage().props;
     const user = auth.user;
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const logout = () => router.post('/logout');
+    
 
     return (
         <div className="flex min-h-screen bg-gray-50">
             {/* --- MOBILE TOGGLE --- */}
-            <div className="md:hidden fixed top-4 left-4 z-50">
+            <div className="fixed top-4 left-4 z-50 md:hidden">
                 <button
                     onClick={() => setSidebarOpen(!sidebarOpen)}
-                    className="p-2 rounded-md bg-white shadow"
+                    className="rounded-md bg-white p-2 shadow"
                 >
                     {sidebarOpen ? <FiX size={24} /> : <FiMenu size={24} />}
                 </button>
@@ -34,7 +43,7 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
 
             {/* --- SIDEBAR --- */}
             <aside
-                className={`fixed top-0 left-0 h-full w-64 flex-col border-r border-gray-200 bg-white transform transition-transform duration-300 md:flex md:translate-x-0 ${
+                className={`fixed top-0 left-0 h-full w-64 transform flex-col border-r border-gray-200 bg-white transition-transform duration-300 md:flex md:translate-x-0 ${
                     sidebarOpen ? 'translate-x-0' : '-translate-x-full'
                 }`}
             >
@@ -48,18 +57,46 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                 </div>
 
                 <nav className="flex-1 space-y-1 px-4">
-                    <NavItem href="/dashboard" icon={<FaUser />} label="Account Overview" active />
-                    <NavItem href="/shop/u/products" icon={<FaShoppingBag />} label="Continue Shopping" />
-                    <NavItem href="/cart" icon={<FaShoppingCart />} label="My Cart" badge={carts.length} />
-                    <NavItem href="/orders" icon={<FaBoxOpen />} label="My Orders" />
-                    <NavItem href="/wishlist" icon={<FaHeart />} label="Wishlist" />
-                    <NavItem href="#manage-account" icon={<FiSettings />} label="Manage Account" />
+                    <NavItem
+                        href="/dashboard"
+                        icon={<FaUser />}
+                        label="Account Overview"
+                        active
+                    />
+                    <NavItem
+                        href="/shop/u/products"
+                        icon={<FaShoppingBag />}
+                        label="Continue Shopping"
+                    />
+                    <NavItem
+                        href="/cart"
+                        icon={<FaShoppingCart />}
+                        label="My Cart"
+                        badge={carts.length}
+                    />
+                    <NavItem
+                        href="/orders"
+                        icon={<FaBoxOpen />}
+                        label="My Orders"
+                    />
+                    <NavItem
+                        href="/wishlist"
+                        icon={<FaHeart />}
+                        label="Wishlist"
+                        badge={wishlist.length}
+                    />
+                    <NavItem
+                        href="/manage-account"
+                        icon={<FiSettings />}
+                        label="Manage Account"
+                    />
+                    {/* Removed Manage Account NavItem */}
                 </nav>
 
                 <div className="border-t border-gray-100 p-4">
                     <button
                         onClick={logout}
-                        className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-100"
+                        className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-100"
                     >
                         <FaSignOutAlt /> Sign Out
                     </button>
@@ -71,7 +108,7 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                 {/* Header */}
                 <header className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
                     <div>
-                        <h1 className="text-2xl pt-10 lg:pt-0 font-bold text-gray-900">
+                        <h1 className="pt-10 text-2xl font-bold text-gray-900 lg:pt-0">
                             Welcome back, {user.name}!
                         </h1>
                         <p className="text-gray-500">
@@ -111,7 +148,7 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                 {/* Dashboard Layout */}
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                     {/* Recent Orders Table */}
-                    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm lg:col-span-2 overflow-x-auto">
+                    <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white p-6 shadow-sm lg:col-span-2">
                         <div className="mb-6 flex items-center justify-between">
                             <h2 className="text-lg font-bold">Recent Orders</h2>
                             <Link
@@ -129,27 +166,53 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                                 </p>
                             </div>
                         ) : (
-                            <table className="w-full text-left min-w-[500px]">
+                            <table className="w-full min-w-[500px] text-left">
                                 <thead>
                                     <tr className="border-b border-gray-50 text-xs tracking-wider text-gray-400 uppercase">
-                                        <th className="pb-4 font-semibold">Order ID</th>
-                                        <th className="pb-4 font-semibold">Status</th>
-                                        <th className="pb-4 text-right font-semibold">Total</th>
+                                        <th className="pb-4 font-semibold">
+                                            Order ID
+                                        </th>
+                                        <th className="pb-4 font-semibold">
+                                            Status
+                                        </th>
+                                        <th className="pb-4 text-right font-semibold">
+                                            Date
+                                        </th>
+                                        <th className="pb-4 text-right font-semibold">
+                                            Time
+                                        </th>
+                                        <th className="pb-4 text-right font-semibold">
+                                            Total
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50">
-                                    {orders.map((order) => (
+                                    {orders.map((order: any) => (
                                         <tr
                                             key={order.id}
                                             className="group transition-colors hover:bg-gray-50"
                                         >
-                                            <td className="py-4 font-medium text-gray-900">#ORD-{order.id}</td>
+                                            <td className="py-4 font-medium text-gray-900">
+                                                #ORD-{order.id}
+                                            </td>
                                             <td className="py-4">
                                                 <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
                                                     Delivered
                                                 </span>
                                             </td>
-                                            <td className="py-4 text-right font-bold">${order.total}</td>
+                                            <td className="py-4 text-right text-sm font-bold">
+                                                {new Date(
+                                                    order.created_at,
+                                                ).toLocaleDateString()}
+                                            </td>
+                                            <td className="py-4 text-right text-sm font-bold">
+                                                {new Date(
+                                                    order.created_at,
+                                                ).toLocaleTimeString()}
+                                            </td>
+                                            <td className="py-4 text-right font-bold">
+                                                ${order.total}
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -175,6 +238,11 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                                             ${item.price} x {item.quantity}
                                         </p>
                                     </div>
+                                    <p className="text-sm text-gray-600">
+                                        {new Date(
+                                            item.created_at,
+                                        ).toLocaleDateString()}
+                                    </p>
                                 </div>
                             ))}
 
@@ -186,24 +254,77 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
 
                             <div className="border-t border-gray-100 pt-4">
                                 <div className="mb-4 flex justify-between">
-                                    <span className="text-gray-500">Subtotal</span>
-                                    <span className="font-bold text-gray-900">${total}</span>
+                                    <span className="text-gray-500">
+                                        Subtotal
+                                    </span>
+                                    <span className="font-bold text-gray-900">
+                                        ${total}
+                                    </span>
                                 </div>
-                                <Link
-                                    href="/cart"
-                                    className="block w-full rounded-xl bg-gray-900 py-3 text-center font-bold text-white hover:bg-black"
+                                <button
+                                    disabled={carts.length < 1}
+                                    onClick={() => router.get('/cart')}
+                                    className={`block w-full rounded-xl  py-3 text-center font-bold   ${carts.length < 1 ? 'cursor-not-allowed bg-gray-100 text-black' : 'cursor-pointer bg-gray-900 text-white hover:bg-black'}`}
                                 >
                                     Review & Checkout
-                                </Link>
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Manage Account Section */}
-                <div id="manage-account" className="mt-8 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-                    <h2 className="mb-4 text-lg font-bold">Manage Account</h2>
-                    <ManageAccountForm user={user} />
+                {/* WishList Preview */}
+                <div className="mt-8 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm lg:col-span-1">
+                    <div className="mb-6 flex items-center justify-between">
+                        <h2 className="text-lg font-bold">Wishlist</h2>
+                        <Link
+                            href="/wishlist"
+                            className="text-sm font-semibold text-pink-600 hover:underline"
+                        >
+                            View All
+                        </Link>
+                    </div>
+
+                    {wishlist.length === 0 ? (
+                        <p className="text-sm text-gray-400 italic">
+                            No wishlist items yet.
+                        </p>
+                    ) : (
+                        <div className="space-y-4">
+                            {wishlist.map((item: any) => (
+                                <div
+                                    key={item.id}
+                                    className="flex items-center gap-4 rounded-xl border border-gray-100 p-3"
+                                >
+                                    <img
+                                        src={item.product.image}
+                                        alt={item.product.name}
+                                        className="h-14 w-14 rounded-lg object-cover"
+                                    />
+
+                                    <div className="flex-1">
+                                        <p className="line-clamp-1 text-sm font-semibold text-gray-800">
+                                            {item.product.name}
+                                        </p>
+                                        <p className="text-sm font-bold text-gray-900">
+                                            ${item.product.price}
+                                        </p>
+                                    </div>
+
+                                    <button
+                                        onClick={() =>
+                                            router.post(`/cart`, {
+                                                product_id: item.product.id,
+                                            })
+                                        }
+                                        className="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-700"
+                                    >
+                                        Add
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Render any extra children passed */}
@@ -218,12 +339,18 @@ const NavItem = ({ href, icon, label, active = false, badge = 0 }) => (
     <Link
         href={href}
         className={`flex items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
-            active ? 'bg-indigo-50 text-indigo-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+            active
+                ? 'bg-indigo-50 text-indigo-600'
+                : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
         }`}
     >
-        <div className="flex items-center gap-3">{icon} {label}</div>
+        <div className="flex items-center gap-3">
+            {icon} {label}
+        </div>
         {badge > 0 && (
-            <span className="rounded-full bg-indigo-600 px-2 py-0.5 text-[10px] text-white">{badge}</span>
+            <span className="rounded-full bg-indigo-600 px-2 py-0.5 text-[10px] text-white">
+                {badge}
+            </span>
         )}
     </Link>
 );
@@ -238,77 +365,5 @@ const StatCard = ({ label, value, icon, color }) => (
         </div>
     </div>
 );
-
-// --- MANAGE ACCOUNT FORM ---
-const ManageAccountForm = ({ user }) => {
-    const { data, setData, put, processing, errors } = useForm({
-        name: user.name,
-        email: user.email,
-        password: '',
-        password_confirmation: '',
-    });
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        put('/user/update', {
-            onSuccess: () => alert('Account updated successfully!'),
-        });
-    };
-
-    return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-                <label className="block text-sm font-medium text-gray-700">Full Name</label>
-                <input
-                    type="text"
-                    value={data.name}
-                    onChange={(e) => setData('name', e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2"
-                />
-                {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
-            </div>
-
-            <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
-                <input
-                    type="email"
-                    value={data.email}
-                    onChange={(e) => setData('email', e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2"
-                />
-                {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
-            </div>
-
-            <div>
-                <label className="block text-sm font-medium text-gray-700">New Password</label>
-                <input
-                    type="password"
-                    value={data.password}
-                    onChange={(e) => setData('password', e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2"
-                />
-                {errors.password && <p className="text-xs text-red-500">{errors.password}</p>}
-            </div>
-
-            <div>
-                <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
-                <input
-                    type="password"
-                    value={data.password_confirmation}
-                    onChange={(e) => setData('password_confirmation', e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2"
-                />
-            </div>
-
-            <button
-                type="submit"
-                disabled={processing}
-                className="rounded-lg bg-indigo-600 px-6 py-2 text-white font-semibold hover:bg-indigo-700 disabled:opacity-50"
-            >
-                Update Account
-            </button>
-        </form>
-    );
-};
 
 export default UserDashboard;

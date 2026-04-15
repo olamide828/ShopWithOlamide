@@ -90,12 +90,12 @@ class webController extends Controller
         // Strict role check
         if ($loginRole === 'admin' && !$user->isAdmin()) {
             Auth::logout();
-            return back()->withErrors(['email' => 'Invalid Admin Account']);
+            return back()->withErrors(['email' => 'Invalid credentials']);
         }
 
         if ($loginRole === 'user' && $user->isAdmin()) {
             Auth::logout();
-            return back()->withErrors(['email' => 'Invalid User Account']);
+            return back()->withErrors(['email' => 'Invalid credentials']);
         }
 
         // Redirect based on role
@@ -117,5 +117,10 @@ class webController extends Controller
     public function privacyPolicy()
     {
         return Inertia::render('PrivacyPolicy');
+    }
+
+    public function manageAccount()
+    {
+        return Inertia::render('ManageAccountForm');
     }
 }

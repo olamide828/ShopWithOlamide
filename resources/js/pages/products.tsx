@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import Dashboard from './Home/Dashboard';
+// import Dashboard from './Home/Dashboard';
 import { FaBox, FaEdit, FaHourglass, FaTimes } from 'react-icons/fa';
 import { usePage, Link, router } from '@inertiajs/react';
+import SellerDashboardHome from './components/SellerDashboardHome';
 
 const Products = () => {
     const [dialogueBox, setDialogueBox] = useState(false);
@@ -14,7 +15,7 @@ const Products = () => {
         price: '',
         stock_quantity: '',
         description: '',
-        category: '', // ✅ New: category input
+        category: '', 
     });
 
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -22,7 +23,7 @@ const Products = () => {
 
     const { products }: any = usePage().props;
 
-    const [selectedCategory, setSelectedCategory] = useState('All'); // ✅ For filtering
+    const [selectedCategory, setSelectedCategory] = useState('All'); 
     const showDialogueBox = () => {
         setSelectedProduct(null);
         setDialogueBox(true);
@@ -231,7 +232,7 @@ const Products = () => {
                                 <span>{formatTimeAgo(product.created_at)}</span>
                             </div>
                             <div className="mt-auto">
-                                <Link href={`/admin/products/${product.slug}`}>
+                                <Link href={`/seller/products/${product.slug}`}>
                                     <button className="mt-3 w-full cursor-pointer rounded-lg bg-gray-900 py-2 text-white transition hover:bg-black">
                                         View Product
                                     </button>
@@ -265,7 +266,7 @@ const Products = () => {
                 ))}
             </div>
 
-            {/* Dialogue Box (Create/Edit Product) */}
+           
             {dialogueBox && (
                 <section
                     onClick={closeDialogueBox}
@@ -351,6 +352,6 @@ const Products = () => {
     );
 };
 
-Products.layout = (page: any) => <Dashboard>{page}</Dashboard>;
+Products.layout = (page: any) => <SellerDashboardHome>{page}</SellerDashboardHome>;
 
 export default Products;

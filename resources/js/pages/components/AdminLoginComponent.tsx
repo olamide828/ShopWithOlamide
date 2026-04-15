@@ -124,7 +124,6 @@ const AdminLoginComponent = () => {
                         )}
 
                         <form onSubmit={handleLogin} className="space-y-6">
-                            
                             <input
                                 type="hidden"
                                 name="role"

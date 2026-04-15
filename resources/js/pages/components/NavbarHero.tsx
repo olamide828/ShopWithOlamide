@@ -15,6 +15,7 @@ const NavbarHero = () => {
 
     const user = auth.user;
 
+
     const initials = user?.name
         ?.split(' ')
         .map((n: string) => n[0])
@@ -83,7 +84,7 @@ const NavbarHero = () => {
                         <FaShoppingCart size={18} />
 
                         {localCartCount > 0 && (
-                            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                            <span className="absolute animate-bounce -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
                                 {localCartCount}
                             </span>
                         )}
@@ -92,13 +93,13 @@ const NavbarHero = () => {
                     {!user ? (
                         <div className="flex items-center gap-3">
                             <Link href="/login">
-                                <button className="rounded-2xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-medium text-white backdrop-blur-md transition hover:bg-white hover:text-black">
+                                <button className="rounded-2xl cursor-pointer border border-white/20 bg-white/10 px-5 py-3 text-sm font-medium text-white backdrop-blur-md transition hover:bg-white hover:text-black">
                                     Login
                                 </button>
                             </Link>
 
                             <Link href="/register">
-                                <button className="rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 text-sm font-semibold text-white transition hover:scale-105">
+                                <button className="rounded-2xl cursor-pointer bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 text-sm font-semibold text-white transition hover:scale-105">
                                     Get Started
                                 </button>
                             </Link>
@@ -107,7 +108,7 @@ const NavbarHero = () => {
                         <div className="relative">
                             <button
                                 onClick={() => setOpen(!open)}
-                                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-3 py-2 text-white backdrop-blur-md transition hover:bg-white/20"
+                                className="flex items-center gap-3 cursor-pointer rounded-2xl border border-white/10 bg-white/10 px-3 py-2 text-white backdrop-blur-md transition hover:bg-white/20"
                             >
                                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-sm font-bold text-white">
                                     {initials}
@@ -146,9 +147,11 @@ const NavbarHero = () => {
                                         Dashboard
                                     </Link>
 
+                                    
+
                                     <button
                                         onClick={logout}
-                                        className="w-full px-5 py-3 text-left text-sm font-medium text-red-500 transition hover:bg-red-50"
+                                        className="w-full cursor-pointer px-5 py-3 text-left text-sm font-medium text-red-500 transition hover:bg-red-50"
                                     >
                                         Logout
                                     </button>
@@ -217,7 +220,7 @@ const NavbarHero = () => {
                             </Link>
 
                             <Link
-                                href="/contact"
+                                href="/support@shopwitholamide.com/contact"
                                 onClick={() => setMobileNav(false)}
                                 className="rounded-2xl px-4 py-4 text-base font-medium text-white transition hover:bg-white/10"
                             >
@@ -328,14 +331,14 @@ const NavbarHero = () => {
 
                     <div className="mt-10 flex flex-col gap-4 sm:flex-row">
                         <Link href="/shop/u/products">
-                            <button className="flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 text-base font-semibold text-white transition hover:scale-105">
+                            <button className="flex cursor-pointer items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 text-base font-semibold text-white transition hover:scale-105">
                                 Explore Products
                                 <FaArrowRight />
                             </button>
                         </Link>
 
                         <Link href="/about">
-                            <button className="rounded-2xl border border-white/20 bg-white/10 px-8 py-4 text-base font-semibold text-white backdrop-blur-md transition hover:bg-white hover:text-black">
+                            <button className="rounded-2xl cursor-pointer border border-white/20 bg-white/10 px-8 py-4 text-base font-semibold text-white backdrop-blur-md transition hover:bg-white hover:text-black">
                                 Learn More
                             </button>
                         </Link>

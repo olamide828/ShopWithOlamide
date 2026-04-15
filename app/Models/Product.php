@@ -13,5 +13,12 @@ class Product extends Model
         'stock_quantity',
         'description',
         'image',
+        'category',
     ];
+
+    public function seller()
+{
+    return $this->belongsTo(User::class, 'user_id');
 }
+}
+

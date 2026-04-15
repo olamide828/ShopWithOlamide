@@ -53,4 +53,9 @@ class User extends Authenticatable
     {
         return $this->role === 'admin'; // Assumes you have a 'role' column
     }
+
+    public function isSeller()
+    {
+        return $this->role === 'seller';
+    }
 }

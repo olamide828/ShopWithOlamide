@@ -7,7 +7,7 @@ const Footer = () => {
     const [email, setEmail] = useState('');
     // const { location, error } = useLocation();
 
-    const address =  "my address";
+    // const address =  "my address";
 
     // if(error) return <p>Error: {error.message}</p>
     // if(!location) return <p>Loading...</p>
@@ -68,7 +68,7 @@ const Footer = () => {
                                     placeholder="Enter your email address"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="h-14 w-full rounded-2xl border border-white/10 bg-white/[0.05] px-5 pr-14 text-white backdrop-blur-md transition outline-none placeholder:text-gray-500 focus:border-blue-500"
+                                    className="h-14 w-full rounded-2xl border border-white/10 bg-white/5 px-5 pr-14 text-white backdrop-blur-md transition outline-none placeholder:text-gray-500 focus:border-blue-500"
                                 />
 
                                 <FaEnvelope className="absolute top-1/2 right-5 -translate-y-1/2 text-gray-500" />
@@ -167,6 +167,43 @@ const Footer = () => {
                         </ul>
                     </div>
 
+                    {/* <div>
+                        <h3 className="mb-6 text-lg font-semibold text-white">
+                            For Sellers
+                        </h3>
+
+                        <ul className="space-y-4">
+                            <li>
+                                <Link
+                                    href="/seller-registration"
+                                    className="text-gray-400 transition hover:text-white"
+                                >
+                                    Become a seller Today
+                                </Link>
+                            </li>
+
+                            <li>
+                                <Link
+                                    href="/seller-login"
+                                    className="text-gray-400 transition hover:text-white"
+                                >
+                                    Login seller account
+                                </Link>
+                            </li>
+
+                            <li>
+                                <Link
+                                    href="/seller"
+                                    className="text-gray-400 transition hover:text-white"
+                                >
+                                    Seller Dashboard
+                                </Link>
+                            </li>
+
+                            
+                        </ul>
+                    </div> */}
+
                     {/* Contact */}
                     <div>
                         <h3 className="mb-6 text-lg font-semibold text-white">
@@ -201,9 +238,11 @@ const Footer = () => {
                                     <p className="text-sm text-gray-500">
                                         Call Us
                                     </p>
-                                    <p className="text-sm text-gray-300">
+                                    <a href="tel:+2349070079206">
+                                        <p className="text-sm text-gray-300">
                                         +234 907 007 9206
                                     </p>
+                                    </a>
                                     
                                 </div>
                             </div>
@@ -216,19 +255,21 @@ const Footer = () => {
                     <p>© 2018 - {year} ShopWithOlamide. All rights reserved.</p>
 
                     <div className="flex items-center gap-6">
-                        <Link
+                        <a
                             href="/privacy-policy"
+                            target='_blank'
                             className="transition hover:text-gray-300"
                         >
                             Privacy Policy
-                        </Link>
+                        </a>
 
-                        <Link
+                        <a
                             href="/terms"
+                            target='_blank'
                             className="transition hover:text-gray-300"
                         >
                             Terms of Service
-                        </Link>
+                        </a>
                     </div>
                 </div>
             </div>

@@ -4,6 +4,7 @@ import {
     FaCartPlus,
     FaClipboard,
     FaClipboardCheck,
+    FaHeart,
     FaMoneyBill,
     FaRegClipboard,
     FaShare,
@@ -22,6 +23,14 @@ const ProductDetailsData = () => {
 
     const [loading, setLoading] = useState(false);
 
+    // const addToWishlist = () => {
+    //     router.post(`/wishlist/${product.id}`, {
+    //      onSuccess: => {
+    //         setToast("Product added to wishlist successfully");
+    //      }
+    //     })
+    // }
+
     const addToCart = (id: number) => {
     if (loading) return;
     if (!isLoggedIn) {
@@ -34,12 +43,13 @@ const ProductDetailsData = () => {
 
     router.post('/cart', { product_id: id }, {
         preserveScroll: true,
-        preserveState: false, // ⚠️ change this
+        preserveState: false, // ⚠️ change this 
         onSuccess: (page) => {
             setLoading(false);
         },
     });
 };
+
     const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         const { left, top, width, height } =
@@ -189,13 +199,15 @@ const ProductDetailsData = () => {
                         <p className="m-0 leading-relaxed text-gray-600">
                             {product.description}
                         </p>
-
+       
                         {/* Actions */}
                         <div className="flex flex-col gap-3 pt-4">
-                            {/* <button className="flex w-full cursor-pointer flex-row items-center justify-center gap-3 rounded-lg bg-indigo-600 py-3 font-medium text-white transition hover:bg-indigo-700">
-                                <FaMoneyBill />
-                                Buy Now
-                            </button> */}
+                            <button
+                            onClick={() => router.post(`/wishlist/${product.id}`)}
+                            className="flex w-full cursor-pointer flex-row items-center justify-center gap-3 rounded-lg bg-indigo-600 py-3 font-medium text-white transition hover:bg-indigo-700">
+                                <FaHeart />
+                                Add To Wishlist
+                            </button>
 
                             <button
                                 disabled={product.stock_quantity === 0}

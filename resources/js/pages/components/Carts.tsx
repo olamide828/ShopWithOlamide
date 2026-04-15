@@ -14,10 +14,61 @@ const Cart = () => {
     const updateQuantity = (id: number, type: 'inc' | 'dec') => {
         router.post(`/cart/update/${id}`, { type });
     };
+     const reloadCart = () => {
+        window.location.reload();
+    };
 
     const removeItem = (id: number) => {
         router.delete(`/cart/${id}`);
+        setTimeout(() => {
+        reloadCart();
+    }, 500);
     };
+
+   
+
+    
+
+    const formatTimeAgo = (dateString: string) => {
+        const date = new Date(dateString);
+        const seconds = Math.floor(
+            (new Date().getTime() - date.getTime()) / 1000,
+        );
+
+        let interval = seconds / 31536000;
+        if (interval >= 1) {
+            const value = Math.floor(interval);
+            return value === 1 ? '1 year ago' : value + ' years ago';
+        }
+
+        interval = seconds / 2592000;
+        if (interval >= 1) {
+            const value = Math.floor(interval);
+            return value === 1 ? '1 month ago' : value + ' months ago';
+        }
+
+        interval = seconds / 86400;
+        if (interval >= 1) {
+            const value = Math.floor(interval);
+            return value === 1 ? '1 day ago' : value + ' days ago';
+        }
+
+        interval = seconds / 3600;
+        if (interval >= 1) {
+            const value = Math.floor(interval);
+            return value === 1 ? '1 hour ago' : value + ' hours ago';
+        }
+
+        interval = seconds / 60;
+        if (interval >= 1) {
+            const value = Math.floor(interval);
+            return value === 1 ? '1 minute ago' : value + ' minutes ago';
+        }
+
+        const value = Math.floor(seconds);
+        return value === 1 ? '1 second ago' : value + ' seconds ago';
+    };
+
     return (
         <>
             {isUserTrue ? (
@@ -35,9 +86,11 @@ const Cart = () => {
                                     className="ml-16"
                                 />
                                 <Link href="/shop/u/products">
-                                    <button className="mt-8 mb-5 flex w-fit cursor-pointer items-center gap-3 rounded-md bg-gradient-to-r from-purple-500 to-blue-500 px-14 py-3 text-base text-[14px] text-white backdrop-blur-lg">
-                                        Your Cart is empty, shop now{' '}
-                                        <FaArrowRight />
+                                    <button
+                                        className="group flex h-14 cursor-pointer items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 text-sm font-semibold text-white shadow-[0_15px_40px_rgba(99,102,241,0.35)] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_20px_60px_rgba(99,102,241,0.45)]"
+                                    >
+                                       Your cart is empty, Shop now.
+                                        <FaArrowRight className="transition duration-300 group-hover:translate-x-1" />
                                     </button>
                                 </Link>
                             </div>
@@ -109,6 +162,11 @@ const Cart = () => {
                                                 >
                                                     <FaTrash />
                                                 </button>
+                                                <p>
+                                                    {formatTimeAgo(
+                                                        item.created_at,
+                                                    )}
+                                                </p>
                                             </div>
                                         </div>
                                     ))}
@@ -155,7 +213,10 @@ const Cart = () => {
                                         </span>
                                     </div>
 
-                                    <button className="mt-4 w-full cursor-pointer rounded-lg bg-indigo-600 py-2 text-white hover:bg-indigo-700">
+                                    <button
+                                        onClick={() => router.post('/checkout')}
+                                        className="mt-4 w-full cursor-pointer rounded-lg bg-indigo-600 py-2 text-white hover:bg-indigo-700"
+                                    >
                                         Checkout
                                     </button>
                                 </div>

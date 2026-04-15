@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Inertia\Inertia;
+
 
 class UserController extends Controller
 {
@@ -14,6 +16,11 @@ class UserController extends Controller
     public function index()
     {
         //
+    }
+
+    public function manageAccount()
+    {
+        return Inertia::render("ManageAccountForm");
     }
 
     /**
@@ -72,13 +79,37 @@ class UserController extends Controller
         $user->save();
 
         return redirect()->back()->with('success', 'Account updated!');
+
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user = Auth::user();
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return back()->with('success', 'Password updated!');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request)
     {
-        //
+        $request->validate([
+            'password' => ['required', 'current_password'],
+        ]);
+
+        $user = Auth::user();
+
+        Auth::logout();
+        $user->delete();
+
+        return redirect('/')->with('success', 'Account deleted.');
     }
 }

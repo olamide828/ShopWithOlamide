@@ -145,7 +145,7 @@ const TermsComponent = () => {
 
               <div className="mt-6 flex flex-wrap gap-4">
                 <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm text-slate-300">
-                  legal@yourwebsite.com
+                  support@shopwitholamide.com
                 </div>
 
                 <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm text-slate-300">

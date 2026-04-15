@@ -6,7 +6,11 @@ use App\Http\Controllers\webController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\SellerController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -29,8 +33,13 @@ Route::post('/cart', [CartController::class, 'store']);
 Route::post('/cart/update/{id}', [CartController::class, 'update']);
 Route::delete('/cart/{id}', [CartController::class, 'destroy']);
 Route::get('/contact', [WebController::class, 'contact']);
+Route::post("/contact", [ContactController::class, 'send']);
 Route::get('/terms', [webController::class, 'terms']);
 Route::get('/privacy-policy', [webController::class, 'privacyPolicy']);
+Route::get('/seller/login', [SellerController::class, 'sellerLogin']);
+Route::get('/seller/register', [SellerController::class, 'sellerRegister']);
+Route::post('/seller/register', [SellerController::class, 'store']);
+Route::post('/seller/login', [SellerController::class, 'login']);
 Route::post('/logout', function () {
     Auth::logout();
     request()->session()->invalidate();
@@ -39,6 +48,12 @@ Route::post('/logout', function () {
     return redirect('/');
 });
 // Route::get('/view-product', [ProductController::class, 'viewProduct']);
+
+Route::middleware(['auth', 'seller'])->prefix("seller")->group(function () {
+    Route::get('/', [SellerController::class, 'show']);
+    Route::get('/products', [ProductController::class, 'product']);
+    Route::get('/products/{product:slug}', [ProductController::class, 'adminViewProduct']);
+});
 
 Route::middleware('guest')->group(function () {
     Route::get('/admin/login', function () {
@@ -53,16 +68,34 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     // This is now correctly: /dashboard
     Route::get('/dashboard', [DashboardController::class, 'userDashboard']);
+    Route::get('/manage-account', [WebController::class, 'manageAccount']);
     // web.php
+    // Route::get('/user/update', [UserController::class, 'manageAccount']);
     Route::put('/user/update', [UserController::class, 'update']);
+    Route::put('/user/password', [UserController::class, 'updatePassword']);
+    Route::delete('/user/delete', [UserController::class, 'destroy']);
+
+    Route::get('/orders', [OrderController::class, 'index']);
+    Route::post('/checkout', [OrderController::class, 'checkout']);
+
+    // Wishlist
+    Route::get('/wishlist', [WishlistController::class, 'index']);
+    Route::post('/wishlist/{productId}', [WishlistController::class, 'store']);
+    Route::delete('/wishlist/{id}', [WishlistController::class, 'destroy']);
 
 });
 
-Route::middleware(['admin'])->prefix('admin')->group(function () {
-     // Admin dashboard routes
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    // Admin dashboard routes
     Route::get('/', [DashboardController::class, 'dashboard']);
-    Route::get('/products', [ProductController::class, 'product']);
-    Route::get('/products/{product:slug}', [ProductController::class, 'adminViewProduct']);
+    // Route::get('/products/{product:slug}', [ProductController::class, 'adminViewProduct']);
     Route::get('/stats', [AdminController::class, 'stats']);
-   
+    Route::post('/delete/users/{user}/toggle-ban', [AdminController::class, 'toggleBan']);
+    Route::delete('/delete/users/{user}', [AdminController::class, 'destroy']);
+    Route::get('/manage-users', [AdminController::class, 'manageUsers'])->name('admin.users.manage');
+
+    // The actions (Post for changing data, Delete for removing)
+    Route::post('/users/{user}/toggle-ban', [AdminController::class, 'toggleBan']);
+    Route::delete('/users/{user}', [AdminController::class, 'destroy']);
+
 });

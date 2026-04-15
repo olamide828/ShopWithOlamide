@@ -48,6 +48,7 @@ class ProductController extends Controller
             'stock_quantity' => 'required|integer',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'category' => 'nullable|string',
         ]);
 
         $slug = Str::slug($validated['name']);
@@ -96,7 +97,7 @@ class ProductController extends Controller
             'product' => $product
         ]);
     }
-    
+
 
     public function productPage()
     {
@@ -126,6 +127,7 @@ class ProductController extends Controller
             'stock_quantity' => 'required|integer',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'category' => 'nullable|string',
         ]);
 
         $slug = Str::slug($validated['name']);
