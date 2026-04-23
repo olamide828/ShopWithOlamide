@@ -23,12 +23,24 @@ class ProductController extends Controller
 
     public function product()
     {
+        $products = Product::where('user_id', auth()->id())
+            ->orWhereNull('user_id')
+            ->latest()
+            ->paginate(6);
 
-        $products = Product::where('user_id', auth()->id())->orWhereNull('user_id')->latest()->paginate(6);
+        // Transform the products to include the full Cloud URL
+        $products->getCollection()->transform(function ($product) {
+            if ($product->image) {
+                $product->image = Storage::disk('s3')->url($product->image);
+            }
+            return $product;
+        });
+
         return Inertia::render("products", [
             "products" => $products
         ]);
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -57,8 +69,12 @@ class ProductController extends Controller
         $validated['slug'] = $count ? "{$slug}-{$count}" : $slug;
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('products', 'public');
-            $validated['image'] = '/storage/' . $path;
+            // 1. Store on 's3' instead of 'public'
+            $path = $request->file('image')->store('products', 's3');
+
+            // 2. Store just the path (e.g., "products/image.jpg") 
+            // DO NOT add '/storage/' here anymore
+            $validated['image'] = $path;
         }
 
         $validated['user_id'] = Auth::id();
@@ -66,50 +82,60 @@ class ProductController extends Controller
         Product::create($validated);
 
         return redirect()->back()->with('success', 'Product created');
-
     }
     /**
      * Display the specified resource.
      */
-    public function show($slug)
-    {
-        $product = Product::where('slug', $slug)->with('user:id,name')->firstOrFail();
+public function show($slug)
+{
+    $product = Product::where('slug', $slug)->with('user:id,name')->firstOrFail();
 
-        return Inertia::render('ProductDetails', [
-            'product' => $product
-        ]);
+    // Convert path to full Cloud URL
+    if ($product->image) {
+        $product->image = Storage::disk('s3')->url($product->image);
     }
 
+    return Inertia::render('ProductDetails', [
+        'product' => $product
+    ]);
+}
 
-    // public function viewProduct()
-    // {
-    //     $products = Product::latest()->get();
+public function adminViewProduct($slug)
+{
+    $product = Product::where('slug', $slug)->firstOrFail();
 
-    //     return Inertia::render("ViewProduct", [
-    //         "products" => $products
-    //     ]);
-    // }
-
-
-    public function adminViewProduct($slug)
-    {
-
-        $product = Product::where('slug', $slug)->firstOrFail();
-
-        return Inertia::render('components/ViewProduct', [
-            'product' => $product
-        ]);
+    // Convert path to full Cloud URL
+    if ($product->image) {
+        $product->image = Storage::disk('s3')->url($product->image);
     }
+
+    return Inertia::render('components/ViewProduct', [
+        'product' => $product
+    ]);
+}
 
 
     public function productPage()
     {
         $products = Product::latest()->get();
 
+        // Loop through each product and change the image path to a full URL
+        $products->transform(function ($product) {
+            if ($product->image) {
+                // This generates the full https://... link to your bucket
+                $product->image = Storage::disk('s3')->url($product->image);
+            } else {
+                // Optional: Fallback image if no image exists
+                $product->image = 'https://placehold.co';
+            }
+            return $product;
+        });
+
         return Inertia::render("ProductPage", [
             "products" => $products
         ]);
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -134,23 +160,22 @@ class ProductController extends Controller
         ]);
 
         $slug = Str::slug($validated['name']);
-        $count = Product::where('slug', 'LIKE', "{$slug}%")->count();
+        $count = Product::where('slug', 'LIKE', "{$slug}%")->where('id', '<>', $product->id)->count();
         $validated['slug'] = $count ? "{$slug}-{$count}" : $slug;
 
-        // Handle new image upload
         if ($request->hasFile('image')) {
-
-            // delete old image (optional but recommended)
+            // Delete the old image from S3 if it exists
             if ($product->image) {
-                $oldPath = str_replace('/storage/', '', $product->image);
-                Storage::disk('public')->delete($oldPath);
+                Storage::disk('s3')->delete($product->image);
             }
-            $path = $request->file('image')->store('products', 'public');
-            $validated['image'] = '/storage/' . $path;
+            // Store new image on S3
+            $path = $request->file('image')->store('products', 's3');
+            $validated['image'] = $path;
         }
+
         $product->update($validated);
 
-        return redirect()->route('admin.products.index', $product->fresh())->with('success', 'Product updated successfully');
+        return redirect()->route('admin.products.index')->with('success', 'Product updated successfully');
     }
 
     /**
@@ -158,14 +183,14 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        // delete image if exists
+        // Delete image from cloud before deleting record
         if ($product->image) {
-            $oldPath = str_replace('/storage/', '', $product->image);
-            Storage::disk('public')->delete($oldPath);
+            Storage::disk('s3')->delete($product->image);
         }
 
         $product->delete();
 
-        return redirect()->route('admin.products.index', $product->fresh())->with('success', 'Product deleted successfully');
+        return redirect()->back()->with('success', 'Product deleted successfully');
     }
+
 }
