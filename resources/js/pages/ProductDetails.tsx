@@ -9,6 +9,7 @@ const ProductDetails = () => {
         <Navbar />
         <ProductDetailsData />
         <Footer />
+        
     </section>
   )
 }
