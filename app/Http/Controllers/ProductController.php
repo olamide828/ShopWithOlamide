@@ -81,33 +81,33 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-public function show($slug)
-{
-    $product = Product::where('slug', $slug)->with('user:id,name')->firstOrFail();
+    public function show($slug)
+    {
+        $product = Product::where('slug', $slug)->with('user:id,name')->firstOrFail();
 
-    // Convert path to full Cloud URL
-    if ($product->image) {
-        $product->image = Storage::disk('private')->url($product->image);
+        // Convert path to full Cloud URL
+        if ($product->image) {
+            $product->image = Storage::disk('private')->url($product->image);
+        }
+
+        return Inertia::render('ProductDetails', [
+            'product' => $product
+        ]);
     }
 
-    return Inertia::render('ProductDetails', [
-        'product' => $product
-    ]);
-}
+    public function adminViewProduct($slug)
+    {
+        $product = Product::where('slug', $slug)->firstOrFail();
 
-public function adminViewProduct($slug)
-{
-    $product = Product::where('slug', $slug)->firstOrFail();
+        // Convert path to full Cloud URL
+        if ($product->image) {
+            $product->image = Storage::disk('private')->url($product->image);
+        }
 
-    // Convert path to full Cloud URL
-    if ($product->image) {
-        $product->image = Storage::disk('private')->url($product->image);
+        return Inertia::render('components/ViewProduct', [
+            'product' => $product
+        ]);
     }
-
-    return Inertia::render('components/ViewProduct', [
-        'product' => $product
-    ]);
-}
 
 
     public function productPage()
@@ -185,7 +185,7 @@ public function adminViewProduct($slug)
 
         $product->delete();
 
-        return redirect()->back()->with('success', 'Product deleted successfully');
+        return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully');
     }
 
 }
