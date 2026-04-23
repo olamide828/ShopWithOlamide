@@ -1,14 +1,17 @@
-import React from 'react'
-import OrdersComponent from './components/OrdersComponent'
-import Navbar from './components/Navbar'
+import React from 'react';
+import OrdersComponent from './components/OrdersComponent';
+import Navbar from './components/Navbar';
+import { Head } from '@inertiajs/react';
 
 const OrdersPage = () => {
-  return (
-    <section>
-        <Navbar />
-        <OrdersComponent />
-    </section>
-  )
-}
+    return (
+        <section>
+            <Head title="Order - ShopWithOlamide"></Head>
 
-export default OrdersPage
+            <Navbar />
+            <OrdersComponent />
+        </section>
+    );
+};
+
+export default OrdersPage;

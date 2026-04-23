@@ -67,10 +67,12 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
+            'dateOfBirth' => 'required|string',
         ]);
 
         $user->name = $data['name'];
         $user->email = $data['email'];
+        $user->dateOfBirth = $data['dateOfBirth'];
 
         if (!empty($data['password'])) {
             $user->password = Hash::make($data['password']);

@@ -1,6 +1,7 @@
 import { router, useForm } from '@inertiajs/react';
 import React, { useState } from 'react';
 import login_illustration from '/public/login_illustration.png';
+import { toast, Toaster } from 'sonner';
 
 const LoginComponent = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -16,25 +17,29 @@ const LoginComponent = () => {
 
         post('/login', {
             onError: (errors) => {
-                console.log('Login failed', errors);
+                Object.values(errors).forEach((error: any) => {
+                    toast.error(error);
+                });
             },
             onSuccess: () => {
-                console.log('Login successful');
+                toast.success('Welcome back 👋');
             },
         });
     };
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
-            <div className="flex w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <Toaster richColors position="top-right" />
+
+            <div className="flex w-full flex-col lg:flex-row max-w-4xl overflow-hidden rounded-2xl bg-white shadow-2xl">
                 {/* Visual Side */}
-                <div className="relative hidden w-1/2 flex-col items-center justify-center bg-indigo-600 p-12 text-white md:flex">
+                <div className="relative lg:w-1/2 flex-col items-center justify-center bg-indigo-600 p-12 text-white md:flex">
                     <img
                         src={login_illustration}
                         alt="Login Illustration"
                         className="mb-6 h-64 w-64 object-contain"
                     />
-                    <h1 className="mb-4 text-3xl font-bold">Welcome Back!</h1>
+                    <h1 className="mb-4 text-3xl text-center font-bold">Welcome Back!</h1>
                     <p className="text-center text-indigo-200">
                         Login to access your account and manage your
                         marketplace.
@@ -115,9 +120,9 @@ const LoginComponent = () => {
                         <button
                             type="submit"
                             disabled={processing}
-                            className="w-full cursor-pointer rounded-lg bg-indigo-600 py-3 font-bold text-white transition hover:bg-indigo-700"
+                            className="w-full cursor-pointer rounded-lg bg-indigo-600 py-3 disabled:cursor-not-allowed disabled:opacity-40 font-bold text-white transition hover:bg-indigo-700"
                         >
-                            {processing ? 'Signing in...' : 'Sign In'}
+                            {processing ? 'Signing In...' : 'Sign In'}
                         </button>
                     </form>
 

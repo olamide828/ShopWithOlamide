@@ -3,10 +3,10 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import '../css/app.css';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'ShopWithOlamide';
 
 createInertiaApp({
-    titlenpm: (title) => (title ? `${title} - ${appName}` : appName),
+    titlenpm: (title: any) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) =>
         resolvePageComponent(
             `./pages/${name}.tsx`,

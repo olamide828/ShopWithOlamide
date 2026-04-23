@@ -7,6 +7,7 @@ import {
     FaHamburger,
     FaTimes,
 } from 'react-icons/fa';
+import { toast, Toaster } from 'sonner';
 
 const NavbarHero = () => {
     const [open, setOpen] = useState(false);
@@ -15,7 +16,6 @@ const NavbarHero = () => {
 
     const user = auth.user;
 
-
     const initials = user?.name
         ?.split(' ')
         .map((n: string) => n[0])
@@ -23,7 +23,15 @@ const NavbarHero = () => {
         .toUpperCase();
 
     const logout = () => {
-        router.post('/logout');
+        router.post(
+            '/logout',
+            {},
+            {
+                onSuccess: () => {
+                    toast.success('Successfully signed out');
+                },
+            },
+        );
     };
 
     const [localCartCount, setLocalCartCount] = useState(cartCount || 0);
@@ -58,6 +66,8 @@ const NavbarHero = () => {
 
     return (
         <section className='relative min-h-screen overflow-hidden bg-[url("https://images.unsplash.com/photo-1668104130113-b86b10423cb0?w=1200&auto=format&fit=crop&q=80")] bg-cover bg-center'>
+            <Toaster richColors position="top-right" />
+
             <div className="absolute inset-0 bg-black/70" />
             <div className="absolute top-0 left-0 h-96 w-96 rounded-full bg-blue-600/20 blur-3xl" />
             <div className="absolute right-0 bottom-0 h-96 w-96 rounded-full bg-purple-600/20 blur-3xl" />
@@ -77,29 +87,31 @@ const NavbarHero = () => {
 
                 {/* Desktop Nav */}
                 <div className="hidden items-center gap-4 lg:flex">
-                    <Link
-                        href="/cart"
-                        className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-white backdrop-blur-md transition hover:scale-105 hover:bg-white/20"
-                    >
-                        <FaShoppingCart size={18} />
+                    {user?.role !== 'admin' && (
+                        <Link
+                            href="/cart"
+                            className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-gray-200 bg-white text-gray-700 transition hover:border-gray-300 hover:bg-gray-50"
+                        >
+                            <FaShoppingCart size={18} />
 
-                        {localCartCount > 0 && (
-                            <span className="absolute animate-bounce -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
-                                {localCartCount}
-                            </span>
-                        )}
-                    </Link>
+                            {localCartCount > 0 && (
+                                <span className="absolute -top-1 -right-1 flex h-5 w-5 animate-bounce items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                                    {localCartCount}
+                                </span>
+                            )}
+                        </Link>
+                    )}
 
                     {!user ? (
                         <div className="flex items-center gap-3">
                             <Link href="/login">
-                                <button className="rounded-2xl cursor-pointer border border-white/20 bg-white/10 px-5 py-3 text-sm font-medium text-white backdrop-blur-md transition hover:bg-white hover:text-black">
+                                <button className="cursor-pointer rounded-2xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-medium text-white backdrop-blur-md transition hover:bg-white hover:text-black">
                                     Login
                                 </button>
                             </Link>
 
                             <Link href="/register">
-                                <button className="rounded-2xl cursor-pointer bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 text-sm font-semibold text-white transition hover:scale-105">
+                                <button className="cursor-pointer rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 text-sm font-semibold text-white transition hover:scale-105">
                                     Get Started
                                 </button>
                             </Link>
@@ -108,7 +120,7 @@ const NavbarHero = () => {
                         <div className="relative">
                             <button
                                 onClick={() => setOpen(!open)}
-                                className="flex items-center gap-3 cursor-pointer rounded-2xl border border-white/10 bg-white/10 px-3 py-2 text-white backdrop-blur-md transition hover:bg-white/20"
+                                className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-3 py-2 text-white backdrop-blur-md transition hover:bg-white/20"
                             >
                                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-sm font-bold text-white">
                                     {initials}
@@ -140,14 +152,23 @@ const NavbarHero = () => {
                                         </p>
                                     </div>
 
-                                    <Link
-                                        href="/dashboard"
-                                        className="block px-5 py-3 text-sm text-gray-700 transition hover:bg-gray-100"
-                                    >
-                                        Dashboard
-                                    </Link>
-
-                                    
+                                    <>
+                                        {user?.role === 'admin' ? (
+                                            <Link
+                                                href="/admin"
+                                                className="block px-5 py-3 text-sm text-gray-700 transition hover:bg-gray-100"
+                                            >
+                                                Admin Dashboard
+                                            </Link>
+                                        ) : (
+                                            <Link
+                                                href="/dashboard"
+                                                className="block px-5 py-3 text-sm text-gray-700 transition hover:bg-gray-100"
+                                            >
+                                                Dashboard
+                                            </Link>
+                                        )}
+                                    </>
 
                                     <button
                                         onClick={logout}
@@ -164,7 +185,7 @@ const NavbarHero = () => {
                 {/* Mobile Menu Button */}
                 <button
                     onClick={() => setMobileNav(!mobileNav)}
-                    className="relative z-[100] flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-white backdrop-blur-md transition hover:scale-105 hover:bg-white/20 lg:hidden"
+                    className="relative z-100 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-white backdrop-blur-md transition hover:scale-105 hover:bg-white/20 lg:hidden"
                 >
                     {mobileNav ? (
                         <FaTimes size={18} />
@@ -185,7 +206,7 @@ const NavbarHero = () => {
                     <div className="absolute top-0 right-0 flex h-full w-[85%] max-w-sm flex-col overflow-y-auto border-l border-white/10 bg-[#0B0B12] px-6 py-6 shadow-2xl">
                         <div className="mb-8 flex items-center justify-between border-b border-white/10 pb-5">
                             <div>
-                                <h2 className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-2xl font-bold text-transparent">
+                                <h2 className="bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-2xl font-bold text-transparent">
                                     ShopWithOlamide
                                 </h2>
                                 <p className="mt-1 text-xs tracking-[0.3em] text-gray-400 uppercase">
@@ -220,29 +241,33 @@ const NavbarHero = () => {
                             </Link>
 
                             <Link
-                                href="/support@shopwitholamide.com/contact"
+                                href="/contact"
                                 onClick={() => setMobileNav(false)}
                                 className="rounded-2xl px-4 py-4 text-base font-medium text-white transition hover:bg-white/10"
                             >
                                 Contact
                             </Link>
 
-                            <Link
-                                href="/cart"
-                                onClick={() => setMobileNav(false)}
-                                className="mt-2 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-white transition hover:bg-white/10"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <FaShoppingCart size={18} />
-                                    <span className="font-medium">Cart</span>
-                                </div>
+                            {user?.role !== 'admin' && (
+                                <Link
+                                    href="/cart"
+                                    onClick={() => setMobileNav(false)}
+                                    className="mt-2 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-white transition hover:bg-white/10"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <FaShoppingCart size={18} />
+                                        <span className="font-medium">
+                                            Cart
+                                        </span>
+                                    </div>
 
-                                {localCartCount > 0 && (
-                                    <span className="flex h-6 min-w-[24px] items-center justify-center rounded-full bg-red-500 px-2 text-xs font-bold text-white">
-                                        {localCartCount}
-                                    </span>
-                                )}
-                            </Link>
+                                    {localCartCount > 0 && (
+                                        <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-red-500 px-2 text-xs font-bold text-white">
+                                            {localCartCount}
+                                        </span>
+                                    )}
+                                </Link>
+                            )}
                         </div>
 
                         <div className="mt-auto border-t border-white/10 pt-6">
@@ -284,14 +309,32 @@ const NavbarHero = () => {
                                     </div>
 
                                     <div className="flex flex-col gap-3">
-                                        <Link
-                                            href="/dashboard"
-                                            onClick={() => setMobileNav(false)}
-                                            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm font-medium text-white transition hover:bg-white/10"
-                                        >
-                                            Dashboard
-                                        </Link>
-
+                                        {user?.role === 'admin' ? (
+                                            <Link
+                                                href="/admin"
+                                                onClick={() =>
+                                                    setMobileNav(false)
+                                                }
+                                                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm font-medium text-white transition hover:bg-white/10"
+                                            >
+                                                Admin Dashboard
+                                            </Link>
+                                        ) : (
+                                            <Link
+                                                href="/dashboard"
+                                                onClick={() =>
+                                                    setMobileNav(false)
+                                                }
+                                                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm font-medium text-white transition hover:bg-white/10"
+                                            >
+                                                Dashboard
+                                            </Link>
+                                        )}
+                                        {/* Lorem ipsum dolor sit amet consectetur
+                                        adipisicing elit. Eligendi, voluptatem
+                                        recusandae facilis fugit assumenda
+                                        cupiditate deleniti inventore quasi
+                                        explicabo magni. */}
                                         <button
                                             onClick={() => {
                                                 setMobileNav(false);
@@ -338,7 +381,7 @@ const NavbarHero = () => {
                         </Link>
 
                         <Link href="/about">
-                            <button className="rounded-2xl cursor-pointer border border-white/20 bg-white/10 px-8 py-4 text-base font-semibold text-white backdrop-blur-md transition hover:bg-white hover:text-black">
+                            <button className="cursor-pointer rounded-2xl border border-white/20 bg-white/10 px-8 py-4 text-base font-semibold text-white backdrop-blur-md transition hover:bg-white hover:text-black">
                                 Learn More
                             </button>
                         </Link>

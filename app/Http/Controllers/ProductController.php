@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -23,7 +24,7 @@ class ProductController extends Controller
     public function product()
     {
 
-        $products = Product::paginate(6);
+        $products = Product::where('user_id', auth()->id())->orWhereNull('user_id')->latest()->paginate(6);
         return Inertia::render("products", [
             "products" => $products
         ]);
@@ -60,9 +61,11 @@ class ProductController extends Controller
             $validated['image'] = '/storage/' . $path;
         }
 
+        $validated['user_id'] = Auth::id();
+
         Product::create($validated);
 
-        return redirect()->back()->with('success', 'Product saved');
+        return redirect()->back()->with('success', 'Product created');
 
     }
     /**
@@ -70,7 +73,7 @@ class ProductController extends Controller
      */
     public function show($slug)
     {
-        $product = Product::where('slug', $slug)->firstOrFail();
+        $product = Product::where('slug', $slug)->with('user:id,name')->firstOrFail();
 
         return Inertia::render('ProductDetails', [
             'product' => $product
@@ -147,7 +150,7 @@ class ProductController extends Controller
         }
         $product->update($validated);
 
-        return redirect()->back()->with('success', 'Product updated successfully');
+        return redirect()->route('admin.products.index', $product->fresh())->with('success', 'Product updated successfully');
     }
 
     /**
@@ -163,6 +166,6 @@ class ProductController extends Controller
 
         $product->delete();
 
-        return redirect()->back()->with('success', 'Product deleted successfully');
+        return redirect()->route('admin.products.index', $product->fresh())->with('success', 'Product deleted successfully');
     }
 }

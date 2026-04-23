@@ -22,7 +22,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'dateOfBirth',
         'role',
+        'is_banned',
     ];
 
     /**
@@ -45,6 +47,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_banned' => 'boolean',
         ];
     }
 
@@ -54,8 +57,10 @@ class User extends Authenticatable
         return $this->role === 'admin'; // Assumes you have a 'role' column
     }
 
-    public function isSeller()
+    public function products()
     {
-        return $this->role === 'seller';
+        return $this->hasMany(Product::class);
     }
+
+
 }

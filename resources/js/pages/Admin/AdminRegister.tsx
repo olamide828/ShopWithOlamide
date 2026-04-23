@@ -1,14 +1,17 @@
-import React from 'react'
-import Navbar from '../components/Navbar'
-import AdminRegisterComponent from '../components/AdminRegisterComponent'
+import React from 'react';
+import Navbar from '../components/Navbar';
+import AdminRegisterComponent from '../components/AdminRegisterComponent';
+import { Head } from '@inertiajs/react';
 
 const AdminRegister = () => {
-  return (
-    <section>
-        <Navbar />
-        <AdminRegisterComponent />
-    </section>
-  )
-}
+    return (
+        <section>
+            <Head title="Admin Registration - ShopWithOlamide"></Head>
 
-export default AdminRegister
+            <Navbar />
+            <AdminRegisterComponent />
+        </section>
+    );
+};
+
+export default AdminRegister;

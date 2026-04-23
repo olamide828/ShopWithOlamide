@@ -8,6 +8,7 @@ import {
     FaInstagram,
 } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
+import { toast, Toaster } from 'sonner';
 
 interface FormData {
     name: string;
@@ -42,6 +43,10 @@ const ContactComponent = () => {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (!formData.email || !formData.name || !formData.message) {
+            toast.error('All fields are required, and cannot be empty');
+            return;
+        }
 
         setProcessing(true);
         setError(null);
@@ -50,10 +55,7 @@ const ContactComponent = () => {
         router.post('/contact', formData, {
             preserveScroll: true,
             onSuccess: () => {
-                setSuccess(
-                    'Your message has been sent successfully. We’ll get back to you soon.',
-                );
-
+                toast.success('Message sent successfully');
                 setFormData({
                     name: '',
                     email: '',
@@ -66,8 +68,8 @@ const ContactComponent = () => {
                 }, 3000);
             },
             onError: () => {
-                setError(
-                    'Unable to send your message right now. Please try again in a few moments.',
+                toast.error(
+                    'Unable to send your message right now. Check your internet and try again in a few moments.',
                 );
             },
             onFinish: () => {
@@ -78,11 +80,12 @@ const ContactComponent = () => {
 
     return (
         <section className="bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+            <Toaster richColors position="top-right" />
             <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_420px]">
                 {/* Contact Info Card */}
                 <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600/90 to-black/70 p-8 text-white shadow-2xl lg:p-10">
                     <div className="max-w-md">
-                        <span className="mb-4 inline-flex rounded-full bg-white/15 px-4 py-1 text-sm font-medium backdrop-blur">
+                        <span className="mb-2 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm font-semibold tracking-[0.2em] text-indigo-200 uppercase backdrop-blur-md">
                             Contact Us
                         </span>
 
@@ -221,7 +224,6 @@ const ContactComponent = () => {
                                     name="name"
                                     value={formData.name}
                                     onChange={handleChange}
-                                    required
                                     placeholder="John Doe"
                                     className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
                                 />
@@ -241,7 +243,6 @@ const ContactComponent = () => {
                                     name="email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    required
                                     placeholder="you@example.com"
                                     className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
                                 />
@@ -280,7 +281,6 @@ const ContactComponent = () => {
                                 name="message"
                                 value={formData.message}
                                 onChange={handleChange}
-                                required
                                 rows={6}
                                 placeholder="Tell us how we can help you..."
                                 className="w-full resize-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
@@ -290,7 +290,7 @@ const ContactComponent = () => {
                         <button
                             type="submit"
                             disabled={processing}
-                            className="flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70"
+                            className="flex min-h-[52px] cursor-pointer w-full items-center justify-center rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70"
                         >
                             {processing ? 'Sending Message...' : 'Send Message'}
                         </button>

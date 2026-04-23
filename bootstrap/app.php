@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\CheckBanned;
 use App\Http\Middleware\SellerMiddleware;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
@@ -18,10 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
+            CheckBanned::class,
         ]);
         $middleware->alias([
             'admin' => AdminMiddleware::class,
-            'seller' => SellerMiddleware::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

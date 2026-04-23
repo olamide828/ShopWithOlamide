@@ -55,12 +55,14 @@ class webController extends Controller
             'fullName' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
+            'dateOfBirth' => 'required|string',
             'role' => 'nullable|string' // Allow role to be passed
         ]);
 
         User::create([
             'name' => $data['fullName'],
             'email' => $data['email'],
+            'dateOfBirth' => $data['dateOfBirth'],
             'password' => Hash::make($data['password']),
             'role' => $request->role ?? 'user', // Set default if not provided
         ]);
@@ -88,6 +90,12 @@ class webController extends Controller
         $user = Auth::user();
 
         // Strict role check
+
+        if($user->is_banned) {
+            Auth::logout();
+            return back()->withErrors(['email' => 'Your account has been suspended.']);
+        }
+
         if ($loginRole === 'admin' && !$user->isAdmin()) {
             Auth::logout();
             return back()->withErrors(['email' => 'Invalid credentials']);

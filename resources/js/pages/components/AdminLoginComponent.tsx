@@ -1,4 +1,4 @@
-import { router, useForm } from '@inertiajs/react';
+import { router, useForm, usePage } from '@inertiajs/react';
 import React, { useState } from 'react';
 import {
     FaArrowRight,
@@ -8,9 +8,11 @@ import {
     FaShieldAlt,
     FaUserShield,
 } from 'react-icons/fa';
+import { toast, Toaster } from 'sonner';
 
 const AdminLoginComponent = () => {
     const [showPassword, setShowPassword] = useState(false);
+    const { auth } = usePage().props;
 
     const { data, setData, post, processing, errors } = useForm({
         email: '',
@@ -23,16 +25,20 @@ const AdminLoginComponent = () => {
 
         post('/login', {
             onError: (errors) => {
-                console.log('Admin login failed', errors);
+                Object.values(errors).forEach((error: any) => {
+                    toast.error(error);
+                });
             },
             onSuccess: () => {
-                console.log('Admin authorized');
+                toast.success(`Welcome back ${auth.user.name}👋`);
             },
         });
     };
 
     return (
         <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#020617] px-4 py-10">
+            <Toaster richColors position="top-right" />
+
             {/* Background Glow */}
             <div className="absolute top-[-120px] left-[-120px] h-72 w-72 rounded-full bg-indigo-600/30 blur-3xl" />
             <div className="absolute right-[-120px] bottom-[-120px] h-80 w-80 rounded-full bg-cyan-500/20 blur-3xl" />
@@ -202,7 +208,7 @@ const AdminLoginComponent = () => {
                                 onClick={() => router.get('/')}
                                 className="mt-4 block w-full cursor-pointer text-sm text-slate-500 transition hover:text-slate-800"
                             >
-                                ← Return to Public Site
+                                ← Return to Storefront
                             </button>
                         </div>
                     </div>

@@ -9,6 +9,7 @@ import {
     FaUserPlus,
 } from 'react-icons/fa';
 import SMILEY_PIC from '/public/smiley_pic.jpg';
+import { toast, Toaster } from 'sonner';
 
 const AdminRegisterComponent = () => {
     const [successMessage, setSuccessMessage] = useState('');
@@ -18,6 +19,7 @@ const AdminRegisterComponent = () => {
         fullName: '',
         email: '',
         password: '',
+        dateOfBirth: '',
         role: 'admin',
     });
 
@@ -25,6 +27,12 @@ const AdminRegisterComponent = () => {
         e.preventDefault();
 
         post('/register', {
+            onError: (errors) => {
+                Object.values(errors).forEach((error: any) => {
+                    toast.error(error);
+                });
+            },
+
             onSuccess: () => {
                 setSuccessMessage('Admin account created successfully!');
 
@@ -37,6 +45,8 @@ const AdminRegisterComponent = () => {
 
     return (
         <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#020617] px-4 py-10">
+            <Toaster richColors position="top-right" />
+
             <div className="absolute top-[-100px] left-[-100px] h-72 w-72 rounded-full bg-fuchsia-500/20 blur-3xl" />
             <div className="absolute right-[-120px] bottom-[-120px] h-80 w-80 rounded-full bg-indigo-500/20 blur-3xl" />
 
@@ -162,6 +172,26 @@ const AdminRegisterComponent = () => {
 
                             <div>
                                 <label className="mb-2 block text-sm font-semibold text-slate-700">
+                                    Admin Date of Birth (DD/MM/YYYY)
+                                </label>
+                                <input
+                                    type="date"
+                                    value={data.dateOfBirth}
+                                    onChange={(e) =>
+                                        setData('dateOfBirth', e.target.value)
+                                    }
+                                    className="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
+                                    placeholder="Date of Birth(DD/MM/YYYY)"
+                                />
+                                {errors.dateOfBirth && (
+                                    <p className="mt-1 text-xs text-red-500">
+                                        {errors.dateOfBirth}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div>
+                                <label className="mb-2 block text-sm font-semibold text-slate-700">
                                     Password
                                 </label>
 
@@ -197,7 +227,7 @@ const AdminRegisterComponent = () => {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="group cursor-pointer flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-fuchsia-600 via-indigo-600 to-slate-900 py-4 text-sm font-bold tracking-[0.18em] text-white uppercase shadow-[0_12px_30px_rgba(147,51,234,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(99,102,241,0.45)] disabled:cursor-not-allowed disabled:opacity-70"
+                                className="group flex w-full cursor-pointer items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-fuchsia-600 via-indigo-600 to-slate-900 py-4 text-sm font-bold tracking-[0.18em] text-white uppercase shadow-[0_12px_30px_rgba(147,51,234,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(99,102,241,0.45)] disabled:cursor-not-allowed disabled:opacity-70"
                             >
                                 {processing
                                     ? 'Creating Account...'

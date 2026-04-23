@@ -162,7 +162,7 @@ const AboutComponent = () => {
                         </h2>
 
                         <p className="mt-6 text-lg leading-9 text-slate-600">
-                            Our founder started this company with a clear vision: create a platform that people can trust and genuinely enjoy using. From the beginning, the focus was not only on building technology, but also on building meaningful experiences for customers and businesses.
+                            Our founder & CEO, Dr. Adegboyega Olamide, started this company with a clear vision: create a platform that people can trust and genuinely enjoy using. From the beginning, the focus was not only on building technology, but also on building meaningful experiences for customers and businesses.
                         </p>
 
                         <p className="mt-6 text-lg leading-9 text-slate-600">

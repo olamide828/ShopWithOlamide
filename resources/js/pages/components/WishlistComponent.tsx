@@ -1,13 +1,16 @@
 import { Link, router, usePage } from '@inertiajs/react';
 // import UserDashboard from './UserDashboard';
+import { toast, Toaster } from 'sonner';
 
 export default function WishlistComponent() {
-    const { wishlist = [] }: any = usePage().props; 
+    const { wishlist = [] }: any = usePage().props;
 
     return (
         <div className="min-h-screen bg-gray-50 p-6 md:p-10">
+            <Toaster richColors position="top-right" />
+
             <div className="mx-auto max-w-6xl">
-                <div className="mb-8 flex items-center justify-between">
+                <div className="mb-8 flex flex-col justify-between gap-3 lg:flex-row lg:items-center">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900">
                             My Wishlist
@@ -44,7 +47,7 @@ export default function WishlistComponent() {
                                     className="mb-4 h-52 w-full rounded-xl object-cover"
                                 />
 
-                                <h2 className="mb-2 text-lg font-bold text-gray-900 line-clamp-1">
+                                <h2 className="mb-2 line-clamp-1 text-lg font-bold text-gray-900">
                                     {item.product.name}
                                 </h2>
 
@@ -55,9 +58,24 @@ export default function WishlistComponent() {
                                 <div className="flex gap-3">
                                     <button
                                         onClick={() =>
-                                            router.post('/cart', {
-                                                product_id: item.product.id,
-                                            })
+                                            router.post(
+                                                '/cart',
+                                                {
+                                                    product_id: item.product.id,
+                                                },
+                                                {
+                                                    onSuccess: () => {
+                                                        toast.success(
+                                                            `${item.product.name} added to cart`,
+                                                        );
+                                                    },
+                                                    onError: () => {
+                                                        toast.error(
+                                                            'Failed to add to cart',
+                                                        );
+                                                    },
+                                                },
+                                            )
                                         }
                                         className="flex-1 cursor-pointer rounded-xl bg-indigo-600 py-3 font-semibold text-white hover:bg-indigo-700"
                                     >
@@ -66,9 +84,11 @@ export default function WishlistComponent() {
 
                                     <button
                                         onClick={() =>
-                                            router.delete(`/wishlist/${item.id}`)
+                                            router.delete(
+                                                `/wishlist/${item.id}`,
+                                            )
                                         }
-                                        className="rounded-xl cursor-pointer border border-red-200 px-4 py-3 font-semibold text-red-600 hover:bg-red-50"
+                                        className="cursor-pointer rounded-xl border border-red-200 px-4 py-3 font-semibold text-red-600 hover:bg-red-50"
                                     >
                                         Remove
                                     </button>
@@ -81,6 +101,5 @@ export default function WishlistComponent() {
         </div>
     );
 }
-
 
 // WishlistPage.layout = (page: any) => <UserDashboard children={page} />;

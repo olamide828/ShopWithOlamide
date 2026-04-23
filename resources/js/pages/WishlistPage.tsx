@@ -1,14 +1,17 @@
-import React from 'react'
-import Navbar from './components/Navbar'
-import WishlistComponent from './components/WishlistComponent'
+import React from 'react';
+import Navbar from './components/Navbar';
+import WishlistComponent from './components/WishlistComponent';
+import { Head } from '@inertiajs/react';
 
 const WishlistPage = () => {
-  return (
-    <section>
-        <Navbar />
-        <WishlistComponent/>
-    </section>
-  )
-}
+    return (
+        <section>
+            <Head title="Wishlist - ShopWithOlamide"></Head>
 
-export default WishlistPage
+            <Navbar />
+            <WishlistComponent />
+        </section>
+    );
+};
+
+export default WishlistPage;

@@ -1,16 +1,19 @@
-import React from 'react'
-import Navbar from './components/Navbar'
-import PrivacyPolicyComponent from './components/PrivacyPolicyComponent'
-import Footer from './components/Footer'
+import React from 'react';
+import Navbar from './components/Navbar';
+import PrivacyPolicyComponent from './components/PrivacyPolicyComponent';
+import Footer from './components/Footer';
+import { Head } from '@inertiajs/react';
 
 const PrivacyPolicy = () => {
-  return (
-    <section>
-        <Navbar />
-        <PrivacyPolicyComponent />
-        <Footer />
-    </section>
-  )
-}
+    return (
+        <section>
+            <Head title="Privacy Policy - ShopWithOlamide"></Head>
 
-export default PrivacyPolicy
+            <Navbar />
+            <PrivacyPolicyComponent />
+            <Footer />
+        </section>
+    );
+};
+
+export default PrivacyPolicy;

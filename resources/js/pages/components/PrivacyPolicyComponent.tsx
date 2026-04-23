@@ -1,6 +1,9 @@
 import React from 'react';
 
 const PrivacyPolicyComponent = () => {
+
+  
+
   const sections = [
     {
       title: 'Information We Collect',
@@ -141,7 +144,7 @@ const PrivacyPolicyComponent = () => {
 
               <div className="mt-6 flex flex-wrap gap-4">
                 <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm text-slate-300">
-                  support@yourwebsite.com
+                  support@shopwitholamide.com
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm text-slate-300">
                   Available Monday – Friday

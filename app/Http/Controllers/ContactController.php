@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Symfony\Component\Mailer\Exception\TransportException;
 
 class ContactController extends Controller
 {
@@ -68,9 +70,17 @@ class ContactController extends Controller
         $request->validate([
             'name' => 'required',
             'email' => 'required|email',
-            'message' => 'required', 
+            'message' => 'required',
         ]);
 
-        Mail::to('adegboyega00001@gmail.com')->send(new \App\Mail\ContactMail($request->all()));
+        try {
+            Mail::to('adegboyega00001@gmail.com')->send(new \App\Mail\ContactMail($request->all()));
+        } catch (TransportException $e) {
+            Log::error('Mail failed: ' . $e->getMessage());
+
+            return back()->withErrors([
+                'email' => 'Could not send message. Please connect to the internet and try again.'
+            ]);
+        }
     }
 }

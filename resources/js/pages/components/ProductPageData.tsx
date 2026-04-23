@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import { FaFilter, FaSearch, FaCheck } from 'react-icons/fa';
+import { toast, Toaster } from 'sonner';
 
 const ProductPageData = () => {
     const { products }: any = usePage().props;
@@ -11,6 +12,14 @@ const ProductPageData = () => {
     const [selectedCategory, setSelectedCategory] = React.useState('All');
 
     const trimmedSearch = search.trim();
+
+    // let i = products;
+
+    // // for(i)
+
+    // for (i = 0; i < 10; i++) {
+    //     toast.success("Mogb/e ooob  &copy;")
+    // }
 
     // Extract unique categories
     const categories = [
@@ -60,6 +69,8 @@ const ProductPageData = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
+            <Toaster richColors position="top-right" />
+
             <div className="mx-auto max-w-7xl px-4 py-8">
                 {/* Header */}
                 <div className="mb-6">
@@ -70,7 +81,13 @@ const ProductPageData = () => {
                         Find the best products at the best prices
                     </p>
                 </div>
-
+                {/* Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+                Aliquam labore animi necessitatibus voluptatibus exercitationem
+                id esse et provident dolor. Adipisci, recusandae quasi magnam
+                eum possimus aspernatur quo. Praesentium fugit architecto
+                aliquid eligendi ipsum. Maiores nobis eveniet suscipit,
+                deleniti, ipsum soluta quibusdam itaque quo, eius veniam ut
+                obcaecati eum illo quidem. */}
                 {/* Category Tabs */}
                 <div className="mb-6 flex flex-wrap gap-2">
                     {categories.map((cat) => (
@@ -87,7 +104,6 @@ const ProductPageData = () => {
                         </button>
                     ))}
                 </div>
-
                 {/* Toolbar */}
                 <div className="sticky top-18 z-40 mb-6 flex flex-col gap-3 rounded-xl bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
                     {/* Left - Search */}
@@ -105,8 +121,9 @@ const ProductPageData = () => {
                     {/* Right - Controls */}
                     <div className="flex items-center justify-between gap-3">
                         {/* Count */}
-                        <p className="hidden text-sm text-gray-500 md:block">
-                            {sortedProducts.length} items
+                        <p className="text-sm text-gray-500 md:block">
+                            {sortedProducts.length}{' '}
+                            {sortedProducts.length === 1 ? 'item' : 'items'}
                         </p>
 
                         {/* Filter */}
@@ -141,7 +158,6 @@ const ProductPageData = () => {
                         </div>
                     </div>
                 </div>
-
                 {/* Products Grid */}
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                     {sortedProducts.length > 0 ? (
@@ -210,6 +226,20 @@ const ProductPageData = () => {
                         </div>
                     )}
                 </div>
+                {/* <div className="mt-10 flex flex-wrap justify-center gap-2">
+                    {products.links.map((link: any, index: number) => (
+                        <Link
+                            key={index}
+                            href={link.url || '#'}
+                            dangerouslySetInnerHTML={{ __html: link.label }}
+                            className={`rounded-lg border px-4 py-2 text-sm transition ${
+                                link.active
+                                    ? 'bg-indigo-600 text-white'
+                                    : 'bg-white text-gray-700 hover:bg-gray-100'
+                            } ${!link.url && 'cursor-not-allowed opacity-50'}`}
+                        />
+                    ))}
+                </div> */}
             </div>
         </div>
     );

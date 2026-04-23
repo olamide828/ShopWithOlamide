@@ -1,6 +1,7 @@
 import { router, useForm } from '@inertiajs/react';
 import React, { useState } from 'react';
 import SMILEY_PIC from '/public/smiley_pic.jpg';
+import { toast, Toaster } from 'sonner';
 
 const RegisterComponent = () => {
     // const [fullName, setFullName] = useState<string>('');
@@ -18,6 +19,7 @@ const RegisterComponent = () => {
         fullName: '',
         email: '',
         password: '',
+        dateOfBirth: '',
     });
 
     const handleRegister = (e: any) => {
@@ -31,54 +33,46 @@ const RegisterComponent = () => {
         // }
 
         try {
-            // const data = {
-            //     fullName: fullName.trim(),
-            //     email: email.trim(),
-            //     password: password.trim(),
-            // }
-            // router.post('/register', data, {
-            //     onFinish:() => {
-            //         console.log('Registration request finished');
-            //     },
-            //     onError: (errors) => {
-            //         console.error('Registration failed:', errors);
-            //         setErrorMessage('Registration failed. Please try again.');
-            //     },
-            //     onSuccess: (response) => {
-            //         console.log('Registration successful:', response);
-            //         setSuccessMessage('Account created successfully!');
-            //     }
-            // });
+            
+            
             post('/register', {
-                onFinish: () => {
-                    console.log('Registration request finished');
-                },
                 onError: (errors) => {
-                    console.error('Registration failed:', errors);
-                    console.log('Registration failed. Please try again.');
+                    Object.values(errors).forEach((error: any) => {
+                        toast.error(error);
+                    });
                 },
-                onSuccess: (response) => {
-                    console.log('Registration successful:', response);
-                    setSuccessMessage('Account created successfully!');
-                    setTimeout(() => setSuccessMessage(''), 3000);
+                onSuccess: () => {
+                    // console.log('Registration successful:', response);
+                    toast.success('Account created successfully!');
+                    // setTimeout(() => setSuccessMessage(''), 3000);
                     setTimeout(() => {
                         router.get('/verify-email');
                     }, 3000);
                 },
+                // onFinish: () => {
+                //     toast.info('Registration request finished');
+                // },
             });
-        } catch (error) {
-            console.log('An unexpected error occurred. Please try again.');
+        } catch (error: unknown) {
+            toast.error(error.message || 'An error occured. Try again later.');
         }
     };
 
     return (
         <section className="flex min-h-screen items-center justify-center bg-gray-100 px-6 py-12">
+            <Toaster richColors position="top-right" />
+
             <div className="w-full max-w-md rounded-3xl border border-gray-100 bg-white p-10 shadow-xl">
                 <div className="mb-5 text-center">
-                    <h3 className="text-3xl font-bold text-gray-900 flex justify-center items-center">
+                    <h3 className="flex items-center justify-center text-3xl font-bold text-gray-900">
                         Create Acc
                         <span>
-                            <img src={SMILEY_PIC} width={35} alt="smiley_pic" className='object-contain' />
+                            <img
+                                src={SMILEY_PIC}
+                                width={35}
+                                alt="smiley_pic"
+                                className="object-contain"
+                            />
                         </span>
                         unt
                     </h3>
@@ -111,11 +105,15 @@ const RegisterComponent = () => {
                     />
                     {<p className="ml-2 text-red-500">{errors.email}</p>}
 
-                    {/* {!data.email && (
-                        <p className="m-0 text-sm text-red-500">
-                            {errorMessage}
-                        </p>
-                    )} */}
+                    <input
+                        type="date"
+                        value={data.dateOfBirth}
+                        onChange={(e) => setData('dateOfBirth', e.target.value)}
+                        placeholder="Date of Birth(DD/MM/YYYY)"
+                        className="m-2 w-full uppercase rounded-xl border border-gray-200 bg-gray-50 px-5 py-3 transition focus:bg-white focus:ring-2 focus:ring-blue-400"
+                    />
+                    {<p className="ml-2 text-red-500">{errors.dateOfBirth}</p>}
+
                     <div className="relative m-0">
                         <input
                             type={showPassword ? 'text' : 'password'}
@@ -124,7 +122,7 @@ const RegisterComponent = () => {
                                 setData('password', e.target.value)
                             }
                             placeholder="Password"
-                            className="m-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-5 pr-16 py-3 transition focus:bg-white focus:ring-2 focus:ring-blue-400"
+                            className="m-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-5 py-3 pr-16 transition focus:bg-white focus:ring-2 focus:ring-blue-400"
                         />
                         <p className="ml-2 text-red-500">{errors.password}</p>
                         {data.password && (
@@ -144,7 +142,7 @@ const RegisterComponent = () => {
                     )} */}
                     <button
                         disabled={processing}
-                        className={`${processing ? 'cursor-not-allowed' : 'cursor-pointer'} m-2 w-full rounded-xl bg-blue-600 py-4 font-semibold text-white shadow-lg transition-all hover:bg-blue-700 active:scale-95`}
+                        className={`${processing ? 'cursor-not-allowed' : 'cursor-pointer'} m-2 w-full rounded-xl disabled:opacity-25 bg-blue-600 py-4 font-semibold text-white shadow-lg transition-all hover:bg-blue-700 active:scale-95`}
                     >
                         {processing ? 'Creating Account...' : 'Create Account'}
                     </button>

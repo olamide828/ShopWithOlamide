@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import { FaTrash, FaPlus, FaMinus, FaArrowRight } from 'react-icons/fa';
 import emptyCart from '/public/empty_cart.png';
@@ -6,28 +6,47 @@ import sadEmoji from '/public/sad_emoji.png';
 // import Dashboard from '../Home/Dashboard';
 // import DashboardHome from '../DashboardHome';
 import UserDashboard from '../UserDashboard';
+import { toast, Toaster } from 'sonner';
 
 const Cart = () => {
+    const [loading, setLoading] = useState(false);
     const { carts, total, auth }: any = usePage().props;
     const isUserTrue = auth.user;
+    // `/cart/update/${id}`,
 
-    const updateQuantity = (id: number, type: 'inc' | 'dec') => {
-        router.post(`/cart/update/${id}`, { type });
+    const updateQuantity = (
+        cartId: number,
+        newQty: number,
+        availableStock: number,
+    ) => {
+        if (newQty > availableStock + currentQty) {
+            toast.error(`Only ${availableStock} more available`);
+            return;
+        }
+
+        router.put(
+            `/cart/update/${cartId}`,
+            { quantity: newQty },
+            {
+                preserveScroll: true,
+                preserveState: false,
+            },
+        );
     };
-     const reloadCart = () => {
-        window.location.reload();
-    };
+    // const reloadCart = () => {
+    //     window.location.reload();
+    // };
 
     const removeItem = (id: number) => {
-        router.delete(`/cart/${id}`);
-        setTimeout(() => {
-        reloadCart();
-    }, 500);
+        router.delete(`/cart/${id}`, {
+            onSuccess: () => {
+                toast.success('removed to cart');
+            },
+        });
+        // setTimeout(() => {
+        //     reloadCart();
+        // }, 500);
     };
-
-   
-
-    
 
     const formatTimeAgo = (dateString: string) => {
         const date = new Date(dateString);
@@ -71,6 +90,8 @@ const Cart = () => {
 
     return (
         <>
+            <Toaster richColors position="top-right" />
+
             {isUserTrue ? (
                 <>
                     <div className="min-h-screen bg-gray-50 p-6">
@@ -79,17 +100,18 @@ const Cart = () => {
                         </h1>
 
                         {carts.length === 0 ? (
-                            <div className="m-auto w-fit">
-                                <img
+                            <div className="m-auto w-fit flex flex-col items-center justify-center">
+                                <div className='relative'>
+                                    <div className='absolute bg-white/5 inset-0'></div>
+                                    <img
                                     src={emptyCart}
                                     alt="empty_cart"
                                     className="ml-16"
                                 />
+                                </div>
                                 <Link href="/shop/u/products">
-                                    <button
-                                        className="group flex h-14 cursor-pointer items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 text-sm font-semibold text-white shadow-[0_15px_40px_rgba(99,102,241,0.35)] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_20px_60px_rgba(99,102,241,0.45)]"
-                                    >
-                                       Your cart is empty, Shop now.
+                                    <button className="group flex h-14 cursor-pointer items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 text-sm font-semibold text-white shadow-[0_15px_40px_rgba(99,102,241,0.35)] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_20px_60px_rgba(99,102,241,0.45)]">
+                                        Your cart is empty, Shop now.
                                         <FaArrowRight className="transition duration-300 group-hover:translate-x-1" />
                                     </button>
                                 </Link>
@@ -104,6 +126,7 @@ const Cart = () => {
                                             className="flex items-center gap-4 rounded-xl bg-white p-4 shadow"
                                         >
                                             <img
+                                                alt={item.product.slug}
                                                 src={item.product.image}
                                                 className="h-24 w-24 rounded-lg object-cover"
                                             />
@@ -123,8 +146,16 @@ const Cart = () => {
                                                         onClick={() =>
                                                             updateQuantity(
                                                                 item.id,
-                                                                'dec',
+                                                                item.quantity -
+                                                                    1,
+                                                                item.product
+                                                                    .stock_quantity,
                                                             )
+                                                        }
+                                                        disabled={
+                                                            item.product
+                                                                .stock_quantity <=
+                                                            0
                                                         }
                                                         className="cursor-pointer rounded bg-gray-200 p-2"
                                                     >
@@ -137,8 +168,16 @@ const Cart = () => {
                                                         onClick={() =>
                                                             updateQuantity(
                                                                 item.id,
-                                                                'inc',
+                                                                item.quantity +
+                                                                    1,
+                                                                item.product
+                                                                    .stock_quantity,
                                                             )
+                                                        }
+                                                        disabled={
+                                                            item.product
+                                                                .stock_quantity <=
+                                                            0
                                                         }
                                                         className="cursor-pointer rounded bg-gray-200 p-2"
                                                     >
@@ -214,8 +253,9 @@ const Cart = () => {
                                     </div>
 
                                     <button
+                                        disabled={loading}
                                         onClick={() => router.post('/checkout')}
-                                        className="mt-4 w-full cursor-pointer rounded-lg bg-indigo-600 py-2 text-white hover:bg-indigo-700"
+                                        className={`mt-4 w-full cursor-pointer rounded-lg ${loading && 'cursor-not-allowed opacity-25'} bg-indigo-600 py-2 text-white hover:bg-indigo-700`}
                                     >
                                         Checkout
                                     </button>

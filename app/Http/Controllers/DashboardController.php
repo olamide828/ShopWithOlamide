@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Wishlist;
@@ -30,7 +31,7 @@ class DashboardController extends Controller
 
 
         $carts = Cart::where('user_id', $user->id)->with('product')->get();
-        $total = $carts->sum(fn($item) => $item->price * $item->quantity);
+        $cartTotal = $carts->sum(fn($item) => $item->price * $item->quantity);
 
 
         $orders = Order::where('user_id', $user->id)
@@ -38,6 +39,16 @@ class DashboardController extends Controller
             ->latest()
             ->take(5)
             ->get();
+
+        $totalSpent = Order::where("user_id", $user->id)
+            ->whereIn('status', ['shipped', 'delivered', 'paid'])
+            ->sum('total');
+
+        
+        $activeOrders = Order::where('user_id', $user->id)
+            ->whereIn('status', ['shipped', 'delivered'])
+            ->count();
+        
 
         $wishlist = Wishlist::where('user_id', $user->id)
             ->with('product')
@@ -47,7 +58,9 @@ class DashboardController extends Controller
 
         return Inertia::render('UserDashboard', [
             'carts' => $carts,
-            'total' => number_format($total, 2),
+            'cartTotal' => number_format($cartTotal, 2),
+            'total' => number_format($totalSpent, 2),
+            'activeOrders' => $activeOrders,
             'orders' => $orders,
             'wishlist' => $wishlist,
         ]);
@@ -59,14 +72,57 @@ class DashboardController extends Controller
         $totalProducts = Product::count();
         $totalUsers = User::count();
 
-        $totalSales = 8450;
+        $totalSales = OrderItem::selectRaw('SUM(price * quantity) as total')->value('total');
+
+        $monthlySales = OrderItem::whereMonth('created_at', now()->month)
+            ->sum(\DB::raw('price * quantity'));
+
+        $recentUsers = User::latest()->take(2)->get()->map(function ($user) {
+            $role = $user->role === 'admin' ? 'Admin' : 'User';
+            return [
+                'message' => "{$role} '{$user->name}' joined the platform.",
+                'time' => $user->created_at,
+                'type' => 'user'
+            ];
+        });
+
+        $recentProducts = Product::with('user:id,name')->latest()->take(2)->get()->map(function ($product) {
+            return [
+                'message' => "Admin '{$product->user?->name}' listed '{$product->name}'.",
+                'time' => $product->created_at,
+                'type' => 'product'
+            ];
+        });
+
+        $recentOrders =  Order::with('user:id,name')->latest()->take(2)->get()->map(function ($order) {
+            return [
+                'message' => "New order #{$order->id} from {$order->user?->name}",
+                'time' => $order->created_at,
+                'type' => 'order'
+            ];
+        });
+
+        $activities = $recentUsers 
+            ->concat($recentProducts)
+            ->concat($recentOrders)
+            ->sortByDesc('time')
+            ->take(5)
+            ->map(fn($a) => [
+                'message' => $a['message'],
+                'time' => $a['time']->diffForHumans(),
+                'type' => $a['type']
+            ])
+            ->values();
 
         return inertia('DashboardHome', [
             'stats' => [
                 'products' => $totalProducts,
                 'users' => $totalUsers,
                 'sales' => $totalSales,
-            ]
+                'monthlySales' => $monthlySales
+
+            ],
+            'activities' => $activities
         ]);
     }
 

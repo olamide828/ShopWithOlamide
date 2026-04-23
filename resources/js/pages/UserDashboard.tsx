@@ -1,5 +1,5 @@
 import React, { PropsWithChildren, useState } from 'react';
-import { Link, usePage, router } from '@inertiajs/react';
+import { Link, usePage, router, Head } from '@inertiajs/react';
 import { FiSettings, FiMenu, FiX } from 'react-icons/fi';
 import {
     FaShoppingBag,
@@ -11,6 +11,9 @@ import {
     FaBoxOpen,
     FaRegEye,
     FaRegEyeSlash,
+    FaArrowLeft,
+    FaWallet,
+    FaTruck,
 } from 'react-icons/fa';
 import { useForm } from '@inertiajs/react';
 
@@ -18,7 +21,9 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
     const {
         auth,
         carts = [],
+        cartTotal = 0,
         total = 0,
+        activeOrders,
         orders = [],
         wishlist = [],
     } = usePage().props;
@@ -27,12 +32,23 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const logout = () => router.post('/logout');
-    
+
+    const statusClasses = {
+        pending: 'text-yellow-700 bg-yellow-100',
+        shipped: 'text-blue-700 bg-blue-100',
+        delivered: 'text-green-700 bg-green-100',
+        cancelled: 'text-red-700 bg-red-100',
+        paid: 'text-purple-700 bg-purple-100',
+    };
 
     return (
         <div className="flex min-h-screen bg-gray-50">
+            <Head
+                title={`${auth.user?.name} Dashboard - ShopWithOlamide`}
+            ></Head>
+
             {/* --- MOBILE TOGGLE --- */}
-            <div className="fixed top-4 left-4 z-50 md:hidden">
+            <div className="fixed top-4 right-4 z-50 md:hidden">
                 <button
                     onClick={() => setSidebarOpen(!sidebarOpen)}
                     className="rounded-md bg-white p-2 shadow"
@@ -78,6 +94,7 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                         href="/orders"
                         icon={<FaBoxOpen />}
                         label="My Orders"
+                        badge={orders.length}
                     />
                     <NavItem
                         href="/wishlist"
@@ -90,8 +107,18 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                         icon={<FiSettings />}
                         label="Manage Account"
                     />
+
                     {/* Removed Manage Account NavItem */}
                 </nav>
+
+                <div className="mt-10 p-4">
+                    <Link
+                        href="/"
+                        className="flex items-center gap-3 px-4 py-2 text-sm font-medium text-gray-500 transition-colors hover:text-indigo-600"
+                    >
+                        <FaArrowLeft className="text-xs" /> Storefront
+                    </Link>
+                </div>
 
                 <div className="border-t border-gray-100 p-4">
                     <button
@@ -115,12 +142,12 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                             Here's what's happening with your account today.
                         </p>
                     </div>
-                    <Link
-                        href="/shop/u/products"
-                        className="flex w-fit items-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 font-semibold text-white shadow-md hover:bg-indigo-700"
+                    <button
+                        onClick={() => router.get('/shop/u/products')}
+                        className="flex w-fit cursor-pointer items-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 font-semibold text-white shadow-md hover:bg-indigo-700"
                     >
                         Shop Now <FaChevronRight className="text-xs" />
-                    </Link>
+                    </button>
                 </header>
 
                 {/* Stats Cards */}
@@ -128,11 +155,11 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                     <StatCard
                         label="Cart Items"
                         value={carts.length}
-                        icon={<FaShoppingCart className="text-blue-600" />}
-                        color="bg-blue-50"
+                        icon={<FaShoppingCart className="text-indigo-600" />}
+                        color="bg-indigo-50"
                     />
                     <StatCard
-                        label="Active Orders"
+                        label="Orders"
                         value={orders.length}
                         icon={<FaBoxOpen className="text-orange-600" />}
                         color="bg-orange-50"
@@ -140,8 +167,20 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                     <StatCard
                         label="Total Spent"
                         value={`$${total || '0.00'}`}
-                        icon={<FaShoppingBag className="text-green-600" />}
+                        icon={<FaWallet className="text-green-600" />}
                         color="bg-green-50"
+                    />
+                    <StatCard
+                        label="Cart Total"
+                        value={`$${cartTotal || '0.00'}`}
+                        icon={<FaShoppingBag className="text-purple-600" />}
+                        color="bg-purple-50"
+                    />
+                    <StatCard
+                        label="Active Orders"
+                        value={activeOrders}
+                        icon={<FaTruck className="text-blue-600" />}
+                        color="bg-blue-50"
                     />
                 </div>
 
@@ -151,12 +190,12 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                     <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white p-6 shadow-sm lg:col-span-2">
                         <div className="mb-6 flex items-center justify-between">
                             <h2 className="text-lg font-bold">Recent Orders</h2>
-                            <Link
-                                href="/orders"
-                                className="text-sm font-semibold text-indigo-600 hover:underline"
+                            <button
+                                onClick={() => router.get('/orders')}
+                                className="cursor-pointer text-sm font-semibold text-indigo-600 hover:underline"
                             >
                                 View All
-                            </Link>
+                            </button>
                         </div>
 
                         {orders.length === 0 ? (
@@ -196,8 +235,10 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                                                 #ORD-{order.id}
                                             </td>
                                             <td className="py-4">
-                                                <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
-                                                    Delivered
+                                                <span
+                                                    className={`rounded-full ${statusClasses[order.status] || 'bg-gray-100 text-gray-700'} px-3 py-1 text-xs font-bold capitalize`}
+                                                >
+                                                    {order.status}
                                                 </span>
                                             </td>
                                             <td className="py-4 text-right text-sm font-bold">
@@ -207,7 +248,7 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                                             </td>
                                             <td className="py-4 text-right text-sm font-bold">
                                                 {new Date(
-                                                    order.created_at,
+                                                    order.updated_at,
                                                 ).toLocaleTimeString()}
                                             </td>
                                             <td className="py-4 text-right font-bold">
@@ -258,13 +299,13 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                                         Subtotal
                                     </span>
                                     <span className="font-bold text-gray-900">
-                                        ${total}
+                                        ${cartTotal}
                                     </span>
                                 </div>
                                 <button
                                     disabled={carts.length < 1}
                                     onClick={() => router.get('/cart')}
-                                    className={`block w-full rounded-xl  py-3 text-center font-bold   ${carts.length < 1 ? 'cursor-not-allowed bg-gray-100 text-black' : 'cursor-pointer bg-gray-900 text-white hover:bg-black'}`}
+                                    className={`block w-full rounded-xl py-3 text-center font-bold ${carts.length < 1 ? 'cursor-not-allowed bg-gray-100 text-black' : 'cursor-pointer bg-gray-900 text-white hover:bg-black'}`}
                                 >
                                     Review & Checkout
                                 </button>
