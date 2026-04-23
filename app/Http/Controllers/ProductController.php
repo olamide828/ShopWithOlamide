@@ -31,7 +31,7 @@ class ProductController extends Controller
         // Transform the products to include the full Cloud URL
         $products->getCollection()->transform(function ($product) {
             if ($product->image) {
-                $product->image = Storage::disk('s3')->url($product->image);
+                $product->image = Storage::disk('private')->url($product->image);
             }
             return $product;
         });
@@ -64,8 +64,8 @@ class ProductController extends Controller
         $validated['slug'] = $count ? "{$slug}-{$count}" : $slug;
 
         if ($request->hasFile('image')) {
-            // 1. Store on 's3' instead of 'public'
-            $path = $request->file('image')->store('products', 's3');
+            // 1. Store on 'private' instead of 'public'
+            $path = $request->file('image')->store('products', 'private');
 
             // 2. Store just the path (e.g., "products/image.jpg") 
             // DO NOT add '/storage/' here anymore
@@ -87,7 +87,7 @@ public function show($slug)
 
     // Convert path to full Cloud URL
     if ($product->image) {
-        $product->image = Storage::disk('s3')->url($product->image);
+        $product->image = Storage::disk('private')->url($product->image);
     }
 
     return Inertia::render('ProductDetails', [
@@ -101,7 +101,7 @@ public function adminViewProduct($slug)
 
     // Convert path to full Cloud URL
     if ($product->image) {
-        $product->image = Storage::disk('s3')->url($product->image);
+        $product->image = Storage::disk('private')->url($product->image);
     }
 
     return Inertia::render('components/ViewProduct', [
@@ -118,7 +118,7 @@ public function adminViewProduct($slug)
         $products->transform(function ($product) {
             if ($product->image) {
                 // This generates the full https://... link to your bucket
-                $product->image = Storage::disk('s3')->url($product->image);
+                $product->image = Storage::disk('private')->url($product->image);
             } else {
                 // Optional: Fallback image if no image exists
                 $product->image = 'https://placehold.co';
@@ -159,12 +159,12 @@ public function adminViewProduct($slug)
         $validated['slug'] = $count ? "{$slug}-{$count}" : $slug;
 
         if ($request->hasFile('image')) {
-            // Delete the old image from S3 if it exists
+            // Delete the old image from private if it exists
             if ($product->image) {
-                Storage::disk('s3')->delete($product->image);
+                Storage::disk('private')->delete($product->image);
             }
-            // Store new image on S3
-            $path = $request->file('image')->store('products', 's3');
+            // Store new image on private
+            $path = $request->file('image')->store('products', 'private');
             $validated['image'] = $path;
         }
 
@@ -180,7 +180,7 @@ public function adminViewProduct($slug)
     {
         // Delete image from cloud before deleting record
         if ($product->image) {
-            Storage::disk('s3')->delete($product->image);
+            Storage::disk('private')->delete($product->image);
         }
 
         $product->delete();
