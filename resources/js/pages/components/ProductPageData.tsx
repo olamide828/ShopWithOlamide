@@ -48,7 +48,7 @@ const categoryIcons: Record<string, React.ReactNode> = {
 };
 
 const ProductPageData = () => {
-    const { products }: any = usePage().props;
+    const { products,  categories: backendCategories }: any = usePage().props;
 
     // ✅ Infinite state
     const [items, setItems] = React.useState(products.data);
@@ -64,10 +64,7 @@ const ProductPageData = () => {
     const observerRef = useRef<HTMLDivElement | null>(null);
 
     // ✅ Extract categories dynamically
-    const categories = [
-        'All',
-        ...Array.from(new Set(items.map((p: any) => p.category))),
-    ];
+    const categories = ['All', ...backendCategories];
 
     // ✅ Infinite Scroll Observer
     useEffect(() => {

@@ -221,16 +221,20 @@ class ProductController extends Controller
         $products = Product::latest()->cursorPaginate(10);
 
         $products->through(function ($product) {
-            if ($product->image) {
-                $product->image = Storage::disk('private')->url($product->image);
-            } else {
-                $product->image = 'https://placehold.co/600x400';
-            }
+            $product->image = $product->image
+                ? Storage::disk('private')->url($product->image)
+                : 'https://placehold.co/600x400';
             return $product;
         });
 
+        // ✅ Fetch ALL categories independently
+        $categories = Product::select('category')
+            ->distinct()
+            ->pluck('category');
+
         return Inertia::render("ProductPage", [
-            "products" => $products
+            "products" => $products,
+            "categories" => $categories
         ]);
     }
 
