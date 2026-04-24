@@ -26,7 +26,8 @@ const HomePage = () => {
             return isSafari && !isChrome;
         };
 
-        const safariWarningDismissed = localStorage.getItem(
+        // sessionStorage expires when the browser/tab is closed.
+        const safariWarningDismissed = sessionStorage.getItem(
             'safariWarningDismissed',
         );
 
@@ -34,23 +35,21 @@ const HomePage = () => {
             toast('Heads up, Safari User!', {
                 description:
                     'For the best experience, we recommend Chrome or Firefox. Some features may look different on Safari.',
-                duration: 60000,
+                duration: 10000,
                 id: 'safari-warning',
                 action: {
                     label: 'Got it',
                     onClick: () => {
-                        localStorage.setItem('safariWarningDismissed', 'true');
-                    },
-                },
-                cancel: {
-                    label: 'Dismiss',
-                    onClick: () => {
-                        localStorage.setItem('safariWarningDismissed', 'true');
+                        sessionStorage.setItem(
+                            'safariWarningDismissed',
+                            'true',
+                        );
                     },
                 },
             });
         }
     }, []);
+
     if (loading) {
         return (
             <>

@@ -82,10 +82,13 @@ const ContactComponent = () => {
         <section className="bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
             <Toaster richColors position="top-right" />
             <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_420px]">
-                {/* Contact Info Card */}
-                <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600/90 to-black/70 p-8 text-white shadow-2xl lg:p-10">
-                    <div className="max-w-md">
-                        <span className="mb-2 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm font-semibold tracking-[0.2em] text-indigo-200 uppercase backdrop-blur-md">
+                {/* Contact Info Card - SAFARI FIXED */}
+                <div className="relative overflow-hidden rounded-3xl bg-indigo-700 bg-gradient-to-br from-[#4f46e5ee] to-[#000000cc] p-8 text-white shadow-2xl lg:p-10">
+                    <div className="relative z-10 max-w-md">
+                        <span
+                            style={{ WebkitBackdropFilter: 'blur(12px)' }}
+                            className="mb-2 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm font-semibold tracking-[0.2em] text-indigo-200 uppercase backdrop-blur-md"
+                        >
                             Contact Us
                         </span>
 
@@ -100,12 +103,15 @@ const ContactComponent = () => {
                         </p>
                     </div>
 
-                    <div className="mt-10 space-y-5">
-                        <div className="flex items-start gap-4 rounded-2xl bg-white/10 p-4 backdrop-blur-sm">
+                    <div className="relative z-10 mt-10 space-y-5">
+                        {/* Info Row 1 */}
+                        <div
+                            style={{ WebkitBackdropFilter: 'blur(8px)' }}
+                            className="flex items-start gap-4 rounded-2xl bg-white/10 p-4 backdrop-blur-sm"
+                        >
                             <div className="mt-1 rounded-xl bg-white/15 p-3">
                                 <FaEnvelope className="text-lg" />
                             </div>
-
                             <div>
                                 <p className="text-sm text-white/70">Email</p>
                                 <a
@@ -117,11 +123,14 @@ const ContactComponent = () => {
                             </div>
                         </div>
 
-                        <div className="flex items-start gap-4 rounded-2xl bg-white/10 p-4 backdrop-blur-sm">
+                        {/* Info Row 2 */}
+                        <div
+                            style={{ WebkitBackdropFilter: 'blur(8px)' }}
+                            className="flex items-start gap-4 rounded-2xl bg-white/10 p-4 backdrop-blur-sm"
+                        >
                             <div className="mt-1 rounded-xl bg-white/15 p-3">
                                 <FaPhoneAlt className="text-lg" />
                             </div>
-
                             <div>
                                 <p className="text-sm text-white/70">Phone</p>
                                 <a
@@ -133,11 +142,14 @@ const ContactComponent = () => {
                             </div>
                         </div>
 
-                        <div className="flex items-start gap-4 rounded-2xl bg-white/10 p-4 backdrop-blur-sm">
+                        {/* Info Row 3 */}
+                        <div
+                            style={{ WebkitBackdropFilter: 'blur(8px)' }}
+                            className="flex items-start gap-4 rounded-2xl bg-white/10 p-4 backdrop-blur-sm"
+                        >
                             <div className="mt-1 rounded-xl bg-white/15 p-3">
                                 <FaMapMarkerAlt className="text-lg" />
                             </div>
-
                             <div>
                                 <p className="text-sm text-white/70">Address</p>
                                 <p className="mt-1 font-medium">
@@ -146,11 +158,14 @@ const ContactComponent = () => {
                             </div>
                         </div>
 
-                        <div className="flex items-start gap-4 rounded-2xl bg-white/10 p-4 backdrop-blur-sm">
+                        {/* Info Row 4 */}
+                        <div
+                            style={{ WebkitBackdropFilter: 'blur(8px)' }}
+                            className="flex items-start gap-4 rounded-2xl bg-white/10 p-4 backdrop-blur-sm"
+                        >
                             <div className="mt-1 rounded-xl bg-white/15 p-3">
                                 <FaClock className="text-lg" />
                             </div>
-
                             <div>
                                 <p className="text-sm text-white/70">
                                     Business Hours
@@ -158,13 +173,12 @@ const ContactComponent = () => {
                                 <div className="mt-1 space-y-1 text-sm font-medium">
                                     <p>Mon - Fri: 9:00am - 5:00pm WAT</p>
                                     <p>Saturday: 10:00am - 3:00pm WAT</p>
-                                    <p>Sunday: Closed</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="mt-10 flex items-center gap-4">
+                    <div className="relative z-10 mt-10 flex items-center gap-4">
                         <a
                             href="https://instagram.com/shopwitholamide"
                             target="_blank"
@@ -173,7 +187,6 @@ const ContactComponent = () => {
                         >
                             <FaInstagram />
                         </a>
-
                         <a
                             href="https://x.com/@shopwitholamide"
                             target="_blank"
@@ -196,18 +209,6 @@ const ContactComponent = () => {
                         </p>
                     </div>
 
-                    {error && (
-                        <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                            {error}
-                        </div>
-                    )}
-
-                    {success && (
-                        <div className="mb-6 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-                            {success}
-                        </div>
-                    )}
-
                     <form onSubmit={handleSubmit} className="space-y-5">
                         <div className="grid gap-5 sm:grid-cols-2">
                             <div>
@@ -217,7 +218,6 @@ const ContactComponent = () => {
                                 >
                                     Full Name
                                 </label>
-
                                 <input
                                     type="text"
                                     id="name"
@@ -225,10 +225,9 @@ const ContactComponent = () => {
                                     value={formData.name}
                                     onChange={handleChange}
                                     placeholder="John Doe"
-                                    className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                                    className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
                                 />
                             </div>
-
                             <div>
                                 <label
                                     htmlFor="email"
@@ -236,7 +235,6 @@ const ContactComponent = () => {
                                 >
                                     Email Address
                                 </label>
-
                                 <input
                                     type="email"
                                     id="email"
@@ -244,11 +242,10 @@ const ContactComponent = () => {
                                     value={formData.email}
                                     onChange={handleChange}
                                     placeholder="you@example.com"
-                                    className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                                    className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
                                 />
                             </div>
                         </div>
-
                         <div>
                             <label
                                 htmlFor="subject"
@@ -256,7 +253,6 @@ const ContactComponent = () => {
                             >
                                 Subject
                             </label>
-
                             <input
                                 type="text"
                                 id="subject"
@@ -264,10 +260,9 @@ const ContactComponent = () => {
                                 value={formData.subject}
                                 onChange={handleChange}
                                 placeholder="What is this regarding?"
-                                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
                             />
                         </div>
-
                         <div>
                             <label
                                 htmlFor="message"
@@ -275,7 +270,6 @@ const ContactComponent = () => {
                             >
                                 Message
                             </label>
-
                             <textarea
                                 id="message"
                                 name="message"
@@ -283,14 +277,13 @@ const ContactComponent = () => {
                                 onChange={handleChange}
                                 rows={6}
                                 placeholder="Tell us how we can help you..."
-                                className="w-full resize-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                                className="w-full resize-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
                             />
                         </div>
-
                         <button
                             type="submit"
                             disabled={processing}
-                            className="flex min-h-[52px] cursor-pointer w-full items-center justify-center rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70"
+                            className="flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-70"
                         >
                             {processing ? 'Sending Message...' : 'Send Message'}
                         </button>
