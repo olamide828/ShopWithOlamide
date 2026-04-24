@@ -14,25 +14,30 @@ const NavbarHero = () => {
     const [mobileNav, setMobileNav] = useState(false);
     const { auth, cartCount }: any = usePage().props;
 
-    const user = auth.user;
+    const user = auth?.user || null;
 
     const initials = (() => {
-        if (!user?.name) return '';
+    if (!user?.name) return '';
 
-        // 1. Trim and split by whitespace
-        const parts = user.name.trim().split(/\s+/);
+    // 1. Remove emojis & non-letter characters (keep spaces)
+    const cleanName = user.name
+        .normalize('NFKD') // handles accents
+        .replace(/[^\p{L}\s]/gu, '') // keep only letters + spaces
+        .trim();
 
-        // 2. Get the first and last name parts
-        const firstPart = parts[0];
-        const lastPart = parts.length > 1 ? parts[parts.length - 1] : '';
+    // 2. Split into words
+    const parts = cleanName.split(/\s+/);
 
-        // 3. Extract the first "character" safely (handling emojis)
-        // Using [...str][0] ensures we get the full emoji, not a broken half
-        const firstInitial = firstPart ? [...firstPart][0] : '';
-        const lastInitial = lastPart ? [...lastPart][0] : '';
+    // 3. Get ONLY first and second names
+    const first = parts[0] || '';
+    const second = parts[1] || '';
 
-        return (firstInitial + lastInitial).toUpperCase();
-    })();
+    // 4. Extract first letters safely
+    const firstInitial = first.charAt(0);
+    const secondInitial = second.charAt(0);
+
+    return (firstInitial + secondInitial).toUpperCase();
+})();
 
     const logout = () => {
         router.post(
