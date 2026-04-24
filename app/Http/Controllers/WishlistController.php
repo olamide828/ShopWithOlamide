@@ -12,28 +12,28 @@ class WishlistController extends Controller
     public function index()
     {
         $wishlist = Wishlist::with('product')
-            ->where('user_id', auth()->id())
-            ->get()
-            ->map(function ($item) {
-                if ($item->product && $item->product->image) {
-                    $path = $item->product->image;
+            ->where('user_id', Auth::id())
+            ->get();
 
-                    // If it's a full URL already (like an external link), keep it
-                    if (filter_var($path, FILTER_VALIDATE_URL)) {
-                        $item->product->image = $path;
-                    } else {
-                        // Manually generate the Cloud/Private URL just like ProductController
-                        $item->product->image = Storage::disk('private')->url($path);
-                    }
-                } else if ($item->product) {
-                    // Fallback if the product exists but has no image string
+        // Use a standard loop to avoid any Model Accessor bugs
+        foreach ($wishlist as $item) {
+            if ($item->product) {
+                $rawPath = $item->product->image;
+
+                if (empty($rawPath)) {
                     $item->product->image = 'https://placehold.co/600x400';
+                } elseif (filter_var($rawPath, FILTER_VALIDATE_URL)) {
+                    $item->product->image = $rawPath;
+                } else {
+                    // Manual pathing - Change 'private' to 'public' if testing locally
+                    $item->product->image = Storage::disk('private')->url($rawPath);
                 }
-                
-                return $item;
-            });
+            }
+        }
 
-        return Inertia::render('WishlistPage', ['wishlist' => $wishlist]);
+        return Inertia::render('WishlistPage', [
+            'wishlist' => $wishlist
+        ]);
     }
 
     public function store($productId)

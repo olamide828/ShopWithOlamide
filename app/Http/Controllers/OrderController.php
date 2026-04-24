@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class OrderController extends Controller
@@ -41,22 +42,24 @@ class OrderController extends Controller
 
         return redirect('/orders')->with('success', 'Order placed successfully');
     }
+    
 
-    public function index()
+   public function index()
     {
         $orders = Order::with('items.product')
             ->where('user_id', Auth::id())
             ->latest()
             ->get();
 
-        // Loop through each order
+        // EXACTLY LIKE PRODUCT CONTROLLER (Nested for Orders)
         $orders->transform(function ($order) {
-            // Loop through each item in that order
             $order->items->transform(function ($item) {
                 if ($item->product && $item->product->image) {
-                    // Generate the cloud URL for the product image
-                    $item->product->image = \Illuminate\Support\Facades\Storage::disk('private')
-                        ->url($item->product->image);
+                    if (!filter_var($item->product->image, FILTER_VALIDATE_URL)) {
+                        $item->product->image = Storage::disk('private')->url($item->product->image);
+                    }
+                } else if ($item->product) {
+                    $item->product->image = 'https://placehold.co/600x400';
                 }
                 return $item;
             });

@@ -18,18 +18,20 @@ class CartController extends Controller
             ->where('user_id', Auth::id())
             ->get();
 
-        // TRANSFORM THE DATA TO INCLUDE CLOUD URLS
+        // EXACTLY LIKE PRODUCT CONTROLLER
         $carts->transform(function ($cart) {
             if ($cart->product && $cart->product->image) {
-                // Generate the full URL from the 'private' disk
-                $cart->product->image = Storage::disk('private')->url($cart->product->image);
+                // If it's already a full URL (external), leave it
+                if (!filter_var($cart->product->image, FILTER_VALIDATE_URL)) {
+                    $cart->product->image = Storage::disk('private')->url($cart->product->image);
+                }
+            } else if ($cart->product) {
+                $cart->product->image = 'https://placehold.co/600x400';
             }
             return $cart;
         });
 
-        $total = $carts->sum(function ($item) {
-            return $item->price * $item->quantity;
-        });
+        $total = $carts->sum(fn($item) => $item->price * $item->quantity);
 
         return Inertia::render('CartPage', [
             'carts' => $carts,
