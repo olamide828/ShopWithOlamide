@@ -427,6 +427,11 @@ const Products = () => {
                                 <option value="Lifestyle">Lifestyle</option>
                                 <option value="Fitness">Fitness</option>
                                 <option value="Tech">Tech</option>
+                                <option value="Mobile">Mobile</option>
+                                <option value="Automobiles">Automobile</option>
+                                <option value="Car Autoparts">
+                                    Car Autoparts
+                                </option>
                                 {/* Lorem ipsum dolor sit amet consectetur
                                 adipisicing elit. Quam voluptates porro repellat
                                 qui expedita reprehenderit culpa assumenda vero

@@ -287,6 +287,14 @@ const ProductDetailsData = () => {
                                 )}
                             </div>
 
+                            <div className="text-2xl font-bold text-indigo-600">
+                                {imitateLoading ? (
+                                    <div className="h-8 w-[150px] animate-pulse rounded-lg bg-gray-300"></div>
+                                ) : (
+                                    "Category:" `${product.category}`
+                                )}
+                            </div>
+
                             <div className="text-sm font-semibold text-gray-400">
                                 {imitateLoading ? (
                                     <div className="h-8 w-[150px] animate-pulse rounded-lg bg-gray-300"></div>
@@ -326,7 +334,13 @@ const ProductDetailsData = () => {
                             {imitateLoading ? (
                                 <div className="h-13 animate-pulse rounded-lg bg-gray-300"></div>
                             ) : (
+
+                               <>
+                               <div className="flex flex-col gap-3">
+                                 <h1 className='text-2xl mb-3 font-semibold text-black'>DESCRIPTION: </h1>
                                 `${product.description}`
+                               </div>
+                               </>
                             )}
                         </p>
 

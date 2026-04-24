@@ -35,19 +35,24 @@ class Product extends Model
     {
         return Attribute::make(
             get: function ($value) {
-                if (!$value)
+                // 1. If no image path exists in the DB, show placeholder
+                if (!$value) {
                     return 'https://placehold.co/600x400';
+                }
 
+                // 2. If the value is already a full URL, just return it
                 if (filter_var($value, FILTER_VALIDATE_URL)) {
                     return $value;
                 }
 
-                // Check if the bucket config is empty to prevent the crash
+                // 3. Check if we are actually configured for S3/Cloud
+                // If the bucket is empty, we are likely on localhost without S3 setup
                 if (empty(config('filesystems.disks.private.bucket'))) {
-                    // If no bucket is set, assume it's a local file or return a placeholder
-                    return '/storage/' . $value;
+                    // Return a local path. Make sure you've run 'php artisan storage:link'
+                    return asset('storage/' . $value);
                 }
 
+                // 4. If bucket exists, generate the cloud URL
                 return Storage::disk('private')->url($value);
             },
         );
