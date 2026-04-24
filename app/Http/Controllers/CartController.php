@@ -7,6 +7,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class CartController extends Controller
@@ -17,7 +18,18 @@ class CartController extends Controller
             ->where('user_id', Auth::id())
             ->get();
 
-        $total = $carts->sum(fn($item) => $item->price * $item->quantity);
+        // TRANSFORM THE DATA TO INCLUDE CLOUD URLS
+        $carts->transform(function ($cart) {
+            if ($cart->product && $cart->product->image) {
+                // Generate the full URL from the 'private' disk
+                $cart->product->image = Storage::disk('private')->url($cart->product->image);
+            }
+            return $cart;
+        });
+
+        $total = $carts->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
 
         return Inertia::render('CartPage', [
             'carts' => $carts,
