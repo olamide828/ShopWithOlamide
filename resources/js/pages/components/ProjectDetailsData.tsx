@@ -287,13 +287,13 @@ const ProductDetailsData = () => {
                                 )}
                             </div>
 
-                            <div className="text-2xl font-bold text-indigo-600">
+                            {/* <div className="text-2xl font-bold text-indigo-600">
                                 {imitateLoading ? (
                                     <div className="h-8 w-[150px] animate-pulse rounded-lg bg-gray-300"></div>
                                 ) : (
                                     `Category: ${product.category?.name ?? 'Uncategorized'}`
                                 )}
-                            </div>
+                            </div> */}
 
                             <div className="text-sm font-semibold text-gray-400">
                                 {imitateLoading ? (
