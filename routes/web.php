@@ -31,7 +31,7 @@ Route::delete('/shop/u/products/{product}', [ProductController::class, 'destroy'
 Route::get('/shop/u/products/{slug}', [ProductController::class, 'show']);
 Route::get('/cart', [CartController::class, 'index']);
 Route::post('/cart', [CartController::class, 'store']);
-Route::post('/cart/update/{cartId}', [CartController::class, 'update']);
+Route::put('/cart/{cart}', [CartController::class, 'update']);
 Route::delete('/cart/{id}', [CartController::class, 'destroy']);
 Route::get('/contact', [WebController::class, 'contact']);
 Route::post("/contact", [ContactController::class, 'send']);
@@ -66,7 +66,7 @@ Route::middleware('guest')->group(function () {
     });
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'not.admin'])->group(function () {
     // This is now correctly: /dashboard
     Route::get('/dashboard', [DashboardController::class, 'userDashboard']);
     Route::get('/manage-account', [WebController::class, 'manageAccount']);

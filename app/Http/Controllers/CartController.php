@@ -29,113 +29,122 @@ class CartController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-        ]);
-
-        $product = Product::find($request->product_id);
-
-        if ($product->stock_quantity <= 0) {
-            return back()->withErrors(['message' => 'Product is out of stock']);
+        if(auth()->user()->role === "admin") {
+            return back()->withErrors(['message' => 'Amins cannot add items to cart']);
         }
 
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'sometimes|integer|min:1'
+        ]);
+
+        $qtyToAdd = $request->quantity ?? 1;
+
+      
         DB::beginTransaction();
 
         try {
-            $cart = Cart::where('user_id', Auth::id())
-                ->where('product_id', $request->product_id)
-                ->first();
+            $product = Product::lockForUpdate()->find($request->product_id);
 
-            if ($cart) {
-                if ($cart->quantity + 1 > $product->stock_quantity) {
-                    DB::rollback();
+            if($product->stock_quantity <= 0) {
+                DB::rollBack();
+                return back()->withErrors(['message' => 'Product is out of stock']);
+            }
+
+            $cart = Cart::where('user_id', auth()->id())
+            ->where('product_id', $request->product_id)
+            ->first();
+
+            if($cart) {
+                if($qtyToAdd > $product->stock_quantity) {
+                    DB::rollBack();
+                    // $available = $product->stock_quantity - $cart->quantity;
                     return back()->withErrors([
-                        'message' => "Only {$product->stock_quantity} left in stock. You have {$cart->quantity} in cart."
+                        'message' => "Only {$product->stock_quantity} in stock. You have {$cart->quantity} in cart. You can add {$available} more."
                     ]);
                 }
-
-                $cart->quantity += 1;
+                $cart->quantity += $qtyToAdd;
                 $cart->save();
             } else {
+                if($qtyToAdd > $product->stock_quantity) {
+                    DB::rollBack();
+                    return back()->withErrors(['message' => "Only {$product->stock_quantity} left in stock"]);
+                }
+
                 $cart = new Cart();
-                $cart->user_id = Auth::id();
+                $cart->user_id = auth()->id();
                 $cart->product_id = $request->product_id;
-                $cart->quantity = 1;
+                $cart->quantity = $qtyToAdd;
                 $cart->price = $product->price;
                 $cart->save();
             }
 
-            $product->decrement('stock_quantity');
-
+            $product->decrement('stock_quantity', $qtyToAdd);
             DB::commit();
 
-            $cartCount = Cart::where('user_id', Auth::id())->sum('quantity');
-
-            return redirect()->back()->with([
-                'success' => "{$product->name} added to cart",
-                'cartCount' => $cartCount
-            ]);
-        } catch (\Exception $e) {
+           return back()->with(['success' => "{$product->name} added to cart"]);
+        } catch(\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['message' => 'Failed to add to cart']);
         }
     }
+    
 
     public function update(Request $request, Cart $cart)
     {
-        $request->validate([
-            'quantity' => 'required|integar|min:1'
-        ]);
 
-        $product = $cart->product;
-        $newQty = (int) $request->quantity;
-        $oldQty = $cart->quantity;
-
-        if ($newQty < 1) {
-            return back()->withErrors(['message' => 'Quantity cannot be less than 1']);
+        if ($cart->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
         }
 
+        $request->validate([
+            'quantity' => 'required|integer|min:1'
+        ]);
+
+        $newQty = $request->quantity;
+        $oldQty = $cart->quantity;
         $difference = $newQty - $oldQty;
 
         DB::beginTransaction();
 
         try {
             if ($difference > 0) {
+                $product = Product::lockForUpdate()->find($cart->product_id);
                 if ($product->stock_quantity < $difference) {
                     DB::rollBack();
-                    return back()->withErrors([
-                        'message' => "Only {$product->stock_quantity} more left in stock. You already have {$oldQty} in cart."
-                    ]);
+                    return back()->withErrors(['quantity' => 'Not enough stock. Only' . $product->stock_quantity . 'left']);
+
                 }
                 $product->decrement('stock_quantity', $difference);
             } else if ($difference < 0) {
-                $product->increment('stock_quantity', abs($difference));
+                Product::where('id', $cart->product_id)->increment('stock_quantity', abs($difference));
             }
-            $cart->update(['quantity' => $newQty]);
 
+            $cart->update(['quantity' => $newQty]);
             DB::commit();
+
             return back()->with('success', 'Cart updated');
+
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['message' => 'Failed to update cart']);
+            return back()->withErrors(['error' => 'Failed to update cart']);
         }
 
     }
 
     public function destroy(Cart $cart)
     {
-        DB::beginTransaction();
-        try {
-            Product::where('id', $cart->product_id)
-                ->increment('stock_quantity', $cart->quantity);
+      
+     if ($cart->user_id !== auth()->id()) {
+        abort(403, 'Unathorized');
+       }
 
-            $cart->delete();
-            DB::commit();
+       
+       $cart->product->increment('stock_quantity', $cart->quantity);
 
-            return back()->with('success', 'Removed from cart');
-        } catch (\Exception $e) {
-            DB::rollback();
-            return back()->withErrors(['message' => 'Failed to remove']);
-        }
+       $cart->delete();
+
+       return back()->with('success', "Item removed from cart");
     }
+
 }

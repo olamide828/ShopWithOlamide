@@ -19,34 +19,54 @@ const Cart = () => {
         newQty: number,
         availableStock: number,
     ) => {
-        if (newQty > availableStock + currentQty) {
-            toast.error(`Only ${availableStock} more available`);
+        if (newQty < 1) {
+            toast.error('Quantity cannot be less than 1');
+            return;
+        }
+
+        if (newQty > availableStock) {
+            toast.error(`Only ${availableStock} left in stock`);
             return;
         }
 
         router.put(
-            `/cart/update/${cartId}`,
-            { quantity: newQty },
+            `/cart/${cartId}`,
+            {
+                quantity: newQty,
+            },
             {
                 preserveScroll: true,
-                preserveState: false,
+                preserveState: true,
+                onSuccess: (page) => {
+                    const flash = page.props.flash as {
+                        success?: string;
+                        error?: string;
+                    };
+                    if (flash?.success) {
+                        toast.success(flash.success);
+                    }
+                },
+                onError: (errors) => {
+                    if (errors.quantity) {
+                        toast.error(errors.quantity);
+                    } else {
+                        toast.error('Failed to update cart');
+                    }
+                },
             },
         );
     };
-    // const reloadCart = () => {
-    //     window.location.reload();
-    // };
 
     const removeItem = (id: number) => {
         router.delete(`/cart/${id}`, {
             onSuccess: () => {
-                toast.success('removed to cart');
+                toast.success('removed from cart');
             },
         });
-        // setTimeout(() => {
-        //     reloadCart();
-        // }, 500);
     };
+    // const reloadCart = () => {
+    //     window.location.reload();
+    // };
 
     const formatTimeAgo = (dateString: string) => {
         const date = new Date(dateString);
@@ -100,14 +120,14 @@ const Cart = () => {
                         </h1>
 
                         {carts.length === 0 ? (
-                            <div className="m-auto w-fit flex flex-col items-center justify-center">
-                                <div className='relative'>
-                                    <div className='absolute bg-white/5 inset-0'></div>
+                            <div className="m-auto flex w-fit flex-col items-center justify-center">
+                                <div className="relative">
+                                    <div className="absolute inset-0 bg-white/5"></div>
                                     <img
-                                    src={emptyCart}
-                                    alt="empty_cart"
-                                    className="ml-16"
-                                />
+                                        src={emptyCart}
+                                        alt="empty_cart"
+                                        className="ml-16"
+                                    />
                                 </div>
                                 <Link href="/shop/u/products">
                                     <button className="group flex h-14 cursor-pointer items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 text-sm font-semibold text-white shadow-[0_15px_40px_rgba(99,102,241,0.35)] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_20px_60px_rgba(99,102,241,0.45)]">
@@ -153,11 +173,9 @@ const Cart = () => {
                                                             )
                                                         }
                                                         disabled={
-                                                            item.product
-                                                                .stock_quantity <=
-                                                            0
+                                                            item.quantity <= 1
                                                         }
-                                                        className="cursor-pointer rounded bg-gray-200 p-2"
+                                                        className="cursor-pointer rounded bg-gray-200 p-2 disabled:opacity-20"
                                                     >
                                                         <FaMinus />
                                                     </button>
@@ -175,11 +193,11 @@ const Cart = () => {
                                                             )
                                                         }
                                                         disabled={
+                                                            item.quantity >=
                                                             item.product
-                                                                .stock_quantity <=
-                                                            0
+                                                                .stock_quantity
                                                         }
-                                                        className="cursor-pointer rounded bg-gray-200 p-2"
+                                                        className="cursor-pointer disabled:opacity-20 rounded bg-gray-200 p-2"
                                                     >
                                                         <FaPlus />
                                                     </button>

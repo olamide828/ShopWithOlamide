@@ -68,7 +68,7 @@ class webController extends Controller
         ]);
 
         // Redirect to login with a success message so the user knows it worked
-        return redirect('/login')->with('success', 'Account created! Please log in.');
+        return redirect('/verify-email')->with('success', 'Account created! Please log in.');
     }
 
     public function store(Request $request)

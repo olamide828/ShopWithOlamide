@@ -6,12 +6,11 @@ import Footer from '../components/Footer';
 import Rating from '../components/Rating';
 import Features from '../components/Features';
 import NavbarHero from '../components/NavbarHero';
-import useOnline from '../components/useOnline';
+import { toast } from 'sonner';
 
 const HomePage = () => {
     const { products } = usePage().props;
     const [loading, setLoading] = useState(true);
-    const isOnline = useOnline();
 
     useEffect(() => {
         setTimeout(() => {
@@ -19,6 +18,39 @@ const HomePage = () => {
         }, 2000);
     }, []);
 
+    useEffect(() => {
+        const isSafari = () => {
+            const ua = navigator.userAgent;
+            const isChrome = ua.includes('Chrome') || ua.includes('CriOS');
+            const isSafari = ua.includes('Safari');
+            return isSafari && !isChrome;
+        };
+
+        const safariWarningDismissed = localStorage.getItem(
+            'safariWarningDismissed',
+        );
+
+        if (isSafari() && !safariWarningDismissed) {
+            toast('Heads up, Safari User!', {
+                description:
+                    'For the best experience, we recommend Chrome or Firefox. Some features may look different on Safari.',
+                duration: 60000,
+                id: 'safari-warning',
+                action: {
+                    label: 'Got it',
+                    onClick: () => {
+                        localStorage.setItem('safariWarningDismissed', 'true');
+                    },
+                },
+                cancel: {
+                    label: 'Dismiss',
+                    onClick: () => {
+                        localStorage.setItem('safariWarningDismissed', 'true');
+                    },
+                },
+            });
+        }
+    }, []);
     if (loading) {
         return (
             <>
@@ -27,35 +59,6 @@ const HomePage = () => {
             </>
         );
     }
-
-  // const handleRefresh = () => {
-  //   window.location.reload();
-  // };
-
-  // if (isOnline) {
-  //   return (
-  //     <div className="flex flex-col selection:bg-green-400 selection:text-white h-screen justify-center items-center bg-green-500 gap-4">
-  //       <h1 className="text-2xl font-[poppins]">
-  //         Oops! No internet connection
-  //       </h1>
-  //       <p className="text-xl font-[poppins]">
-  //         Please check your connection and try again.
-  //       </p>
-  //       {/* <img src={internetError} alt="internet error" title="Internet Error" /> */}
-  //       <button
-  //         title="Refresh"
-  //         onClick={handleRefresh}
-  //         className="bg-black cursor-pointer hover:bg-black/25 text-white font-[poppins] p-6 rounded-2xl text-2xl"
-  //       >
-  //         Refresh
-  //       </button>
-
-  //       <p className="font-[inter] mt-40">
-  //         &copy;2018-{new Date().getFullYear()}. ShopWithOlamide. All Rights Reserved.
-  //       </p>
-  //     </div>
-  //   );
-  // }
 
     return (
         <section>

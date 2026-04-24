@@ -33,8 +33,6 @@ const RegisterComponent = () => {
         // }
 
         try {
-            
-            
             post('/register', {
                 onError: (errors) => {
                     Object.values(errors).forEach((error: any) => {
@@ -46,7 +44,7 @@ const RegisterComponent = () => {
                     toast.success('Account created successfully!');
                     // setTimeout(() => setSuccessMessage(''), 3000);
                     setTimeout(() => {
-                        router.get('/verify-email');
+                        router.get('/login');
                     }, 3000);
                 },
                 // onFinish: () => {
@@ -105,12 +103,14 @@ const RegisterComponent = () => {
                     />
                     {<p className="ml-2 text-red-500">{errors.email}</p>}
 
+                    <label htmlFor="dob" className='px-5'>Date of Birth:</label>
                     <input
+                        id="dob"
                         type="date"
                         value={data.dateOfBirth}
                         onChange={(e) => setData('dateOfBirth', e.target.value)}
                         placeholder="Date of Birth(DD/MM/YYYY)"
-                        className="m-2 w-full uppercase rounded-xl border border-gray-200 bg-gray-50 px-5 py-3 transition focus:bg-white focus:ring-2 focus:ring-blue-400"
+                        className="m-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-5 py-3 uppercase transition focus:bg-white focus:ring-2 focus:ring-blue-400"
                     />
                     {<p className="ml-2 text-red-500">{errors.dateOfBirth}</p>}
 
@@ -142,7 +142,7 @@ const RegisterComponent = () => {
                     )} */}
                     <button
                         disabled={processing}
-                        className={`${processing ? 'cursor-not-allowed' : 'cursor-pointer'} m-2 w-full rounded-xl disabled:opacity-25 bg-blue-600 py-4 font-semibold text-white shadow-lg transition-all hover:bg-blue-700 active:scale-95`}
+                        className={`${processing ? 'cursor-not-allowed' : 'cursor-pointer'} m-2 w-full rounded-xl bg-blue-600 py-4 font-semibold text-white shadow-lg transition-all hover:bg-blue-700 active:scale-95 disabled:opacity-25`}
                     >
                         {processing ? 'Creating Account...' : 'Create Account'}
                     </button>

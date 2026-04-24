@@ -19,6 +19,7 @@ const ProductDetailsData = () => {
     const [copied, setCopied] = useState(false);
     // const [toast, setToast] = useState<string | null>(null);
     const [message, setMessage] = useState(false);
+    // const [qty, setQty] = useState(1);
 
     const isLoggedIn = auth.user;
 
@@ -63,10 +64,10 @@ const ProductDetailsData = () => {
 
         router.post(
             '/cart',
-            { product_id: id },
+            { product_id: id, quantity: 1 },
             {
                 preserveScroll: true,
-                preserveState: true, // ⚠️ change this
+                preserveState: true,
                 onSuccess: (page) => {
                     setLoading(false);
                     toast.success(
@@ -339,8 +340,7 @@ const ProductDetailsData = () => {
                                 <FaHeart />
                                 Add To Wishlist
                             </button>
-
-                            <audio src=""></audio>
+                            {/*   <audio src=""></audio> */}
 
                             <button
                                 disabled={
