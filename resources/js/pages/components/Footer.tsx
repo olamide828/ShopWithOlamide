@@ -90,14 +90,7 @@ const Footer = () => {
                     {/* Brand */}
                     <div className="lg:col-span-2">
                         <Link href="/" className="inline-block">
-                            <h1
-                                style={{
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
-                                    backgroundClip: 'text',
-                                }}
-                                className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-2xl font-extrabold"
-                            >
+                            <h1 className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-2xl font-extrabold text-transparent [webkit-background-clip:text]">
                                 ShopWithOlamide
                             </h1>
                         </Link>

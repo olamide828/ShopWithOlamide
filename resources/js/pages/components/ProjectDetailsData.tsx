@@ -338,7 +338,7 @@ const ProductDetailsData = () => {
                                <>
                                <div className="flex flex-col gap-3">
                                  <h1 className='text-2xl mb-3 font-semibold text-black'>DESCRIPTION: </h1>
-                                `${product.description}`
+                                {product.description}
                                </div>
                                </>
                             )}
