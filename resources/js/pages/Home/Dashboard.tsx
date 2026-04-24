@@ -49,15 +49,8 @@ export default function Dashboard({ children }: PropsWithChildren) {
                 className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}
             >
                 <div className="flex h-full flex-col">
-                    <div className="hidden p-6 md:block">
-                        <h1
-                            style={{
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                backgroundClip: 'text',
-                            }}
-                            className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-2xl font-extrabold"
-                        >
+                    <div className="p-6 md:block">
+                        <h1 className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-2xl font-extrabold text-transparent [-webkit-background-clip:text] [-webkit-text-fill-color:transparent]">
                             ShopWithOlamide
                         </h1>
                         <p className="mt-1 text-[8px] font-bold tracking-[0.35em] text-gray-400 uppercase">
@@ -118,12 +111,12 @@ export default function Dashboard({ children }: PropsWithChildren) {
 
             {/* Main Content Area */}
             <main className="flex w-full flex-col transition-all duration-300 md:ml-64">
-                <header className="hidden items-center justify-between border-b bg-white px-8 py-4 md:flex">
+                <header className="items-center justify-between border-b bg-white px-8 py-4 md:flex">
                     <div className="flex flex-col">
-                        <h1 className="pt-10 text-2xl font-bold text-gray-900 lg:pt-0">
+                        <h1 className="pt-10 text-lg lg:text-2xl font-bold text-gray-900 lg:pt-0">
                             Welcome back Admin, {auth.user?.name}!
                         </h1>
-                        <p className="text-gray-500">
+                        <p className="text-gray-500 text-sm lg:text-base">
                             Control users, list products and manage analytics on
                             your admin dashboard.
                         </p>

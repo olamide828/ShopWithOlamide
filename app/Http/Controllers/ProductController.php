@@ -216,34 +216,25 @@ class ProductController extends Controller
 
 
 
-    public function productPage(Request $request)
+    public function productPage()
     {
-        $products = Product::query()
-            ->when($request->search, function ($query, $search) {
-                $query->where('name', 'LIKE', "%{$search}%");
-            })
-            ->when($request->category && $request->category !== 'All', function ($query, $category) {
-                $query->where('category', $category);
-            })
-            ->latest()
-            ->paginate(10) // Fetch 10 at a time
-            ->withQueryString(); // Keeps search/category in the next_page_url
+        $products = Product::latest()->cursorPaginate(10);
 
-        // 2. Transform the collection for Cloud URLs
-        $products->getCollection()->transform(function ($product) {
+        $products->through(function ($product) {
             if ($product->image) {
                 $product->image = Storage::disk('private')->url($product->image);
             } else {
-                $product->image = 'https://placehold.co/400x400?text=No+Image';
+                $product->image = 'https://placehold.co/600x400';
             }
             return $product;
         });
 
         return Inertia::render("ProductPage", [
-            "products" => $products,
-            "filters" => $request->only(['search', 'category']) // Send filters back to keep UI in sync
+            "products" => $products
         ]);
     }
+
+
 
 
 
