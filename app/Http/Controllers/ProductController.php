@@ -28,13 +28,7 @@ class ProductController extends Controller
             ->latest()
             ->paginate(6);
 
-        // Transform the products to include the full Cloud URL
-        $products->getCollection()->transform(function ($product) {
-            if ($product->image) {
-                $product->image = Storage::disk('private')->url($product->image);
-            }
-            return $product;
-        });
+        // REMOVED: Manual transform. Pagination results will use the Model Attribute.
 
         return Inertia::render("products", [
             "products" => $products
@@ -85,10 +79,7 @@ class ProductController extends Controller
     {
         $product = Product::where('slug', $slug)->with('user:id,name')->firstOrFail();
 
-        // Convert path to full Cloud URL
-        if ($product->image) {
-            $product->image = Storage::disk('private')->url($product->image);
-        }
+        // REMOVED: Manual image URL assignment.
 
         return Inertia::render('ProductDetails', [
             'product' => $product
@@ -99,10 +90,7 @@ class ProductController extends Controller
     {
         $product = Product::where('slug', $slug)->firstOrFail();
 
-        // Convert path to full Cloud URL
-        if ($product->image) {
-            $product->image = Storage::disk('private')->url($product->image);
-        }
+        // REMOVED: Manual image URL assignment.
 
         return Inertia::render('components/ViewProduct', [
             'product' => $product
@@ -114,17 +102,7 @@ class ProductController extends Controller
     {
         $products = Product::latest()->get();
 
-        // Loop through each product and change the image path to a full URL
-        $products->transform(function ($product) {
-            if ($product->image) {
-                // This generates the full https://... link to your bucket
-                $product->image = Storage::disk('private')->url($product->image);
-            } else {
-                // Optional: Fallback image if no image exists
-                $product->image = 'https://placehold.co';
-            }
-            return $product;
-        });
+        // REMOVED: The transform loop.
 
         return Inertia::render("ProductPage", [
             "products" => $products

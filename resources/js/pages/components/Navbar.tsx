@@ -33,11 +33,23 @@ const Navbar = () => {
         router.post('/logout');
     };
 
-    const initials = user?.name
-        ?.split(' ')
-        .map((n: string) => n[0])
-        .join('')
-        .toUpperCase();
+    const initials = (() => {
+        if (!user?.name) return '';
+
+        // 1. Trim and split by whitespace
+        const parts = user.name.trim().split(/\s+/);
+
+        // 2. Get the first and last name parts
+        const firstPart = parts[0];
+        const lastPart = parts.length > 1 ? parts[parts.length - 1] : '';
+
+        // 3. Extract the first "character" safely (handling emojis)
+        // Using [...str][0] ensures we get the full emoji, not a broken half
+        const firstInitial = firstPart ? [...firstPart][0] : '';
+        const lastInitial = lastPart ? [...lastPart][0] : '';
+
+        return (firstInitial + lastInitial).toUpperCase();
+    })();
 
     useEffect(() => {
         if (mobileNav) {
@@ -54,7 +66,7 @@ const Navbar = () => {
             <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10">
                 {/* Logo */}
                 <Link href="/" className="flex flex-col leading-none">
-                    <h1 className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-2xl font-extrabold text-transparent">
+                    <h1 className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-2xl font-extrabold text-transparent">
                         ShopWithOlamide
                     </h1>
                     <span className="mt-1 text-[10px] font-medium tracking-[0.3em] text-gray-400 uppercase">
@@ -179,7 +191,7 @@ const Navbar = () => {
                                 />
                             </button>
                             {open && (
-                                <div className="absolute right-0 top-12 mt-3 w-56 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_20px_60px_rgba(0,0,0,0.08)]">
+                                <div className="absolute top-12 right-0 mt-3 w-56 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_20px_60px_rgba(0,0,0,0.08)]">
                                     <div className="border-b border-gray-100 px-5 py-4">
                                         <p className="text-xs tracking-wide text-gray-400 uppercase">
                                             Signed in as
@@ -272,22 +284,26 @@ const Navbar = () => {
                                 Contact
                             </Link>
 
-                            {user?.role !== "admin" && <Link
-                                href="/cart"
-                                onClick={() => setMobileNav(false)}
-                                className="mt-2 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-white transition hover:bg-white/10"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <FaShoppingCart size={18} />
-                                    <span className="font-medium">Cart</span>
-                                </div>
+                            {user?.role !== 'admin' && (
+                                <Link
+                                    href="/cart"
+                                    onClick={() => setMobileNav(false)}
+                                    className="mt-2 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-white transition hover:bg-white/10"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <FaShoppingCart size={18} />
+                                        <span className="font-medium">
+                                            Cart
+                                        </span>
+                                    </div>
 
-                                {localCartCount > 0 && (
-                                    <span className="flex h-6 min-w-[24px] items-center justify-center rounded-full bg-red-500 px-2 text-xs font-bold text-white">
-                                        {localCartCount}
-                                    </span>
-                                )}
-                            </Link>}
+                                    {localCartCount > 0 && (
+                                        <span className="flex h-6 min-w-[24px] items-center justify-center rounded-full bg-red-500 px-2 text-xs font-bold text-white">
+                                            {localCartCount}
+                                        </span>
+                                    )}
+                                </Link>
+                            )}
                         </div>
 
                         <div className="mt-auto border-t border-white/10 pt-6">

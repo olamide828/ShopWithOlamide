@@ -16,11 +16,23 @@ const NavbarHero = () => {
 
     const user = auth.user;
 
-    const initials = user?.name
-        ?.split(' ')
-        .map((n: string) => n[0])
-        .join('')
-        .toUpperCase();
+    const initials = (() => {
+        if (!user?.name) return '';
+
+        // 1. Trim and split by whitespace
+        const parts = user.name.trim().split(/\s+/);
+
+        // 2. Get the first and last name parts
+        const firstPart = parts[0];
+        const lastPart = parts.length > 1 ? parts[parts.length - 1] : '';
+
+        // 3. Extract the first "character" safely (handling emojis)
+        // Using [...str][0] ensures we get the full emoji, not a broken half
+        const firstInitial = firstPart ? [...firstPart][0] : '';
+        const lastInitial = lastPart ? [...lastPart][0] : '';
+
+        return (firstInitial + lastInitial).toUpperCase();
+    })();
 
     const logout = () => {
         router.post(
@@ -76,7 +88,7 @@ const NavbarHero = () => {
             <div className="relative z-50 flex items-center justify-between px-6 py-6 lg:px-14">
                 <Link href="/">
                     <div onClick={pageReload} className="cursor-pointer">
-                        <h1 className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent">
+                        <h1 className="inline-block bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent">
                             ShopWithOlamide
                         </h1>
                         <p className="mt-1 text-xs tracking-[0.35em] text-gray-300 uppercase">
@@ -111,7 +123,7 @@ const NavbarHero = () => {
                             </Link>
 
                             <Link href="/register">
-                                <button className="cursor-pointer rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 text-sm font-semibold text-white transition hover:scale-105">
+                                <button className="cursor-pointer rounded-2xl bg-linear-to-r from-blue-600 to-purple-600 px-6 py-3 text-sm font-semibold text-white transition hover:scale-105">
                                     Get Started
                                 </button>
                             </Link>
@@ -122,7 +134,7 @@ const NavbarHero = () => {
                                 onClick={() => setOpen(!open)}
                                 className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-3 py-2 text-white backdrop-blur-md transition hover:bg-white/20"
                             >
-                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-sm font-bold text-white">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-r from-blue-500 to-purple-600 text-sm font-bold text-white">
                                     {initials}
                                 </div>
 
@@ -197,7 +209,7 @@ const NavbarHero = () => {
 
             {/* Mobile Nav */}
             {mobileNav && (
-                <section className="fixed inset-0 z-[90] lg:hidden">
+                <section className="fixed inset-0 z-90 lg:hidden">
                     <div
                         onClick={() => setMobileNav(false)}
                         className="absolute inset-0 bg-black/80 backdrop-blur-sm"
@@ -206,7 +218,7 @@ const NavbarHero = () => {
                     <div className="absolute top-0 right-0 flex h-full w-[85%] max-w-sm flex-col overflow-y-auto border-l border-white/10 bg-[#0B0B12] px-6 py-6 shadow-2xl">
                         <div className="mb-8 flex items-center justify-between border-b border-white/10 pb-5">
                             <div>
-                                <h2 className="bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-2xl font-bold text-transparent">
+                                <h2 className="bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-2xl font-bold text-transparent lg:flex">
                                     ShopWithOlamide
                                 </h2>
                                 <p className="mt-1 text-xs tracking-[0.3em] text-gray-400 uppercase">
@@ -286,7 +298,7 @@ const NavbarHero = () => {
                                         href="/register"
                                         onClick={() => setMobileNav(false)}
                                     >
-                                        <button className="w-full rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-5 py-4 text-sm font-semibold text-white transition hover:scale-[1.02]">
+                                        <button className="w-full rounded-2xl bg-linear-to-r from-blue-600 to-purple-600 px-5 py-4 text-sm font-semibold text-white transition hover:scale-[1.02]">
                                             Get Started
                                         </button>
                                     </Link>
@@ -294,7 +306,7 @@ const NavbarHero = () => {
                             ) : (
                                 <div>
                                     <div className="mb-4 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-sm font-bold text-white">
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-r from-blue-500 to-purple-600 text-sm font-bold text-white">
                                             {initials}
                                         </div>
 
@@ -361,7 +373,7 @@ const NavbarHero = () => {
 
                     <h2 className="max-w-4xl text-5xl leading-tight font-black text-white md:text-6xl lg:text-7xl">
                         Discover Products That Match
-                        <span className="block bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        <span className="block bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                             Your Lifestyle
                         </span>
                     </h2>
@@ -374,7 +386,7 @@ const NavbarHero = () => {
 
                     <div className="mt-10 flex flex-col gap-4 sm:flex-row">
                         <Link href="/shop/u/products">
-                            <button className="flex cursor-pointer items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 text-base font-semibold text-white transition hover:scale-105">
+                            <button className="flex cursor-pointer items-center justify-center gap-3 rounded-2xl bg-linear-to-r from-blue-600 to-purple-600 px-8 py-4 text-base font-semibold text-white transition hover:scale-105">
                                 Explore Products
                                 <FaArrowRight />
                             </button>

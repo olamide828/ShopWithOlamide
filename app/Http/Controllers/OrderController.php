@@ -49,6 +49,20 @@ class OrderController extends Controller
             ->latest()
             ->get();
 
+        // Loop through each order
+        $orders->transform(function ($order) {
+            // Loop through each item in that order
+            $order->items->transform(function ($item) {
+                if ($item->product && $item->product->image) {
+                    // Generate the cloud URL for the product image
+                    $item->product->image = \Illuminate\Support\Facades\Storage::disk('private')
+                        ->url($item->product->image);
+                }
+                return $item;
+            });
+            return $order;
+        });
+
         return Inertia::render('OrdersPage', [
             'orders' => $orders,
         ]);
