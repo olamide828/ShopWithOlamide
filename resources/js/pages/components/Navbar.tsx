@@ -66,7 +66,14 @@ const Navbar = () => {
             <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10">
                 {/* Logo */}
                 <Link href="/" className="flex flex-col leading-none">
-                    <h1 className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-2xl font-extrabold text-transparent">
+                    <h1
+                        style={{
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                        }}
+                        className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-2xl font-extrabold"
+                    >
                         ShopWithOlamide
                     </h1>
                     <span className="mt-1 text-[10px] font-medium tracking-[0.3em] text-gray-400 uppercase">
@@ -242,9 +249,16 @@ const Navbar = () => {
                     <div className="absolute top-0 right-0 flex h-full w-[85%] max-w-sm flex-col overflow-y-auto border-l border-white/10 bg-[#0B0B12] px-6 py-6 shadow-2xl">
                         <div className="mb-8 flex items-center justify-between border-b border-white/10 pb-5">
                             <div>
-                                <h2 className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-2xl font-bold text-transparent">
+                                <h1
+                                    style={{
+                                        WebkitBackgroundClip: 'text',
+                                        WebkitTextFillColor: 'transparent',
+                                        backgroundClip: 'text',
+                                    }}
+                                    className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-2xl font-extrabold"
+                                >
                                     ShopWithOlamide
-                                </h2>
+                                </h1>
                                 <p className="mt-1 text-xs tracking-[0.3em] text-gray-400 uppercase">
                                     Premium Marketplace
                                 </p>

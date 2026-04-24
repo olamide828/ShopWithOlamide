@@ -13,7 +13,7 @@ const Footer = () => {
     // if(!location) return <p>Loading...</p>
     // const [address, setAddress] = useState<string | null>(null);
     //     const [error, setError] = useState<string | null>(null);
-    
+
     //     useEffect(() => {
     //         navigator.geolocation.getCurrentPosition(
     //             (position) => {
@@ -28,7 +28,7 @@ const Footer = () => {
     //             (error) => setError(error.message),
     //         );
     //     }, []);
-    
+
     //     if (error) return <p>Error: {error}</p>;
     //     if (!address) return <p>Loading...</p>;
 
@@ -90,7 +90,14 @@ const Footer = () => {
                     {/* Brand */}
                     <div className="lg:col-span-2">
                         <Link href="/" className="inline-block">
-                            <h1 className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-4xl font-extrabold text-transparent">
+                            <h1
+                                style={{
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                    backgroundClip: 'text',
+                                }}
+                                className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-2xl font-extrabold"
+                            >
                                 ShopWithOlamide
                             </h1>
                         </Link>
@@ -240,10 +247,9 @@ const Footer = () => {
                                     </p>
                                     <a href="tel:+2349070079206">
                                         <p className="text-sm text-gray-300">
-                                        +234 907 007 9206
-                                    </p>
+                                            +234 907 007 9206
+                                        </p>
                                     </a>
-                                    
                                 </div>
                             </div>
                         </div>
@@ -257,7 +263,7 @@ const Footer = () => {
                     <div className="flex items-center gap-6">
                         <a
                             href="/privacy-policy"
-                            target='_blank'
+                            target="_blank"
                             className="transition hover:text-gray-300"
                         >
                             Privacy Policy
@@ -265,7 +271,7 @@ const Footer = () => {
 
                         <a
                             href="/terms"
-                            target='_blank'
+                            target="_blank"
                             className="transition hover:text-gray-300"
                         >
                             Terms of Service

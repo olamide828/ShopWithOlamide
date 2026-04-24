@@ -64,7 +64,14 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                 }`}
             >
                 <div className="p-6">
-                    <h1 className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-xl font-extrabold tracking-tight text-transparent">
+                    <h1
+                        style={{
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                        }}
+                        className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-2xl font-extrabold"
+                    >
                         ShopWithOlamide
                     </h1>
                     <p className="mt-1 text-[8px] tracking-[0.35em] text-gray-300 uppercase">
