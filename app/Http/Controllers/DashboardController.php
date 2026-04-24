@@ -25,47 +25,6 @@ class DashboardController extends Controller
 
     // app/Http/Controllers/DashboardController.php
 
-    public function userDashboard()
-    {
-        $user = Auth::user();
-
-
-        $carts = Cart::where('user_id', $user->id)->with('product')->get();
-        $cartTotal = $carts->sum(fn($item) => $item->price * $item->quantity);
-
-
-        $orders = Order::where('user_id', $user->id)
-            ->with('items.product')
-            ->latest()
-            ->take(5)
-            ->get();
-
-        $totalSpent = Order::where("user_id", $user->id)
-            ->whereIn('status', ['shipped', 'delivered', 'paid'])
-            ->sum('total');
-
-        
-        $activeOrders = Order::where('user_id', $user->id)
-            ->whereIn('status', ['shipped', 'delivered'])
-            ->count();
-        
-
-        $wishlist = Wishlist::where('user_id', $user->id)
-            ->with('product')
-            ->latest()
-            ->take(5)
-            ->get();
-
-        return Inertia::render('UserDashboard', [
-            'carts' => $carts,
-            'cartTotal' => number_format($cartTotal, 2),
-            'total' => number_format($totalSpent, 2),
-            'activeOrders' => $activeOrders,
-            'orders' => $orders,
-            'wishlist' => $wishlist,
-        ]);
-    }
-
 
     public function dashboard()
     {
@@ -94,7 +53,7 @@ class DashboardController extends Controller
             ];
         });
 
-        $recentOrders =  Order::with('user:id,name')->latest()->take(2)->get()->map(function ($order) {
+        $recentOrders = Order::with('user:id,name')->latest()->take(2)->get()->map(function ($order) {
             return [
                 'message' => "New order #{$order->id} from {$order->user?->name}",
                 'time' => $order->created_at,
@@ -102,7 +61,7 @@ class DashboardController extends Controller
             ];
         });
 
-        $activities = $recentUsers 
+        $activities = $recentUsers
             ->concat($recentProducts)
             ->concat($recentOrders)
             ->sortByDesc('time')

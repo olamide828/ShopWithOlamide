@@ -1,6 +1,7 @@
 import Dashboard from '@/pages/Home/Dashboard';
 import { router } from '@inertiajs/react';
 import React from 'react';
+import { FaChevronDown } from 'react-icons/fa'; // Added for the dropdown icon
 import { toast, Toaster } from 'sonner';
 
 const AdminOrder = ({ orders }: any) => {
@@ -49,26 +50,34 @@ const AdminOrder = ({ orders }: any) => {
                                     </td>
                                     <td className="p-3 text-sm font-bold text-gray-900">${order.total}</td>
                                     <td className="p-3 text-sm">
-                                        <select
-                                            value={order.status}
-                                            onChange={(e) =>
-                                                router.patch(
-                                                    `/admin/orders/${order.id}`,
-                                                    { status: e.target.value },
-                                                    {
-                                                        preserveScroll: true,
-                                                        onSuccess: () => toast.success('Status updated'),
-                                                        onError: () => toast.error('Status failed to update'),
-                                                    }
-                                                )
-                                            }
-                                            className="block w-full rounded-md border-gray-300 py-1.5 pl-2 pr-8 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                        >
-                                            <option value="pending">Pending</option>
-                                            <option value="shipped">Shipped</option>
-                                            <option value="delivered">Delivered</option>
-                                            <option value="cancelled">Cancelled</option>
-                                        </select>
+                                        {/* Status Dropdown Container */}
+                                        <div className="relative group min-w-[120px]">
+                                            <select
+                                                value={order.status}
+                                                onChange={(e) =>
+                                                    router.patch(
+                                                        `/admin/orders/${order.id}`,
+                                                        { status: e.target.value },
+                                                        {
+                                                            preserveScroll: true,
+                                                            onSuccess: () => toast.success('Status updated'),
+                                                            onError: () => toast.error('Status failed to update'),
+                                                        }
+                                                    )
+                                                }
+                                                className="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pl-3 pr-10 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:bg-gray-50"
+                                            >
+                                                <option value="pending">Pending</option>
+                                                <option value="shipped">Shipped</option>
+                                                <option value="delivered">Delivered</option>
+                                                <option value="cancelled">Cancelled</option>
+                                            </select>
+                                            
+                                            {/* Custom Dropdown Arrow Icon for Mobile/All Screens */}
+                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 group-hover:text-gray-600">
+                                                <FaChevronDown className="h-3 w-3" />
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

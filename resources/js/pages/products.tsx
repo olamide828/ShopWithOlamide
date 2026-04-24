@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FaBox, FaEdit, FaHourglass, FaTimes } from 'react-icons/fa';
+import { FaBox, FaEdit, FaHourglass, FaTimes, FaTshirt } from 'react-icons/fa';
 import { usePage, Link, router, Head } from '@inertiajs/react';
 import { toast, Toaster } from 'sonner';
 import Dashboard from './Home/Dashboard';
@@ -416,8 +416,8 @@ const Products = () => {
                                 className="w-full rounded-lg border px-4 py-2 focus:ring-2 focus:ring-indigo-500"
                             >
                                 <option value="">Select Category</option>
-                                <option value="Electronics">Electronics</option>
-                                <option value="Clothing">Clothing</option>
+                                <option value="Electronics">Electronics </option>
+                                <option value="Clothing">Clothing <FaTshirt />,</option>
                                 <option value="Audio">Audio</option>
                                 <option value="Accessories">Accessories</option>
                                 <option value="Gaming">Gaming</option>
@@ -427,11 +427,15 @@ const Products = () => {
                                 <option value="Lifestyle">Lifestyle</option>
                                 <option value="Fitness">Fitness</option>
                                 <option value="Tech">Tech</option>
-                                <option value="Mobile">Mobile</option>
+                                {/* <option value="Mobile">Mobile</option> */}
                                 <option value="Automobiles">Automobile</option>
                                 <option value="Car Autoparts">
                                     Car Autoparts
                                 </option>
+                                <option value="Beauty">Beauty</option>
+                                <option value="Clothing">Clothing</option>
+                                <option value="Shoes">Shoes</option>
+
                                 {/* Lorem ipsum dolor sit amet consectetur
                                 adipisicing elit. Quam voluptates porro repellat
                                 qui expedita reprehenderit culpa assumenda vero
