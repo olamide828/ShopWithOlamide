@@ -24,7 +24,7 @@ import {
 } from 'react-icons/fa';
 import { Toaster } from 'sonner';
 
-// ✅ Category Icons (UNCHANGED - your exact config)
+// ✅ Category Icons
 const categoryIcons: Record<string, React.ReactNode> = {
     All: <FaBox />,
     Electronics: <FaLaptop />,
@@ -48,14 +48,13 @@ const categoryIcons: Record<string, React.ReactNode> = {
 };
 
 const ProductPageData = () => {
-    const { products,  categories: backendCategories }: any = usePage().props;
+    const { products, categories: backendCategories }: any = usePage().props;
 
-    // ✅ Infinite state
-    const [items, setItems] = React.useState(products.data);
+    // ✅ STATE
+    const [items, setItems] = React.useState(products.data || []);
     const [nextCursor, setNextCursor] = React.useState(products.next_cursor);
     const [loading, setLoading] = React.useState(false);
 
-    // ✅ Filters
     const [search, setSearch] = React.useState('');
     const [sortOption, setSortOption] = React.useState('default');
     const [selectedCategory, setSelectedCategory] = React.useState('All');
@@ -63,24 +62,31 @@ const ProductPageData = () => {
 
     const observerRef = useRef<HTMLDivElement | null>(null);
 
-    // ✅ Extract categories dynamically
-    const categories = ['All', ...backendCategories];
+    const categories = ['All', ...(backendCategories || [])];
 
-    // ✅ Infinite Scroll Observer
+    // ✅ 🔥 CRITICAL FIX: Sync state with backend (refresh / navigation)
     useEffect(() => {
+        setItems(products.data || []);
+        setNextCursor(products.next_cursor);
+    }, [products]);
+
+    // ✅ Infinite scroll (ONLY for "All")
+    useEffect(() => {
+        if (!observerRef.current || !nextCursor || selectedCategory !== 'All') return;
+
         const observer = new IntersectionObserver(
             (entries) => {
-                if (entries[0].isIntersecting && nextCursor && !loading) {
+                if (entries[0].isIntersecting && !loading) {
                     loadMore();
                 }
             },
-            { threshold: 1 },
+            { threshold: 0.5 }
         );
 
-        if (observerRef.current) observer.observe(observerRef.current);
+        observer.observe(observerRef.current);
 
         return () => observer.disconnect();
-    }, [nextCursor, loading]);
+    }, [nextCursor, loading, selectedCategory]);
 
     const loadMore = () => {
         if (!nextCursor || loading) return;
@@ -88,11 +94,12 @@ const ProductPageData = () => {
         setLoading(true);
 
         router.get(
-            '/shop/u/products', 
+            '/shop/u/products',
             { cursor: nextCursor },
             {
                 preserveState: true,
                 preserveScroll: true,
+                replace: true,
                 only: ['products'],
 
                 onSuccess: (page: any) => {
@@ -110,7 +117,7 @@ const ProductPageData = () => {
 
                 onError: () => setLoading(false),
                 onFinish: () => setLoading(false),
-            },
+            }
         );
     };
 
@@ -173,143 +180,146 @@ const ProductPageData = () => {
                     </p>
                 </div>
 
-                {/* ✅ Category Tabs WITH ICONS */}
-                <div className="mb-6 flex flex-wrap gap-2">
-                    {categories.map((cat: any) => (
+                {/* Categories */}
+<div className="sticky top-0 z-30 border-b bg-gray-100/95 backdrop-blur">
+    
+    {/* CATEGORY ROW */}
+    <div className="flex gap-2 overflow-x-auto px-4 py-3">
+        {categories.map((cat: any) => (
+            <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition ${
+                    selectedCategory === cat
+                        ? 'bg-indigo-600 text-white shadow'
+                        : 'border bg-white text-gray-700 hover:bg-gray-100'
+                }`}
+            >
+                {categoryIcons[cat] || <FaBox />}
+                {cat}
+            </button>
+        ))}
+    </div>
+
+    {/* TOOLBAR ROW */}
+    <div className="flex flex-col gap-3 px-4 pb-3 md:flex-row md:items-center md:justify-between">
+        
+        {/* SEARCH */}
+        <div className="relative w-full md:w-80">
+            <FaSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
+            <input
+                type="text"
+                placeholder="Search products..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full rounded-lg border bg-white py-2 pl-10 pr-4 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+            />
+        </div>
+
+        {/* SORT */}
+        <div className="relative">
+            <button
+                onClick={() => setShowFilter(!showFilter)}
+                className="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-sm shadow-sm hover:bg-gray-100"
+            >
+                <FaFilter /> Sort
+            </button>
+
+            {showFilter && (
+                <div className="absolute right-0 z-50 mt-2 w-56 rounded-xl border bg-white shadow-xl">
+                    {filterOptions.map((option) => (
                         <button
-                            key={cat}
-                            onClick={() => setSelectedCategory(cat)}
-                            className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
-                                selectedCategory === cat
-                                    ? 'bg-indigo-600 text-white shadow'
-                                    : 'border bg-white text-gray-700 hover:bg-gray-100'
-                            }`}
+                            key={option.value}
+                            onClick={() => {
+                                setSortOption(option.value);
+                                setShowFilter(false);
+                            }}
+                            className="flex w-full items-center justify-between px-4 py-2 text-sm hover:bg-gray-100"
                         >
-                            <span className="text-sm opacity-80">
-                                {categoryIcons[cat] || <FaBox />}
-                            </span>
-                            {cat}
+                            {option.label}
+                            {sortOption === option.value && (
+                                <FaCheck className="text-indigo-600" />
+                            )}
                         </button>
                     ))}
                 </div>
+            )}
+        </div>
+    </div>
+</div>
 
-                {/* Toolbar */}
-                <div className="mb-6 flex flex-col gap-3 md:flex-row md:justify-between">
-                    {/* Search */}
-                    <div className="relative w-full md:w-80">
-                        <FaSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
-                        <input
-                            type="text"
-                            placeholder="Search products..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="w-full rounded-lg border bg-white py-2 pr-4 pl-10 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
-                        />
+                {/* 🔥 STATES HANDLED PROPERLY */}
+
+                {/* Initial Loading */}
+                {loading && items.length === 0 && (
+                    <div className="py-20 text-center text-gray-500">
+                        Loading products...
                     </div>
+                )}
 
-                    {/* Sort */}
-                    <div className="relative">
-                        <button
-                            onClick={() => setShowFilter(!showFilter)}
-                            className="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-sm shadow-sm hover:bg-gray-100"
-                        >
-                            <FaFilter />
-                            Sort
-                        </button>
-
-                        {showFilter && (
-                            <div className="absolute right-0 z-90 mt-2 w-56 rounded-xl border bg-white shadow-xl">
-                                {filterOptions.map((option) => (
-                                    <button
-                                        key={option.value}
-                                        onClick={() => {
-                                            setSortOption(option.value);
-                                            setShowFilter(false);
-                                        }}
-                                        className="flex w-full items-center justify-between px-4 py-2 text-sm hover:bg-gray-100"
-                                    >
-                                        {option.label}
-                                        {sortOption === option.value && (
-                                            <FaCheck className="text-indigo-600" />
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
+                {/* No Results */}
+                {!loading && sortedProducts.length === 0 && (
+                    <div className="py-20 text-center text-gray-500">
+                        No products found
                     </div>
-                </div>
+                )}
 
                 {/* Products */}
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                    {sortedProducts.length > 0 ? (
-                        sortedProducts.map((product: any) => (
+                {sortedProducts.length > 0 && (
+                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                        {sortedProducts.map((product: any) => (
                             <div
                                 key={product.id}
                                 className="group rounded-xl border bg-white shadow-sm transition hover:shadow-lg"
                             >
-                                {/* Image */}
                                 <div className="relative h-48 overflow-hidden rounded-t-xl">
                                     <img
                                         src={product.image}
                                         alt={product.name}
-                                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                                        loading="lazy"
+                                        className="h-full w-full object-cover transition group-hover:scale-105"
                                     />
-                                    <span className="absolute top-2 left-2 rounded-full bg-black/70 px-2 py-1 text-xs font-medium text-white backdrop-blur">
+                                    <span className="absolute top-2 left-2 rounded-full bg-black/70 px-2 py-1 text-xs text-white">
                                         {product.category || 'General'}
                                     </span>
                                 </div>
 
-                                {/* Content */}
                                 <div className="flex flex-col p-4">
-                                    <h2 className="line-clamp-2 text-sm font-medium text-gray-800">
+                                    <h2 className="line-clamp-2 text-sm font-medium">
                                         {product.name}
                                     </h2>
 
-                                    <p className="mt-2 text-lg font-semibold text-gray-900">
+                                    <p className="mt-2 font-semibold">
                                         ${product.price}
                                     </p>
 
-                                    <p
-                                        className={`mt-1 text-xs ${
-                                            product.stock_quantity > 0
-                                                ? 'text-green-600'
-                                                : 'text-red-500'
-                                        }`}
-                                    >
+                                    <p className="text-xs mt-1">
                                         {product.stock_quantity > 0
                                             ? 'In Stock'
                                             : 'Out of Stock'}
                                     </p>
 
-                                    <div className="mt-auto pt-4">
-                                        <Link
-                                            href={`/shop/u/products/${product.slug}`}
-                                            className="block w-full rounded-md bg-indigo-600 py-2 text-center text-sm font-medium text-white transition hover:bg-indigo-700"
-                                        >
-                                            View Product
-                                        </Link>
-                                    </div>
+                                    <Link
+                                        href={`/shop/u/products/${product.slug}`}
+                                        className="mt-4 block rounded-md bg-indigo-600 py-2 text-center text-white text-sm"
+                                    >
+                                        View Product
+                                    </Link>
                                 </div>
                             </div>
-                        ))
-                    ) : (
-                        <div className="col-span-full py-20 text-center">
-                            <p className="text-lg text-gray-700">
-                                No products found
-                            </p>
-                        </div>
-                    )}
-                </div>
+                        ))}
+                    </div>
+                )}
 
                 {/* Infinite Loader */}
-                <div ref={observerRef} className="py-10 text-center">
-                    {loading && (
-                        <p className="animate-pulse text-sm text-gray-500">
-                            Loading more products...
-                        </p>
-                    )}
-                </div>
+                {selectedCategory === 'All' && (
+                    <div ref={observerRef} className="py-10 text-center">
+                        {loading && items.length > 0 && (
+                            <p className="text-sm text-gray-500 animate-pulse">
+                                Loading more products...
+                            </p>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );
