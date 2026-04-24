@@ -32,30 +32,33 @@ class Product extends Model
     // ... inside the class ...
 
     protected function image(): Attribute
-    {
-        return Attribute::make(
-            get: function ($value) {
-                // 1. If no image path exists in the DB, show placeholder
-                if (!$value) {
-                    return 'https://placehold.co/600x400';
-                }
+{
+    return Attribute::make(
+        get: function ($value) {
+            // 1. Fallback for empty values
+            if (empty($value)) {
+                return 'https://placehold.co/600x400';
+            }
 
-                // 2. If the value is already a full URL, just return it
-                if (filter_var($value, FILTER_VALIDATE_URL)) {
-                    return $value;
-                }
+            // 2. If it's already a full URL
+            if (filter_var($value, FILTER_VALIDATE_URL)) {
+                return $value;
+            }
 
-                // 3. Check if we are actually configured for S3/Cloud
-                // If the bucket is empty, we are likely on localhost without S3 setup
-                if (empty(config('filesystems.disks.private.bucket'))) {
-                    // Return a local path. Make sure you've run 'php artisan storage:link'
-                    return asset('storage/' . $value);
-                }
+            // 3. Local Development Logic
+            // If AWS_BUCKET is empty, we assume we are using local storage
+            if (empty(env('AWS_BUCKET'))) {
+                // Remove 'public/' prefix if the controller saved it that way
+                $path = str_replace('public/', '', $value);
+                
+                // Using a relative path /storage/ is the safest way on Windows
+                return '/storage/' . ltrim($path, '/');
+            }
 
-                // 4. If bucket exists, generate the cloud URL
-                return Storage::disk('private')->url($value);
-            },
-        );
-    }
+            // 4. Cloud Logic (Laravel Cloud/S3)
+            return Storage::disk('private')->url($value);
+        },
+    );
+}
 }
 
