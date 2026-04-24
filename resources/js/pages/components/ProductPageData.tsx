@@ -86,25 +86,33 @@ const ProductPageData = () => {
     }, [nextCursor, loading]);
 
     const loadMore = () => {
-        if (!nextCursor) return;
+        if (!nextCursor || loading) return;
 
         setLoading(true);
 
         router.get(
-            route('products.page'),
+            '/shop/u/products', 
             { cursor: nextCursor },
             {
                 preserveState: true,
                 preserveScroll: true,
                 only: ['products'],
+
                 onSuccess: (page: any) => {
-                    setItems((prev: any) => [
-                        ...prev,
-                        ...page.props.products.data,
-                    ]);
-                    setNextCursor(page.props.products.next_cursor);
+                    const newProducts = page.props.products?.data || [];
+
+                    if (newProducts.length === 0) {
+                        setNextCursor(null);
+                    } else {
+                        setItems((prev: any) => [...prev, ...newProducts]);
+                        setNextCursor(page.props.products.next_cursor);
+                    }
+
                     setLoading(false);
                 },
+
+                onError: () => setLoading(false),
+                onFinish: () => setLoading(false),
             },
         );
     };
@@ -213,7 +221,7 @@ const ProductPageData = () => {
                         </button>
 
                         {showFilter && (
-                            <div className="absolute right-0 mt-2 w-56 rounded-xl border bg-white shadow-xl">
+                            <div className="absolute right-0 z-90 mt-2 w-56 rounded-xl border bg-white shadow-xl">
                                 {filterOptions.map((option) => (
                                     <button
                                         key={option.value}
@@ -250,6 +258,9 @@ const ProductPageData = () => {
                                         className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                                         loading="lazy"
                                     />
+                                    <span className="absolute top-2 left-2 rounded-full bg-black/70 px-2 py-1 text-xs font-medium text-white backdrop-blur">
+                                        {product.category || 'General'}
+                                    </span>
                                 </div>
 
                                 {/* Content */}
