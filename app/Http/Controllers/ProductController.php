@@ -216,25 +216,35 @@ class ProductController extends Controller
 
 
 
-    public function productPage()
+    public function productPage(Request $request)
     {
-        $products = Product::latest()->cursorPaginate(10);
+        $products = Product::query()
+            ->when(
+                $request->search,
+                fn($q, $search) =>
+                $q->where('name', 'LIKE', "%{$search}%")
+            )
+            ->when(
+                $request->category && $request->category !== 'All',
+                fn($q) =>
+                $q->where('category', $request->category)
+            )
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
-        $products->through(function ($product) {
+        $products->getCollection()->transform(function ($product) {
             $product->image = $product->image
                 ? Storage::disk('private')->url($product->image)
-                : 'https://placehold.co/600x400';
+                : 'https://placehold.co/400x400';
+
             return $product;
         });
 
-        // ✅ Fetch ALL categories independently
-        $categories = Product::select('category')
-            ->distinct()
-            ->pluck('category');
-
         return Inertia::render("ProductPage", [
             "products" => $products,
-            "categories" => $categories
+            "filters" => $request->only(['search', 'category']),
+            "categories" => Product::select('category')->distinct()->pluck('category')
         ]);
     }
 
