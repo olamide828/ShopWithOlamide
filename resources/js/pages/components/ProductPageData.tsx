@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { Link, usePage, router } from '@inertiajs/react';
+import React from 'react';
+import { Link, usePage } from '@inertiajs/react';
 import {
     FaFilter,
     FaSearch,
@@ -24,7 +24,7 @@ import {
 } from 'react-icons/fa';
 import { Toaster } from 'sonner';
 
-// ✅ Category Icons
+// 1. Icon Mapper - Matches your database category values to React Icons
 const categoryIcons: Record<string, React.ReactNode> = {
     All: <FaBox />,
     Electronics: <FaLaptop />,
@@ -43,94 +43,37 @@ const categoryIcons: Record<string, React.ReactNode> = {
     'Home & Garden': <FaHome />,
     Sports: <FaBasketballBall />,
     Workspace: <FaBriefcase />,
-    Toys: <FaGamepad />,
+    Toys: <FaGamepad />, // Or use a different one
     Uncategorized: <FaBox />,
 };
 
 const ProductPageData = () => {
-    const { products, categories: backendCategories }: any = usePage().props;
-
-    // ✅ STATE
-    const [items, setItems] = React.useState(products.data || []);
-    const [nextCursor, setNextCursor] = React.useState(products.next_cursor);
-    const [loading, setLoading] = React.useState(false);
+    const { products }: any = usePage().props;
 
     const [search, setSearch] = React.useState('');
     const [sortOption, setSortOption] = React.useState('default');
-    const [selectedCategory, setSelectedCategory] = React.useState('All');
     const [showFilter, setShowFilter] = React.useState(false);
-
-    const observerRef = useRef<HTMLDivElement | null>(null);
-
-    const categories = ['All', ...(backendCategories || [])];
-
-    // ✅ 🔥 CRITICAL FIX: Sync state with backend (refresh / navigation)
-    useEffect(() => {
-        setItems(products.data || []);
-    }, [products.data]);
-
-    // ✅ Infinite scroll (ONLY for "All")
-    useEffect(() => {
-        if (!observerRef.current) return;
-
-        const observer = new IntersectionObserver((entries) => {
-            if (
-                entries[0].isIntersecting &&
-                products.next_page_url &&
-                !loading
-            ) {
-                loadMore();
-            }
-        });
-
-        observer.observe(observerRef.current);
-
-        return () => observer.disconnect();
-    }, [products.next_page_url, loading]);
-
-    const loadMore = () => {
-        if (!products.next_page_url || loading) return;
-
-        setLoading(true);
-
-        router.get(
-            products.next_page_url,
-            {},
-            {
-                preserveState: true,
-                preserveScroll: true,
-                only: ['products'],
-
-                onSuccess: (page: any) => {
-                    setItems((prev: any) => [
-                        ...prev,
-                        ...page.props.products.data,
-                    ]);
-
-                    setLoading(false);
-                },
-
-                onError: () => setLoading(false),
-                onFinish: () => setLoading(false),
-            },
-        );
-    };
+    const [selectedCategory, setSelectedCategory] = React.useState('All');
 
     const trimmedSearch = search.trim();
 
-    // ✅ Filter
-    let filteredProducts = items.filter((product: any) => {
+    // Extract unique categories
+    const categories = [
+        'All',
+        ...Array.from(new Set(products.map((p: any) => p.category))),
+    ];
+
+    // Filter by search & category
+    let filteredProducts = products.filter((product: any) => {
         const matchesSearch = product.name
             .toLowerCase()
             .includes(trimmedSearch.toLowerCase());
-
         const matchesCategory =
             selectedCategory === 'All' || product.category === selectedCategory;
-
         return matchesSearch && matchesCategory;
     });
 
-    // ✅ Sort
+    // Sort
     const sortedProducts = [...filteredProducts].sort((a: any, b: any) => {
         switch (sortOption) {
             case 'az':
@@ -166,61 +109,68 @@ const ProductPageData = () => {
 
             <div className="mx-auto max-w-7xl px-4 py-8">
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-semibold text-gray-900">
+                <div className="mb-6">
+                    <h1 className="text-3xl font-bold text-gray-900">
                         Explore Products
                     </h1>
                     <p className="text-sm text-gray-500">
-                        Find quality products at great prices
+                        Find the best products at the best prices
                     </p>
                 </div>
 
-                {/* Categories */}
-                <div className="sticky top-20 z-30 mb-6 bg-gray-100/95 backdrop-blur">
-                    {/* CATEGORY ROW */}
-                    <div className="flex gap-2 px-4 py-3">
-                        {categories.map((cat: any) => (
-                            <button
-                                key={cat}
-                                onClick={() => setSelectedCategory(cat)}
-                                className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap transition ${
-                                    selectedCategory === cat
-                                        ? 'bg-indigo-600 text-white shadow'
-                                        : 'bg-white text-gray-700 hover:bg-gray-100'
-                                }`}
-                            >
+                {/* Category Tabs */}
+                <div className="mb-6 flex flex-wrap gap-2">
+                    {categories.map((cat: any) => (
+                        <button
+                            key={cat}
+                            onClick={() => setSelectedCategory(cat)}
+                            className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+                                selectedCategory === cat
+                                    ? 'bg-indigo-600 text-white'
+                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                        >
+                            {/* 2. Display the icon here */}
+                            <span className="opacity-80">
                                 {categoryIcons[cat] || <FaBox />}
-                                {cat}
-                            </button>
-                        ))}
+                            </span>
+                            {cat}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Toolbar */}
+                <div className="sticky top-18 z-40 mb-6 flex flex-col gap-3 rounded-xl bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
+                    {/* Left - Search */}
+                    <div className="relative w-full md:w-80">
+                        <FaSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Search for products..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-full rounded-lg border bg-gray-50 py-2 pr-4 pl-10 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                        />
                     </div>
 
-                    {/* TOOLBAR ROW */}
-                    <div className="flex flex-col gap-3 px-4 pb-3 md:flex-row md:items-center md:justify-between">
-                        {/* SEARCH */}
-                        <div className="relative w-full md:w-80">
-                            <FaSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder="Search products..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="w-full rounded-lg border bg-white py-2 pr-4 pl-10 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
-                            />
-                            <p>{products.data.length} products found</p>
-                        </div>
+                    {/* Right - Controls */}
+                    <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm text-gray-500 md:block">
+                            {sortedProducts.length}{' '}
+                            {sortedProducts.length === 1 ? 'item' : 'items'}
+                        </p>
 
-                        {/* SORT */}
                         <div className="relative">
                             <button
                                 onClick={() => setShowFilter(!showFilter)}
                                 className="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-sm shadow-sm hover:bg-gray-100"
                             >
-                                <FaFilter /> Sort
+                                <FaFilter />
+                                Sort
                             </button>
 
                             {showFilter && (
-                                <div className="absolute right-0 z-50 mt-2 w-56 rounded-xl border bg-white shadow-xl">
+                                <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border bg-white shadow-xl">
                                     {filterOptions.map((option) => (
                                         <button
                                             key={option.value}
@@ -232,7 +182,7 @@ const ProductPageData = () => {
                                         >
                                             {option.label}
                                             {sortOption === option.value && (
-                                                <FaCheck className="text-indigo-600" />
+                                                <FaCheck className="text-xs text-indigo-600" />
                                             )}
                                         </button>
                                     ))}
@@ -242,78 +192,73 @@ const ProductPageData = () => {
                     </div>
                 </div>
 
-                {/* 🔥 STATES HANDLED PROPERLY */}
-
-                {/* Initial Loading */}
-                {loading && items.length === 0 && (
-                    <div className="py-20 text-center text-gray-500">
-                        Loading products...
-                    </div>
-                )}
-
-                {/* No Results */}
-                {!loading && sortedProducts.length === 0 && (
-                    <div className="py-20 text-center text-gray-500">
-                        No products found
-                    </div>
-                )}
-
-                {/* Products */}
-                {sortedProducts.length > 0 && (
-                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                        {sortedProducts.map((product: any) => (
+                {/* Products Grid */}
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    {sortedProducts.length > 0 ? (
+                        sortedProducts.map((product: any) => (
                             <div
                                 key={product.id}
-                                className="group rounded-xl border bg-white shadow-sm transition hover:shadow-lg"
+                                className="flex flex-col overflow-hidden rounded-xl border bg-white shadow-sm transition hover:shadow-md"
                             >
-                                <div className="relative h-48 overflow-hidden rounded-t-xl">
+                                {/* Image */}
+                                <div className="relative h-44 w-full overflow-hidden bg-gray-100">
                                     <img
                                         src={product.image}
-                                        alt={product.name}
-                                        className="h-full w-full object-cover transition group-hover:scale-105"
+                                        alt={product.slug}
+                                        loading='lazy'
+                                        className="h-full w-full object-cover transition"
                                     />
-                                    <span className="absolute top-2 left-2 rounded-full bg-black/70 px-2 py-1 text-xs text-white">
+                                    <span className="absolute top-2 left-2 rounded-full bg-black/70 px-2 py-1 text-xs font-medium text-white backdrop-blur">
                                         {product.category || 'General'}
                                     </span>
                                 </div>
 
-                                <div className="flex flex-col p-4">
-                                    <h2 className="line-clamp-2 text-sm font-medium">
+                                {/* Content */}
+                                <div className="flex flex-1 flex-col p-4">
+                                    <h2 className="line-clamp-2 min-h-10 text-sm font-medium text-gray-800">
                                         {product.name}
                                     </h2>
 
-                                    <p className="mt-2 font-semibold">
+                                    <p className="mt-2 text-lg font-bold text-gray-900">
                                         ${product.price}
                                     </p>
 
-                                    <p className={`mt-1 text-xs ${product.stock_quantity > 0 ? 'text-green-600' : 'text-red-600'} `}>
-                                        {product.stock_quantity > 0
-                                            ? 'In Stock'
-                                            : 'Out of Stock'}
-                                    </p>
+                                    <div className="text-sm">
+                                        {product.stock_quantity > 0 ? (
+                                            <span className="font-medium text-green-600">
+                                                In Stock
+                                            </span>
+                                        ) : (
+                                            <span className="font-medium text-red-500">
+                                                Out of Stock
+                                            </span>
+                                        )}
+                                    </div>
 
-                                    <Link
-                                        href={`/shop/u/products/${product.slug}`}
-                                        className="mt-4 block rounded-md bg-indigo-600 py-2 text-center text-sm text-white"
-                                    >
-                                        View Product
-                                    </Link>
+                                    <div className="flex-1" />
+
+                                    <div className="mt-4 flex gap-2">
+                                        <Link
+                                            href={`/shop/u/products/${product.slug}`}
+                                            className="flex-1 rounded-md bg-indigo-600 py-2 text-center text-sm font-medium text-white hover:bg-indigo-700"
+                                        >
+                                            View
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                )}
-
-                {/* Infinite Loader */}
-                {selectedCategory === 'All' && (
-                    <div ref={observerRef} className="py-10 text-center">
-                        {loading && items.length > 0 && (
-                            <p className="animate-pulse text-sm text-gray-500">
-                                Loading more products...
+                        ))
+                    ) : (
+                        <div className="col-span-full flex flex-col items-center justify-center py-20">
+                            <p className="text-lg font-medium text-gray-700">
+                                No products found
                             </p>
-                        )}
-                    </div>
-                )}
+                            <p className="text-sm text-gray-500">
+                                Try a different search, filter or category
+                            </p>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
