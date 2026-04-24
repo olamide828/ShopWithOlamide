@@ -417,7 +417,7 @@ const Products = () => {
                             >
                                 <option value="">Select Category</option>
                                 <option value="Electronics">Electronics </option>
-                                <option value="Clothing">Clothing <FaTshirt />,</option>
+                                <option value="Clothing">Clothing</option>
                                 <option value="Audio">Audio</option>
                                 <option value="Accessories">Accessories</option>
                                 <option value="Gaming">Gaming</option>
