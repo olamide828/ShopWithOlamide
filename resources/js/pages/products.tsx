@@ -308,7 +308,7 @@ const Products = () => {
                                     )}
 
                                     <p className="mt-2 text-lg font-bold text-indigo-600">
-                                        ${product.price}
+                                        ₦{product.price}
                                     </p>
 
                                     {/* Meta row */}
