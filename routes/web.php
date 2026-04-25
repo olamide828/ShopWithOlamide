@@ -100,6 +100,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/manage-users', [AdminController::class, 'manageUsers']);
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::patch('/orders/{order}', [AdminOrderController::class, 'update'])->name('orders.update');
+    // web.php — inside Route::middleware(['auth', 'admin'])->prefix('admin')->group(...)
+
+Route::get('/settings',  [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('admin.settings');
+Route::put('/settings',  [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('admin.settings.update');
 
     // The actions (Post for changing data, Delete for removing)
     // Route::post('/users/{user}/toggle-ban', [AdminController::class, 'toggleBan']);

@@ -56,7 +56,7 @@ class webController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
             'dateOfBirth' => 'required|string',
-            'role' => 'nullable|string' // Allow role to be passed
+            'role' => 'nullable|string',
         ]);
 
         User::create([
@@ -64,10 +64,9 @@ class webController extends Controller
             'email' => $data['email'],
             'dateOfBirth' => $data['dateOfBirth'],
             'password' => Hash::make($data['password']),
-            'role' => $request->role ?? 'user', // Set default if not provided
+            'role' => $request->role ?? 'user',
         ]);
 
-        // Redirect to login with a success message so the user knows it worked
         return redirect('/verify-email')->with('success', 'Account created! Please log in.');
     }
 
@@ -78,8 +77,7 @@ class webController extends Controller
             'password' => 'required|string|min:8',
         ]);
 
-        // Determine intended login type
-        $loginRole = $request->input('role', 'user'); // default 'user', can be 'admin'
+        $loginRole = $request->input('role', 'user');
 
         if (!Auth::attempt($credentials)) {
             return back()->withErrors(['email' => 'Invalid credentials']);
@@ -89,9 +87,7 @@ class webController extends Controller
 
         $user = Auth::user();
 
-        // Strict role check
-
-        if($user->is_banned) {
+        if ($user->is_banned) {
             Auth::logout();
             return back()->withErrors(['email' => 'Your account has been suspended.']);
         }
@@ -106,17 +102,29 @@ class webController extends Controller
             return back()->withErrors(['email' => 'Invalid credentials']);
         }
 
-        // Redirect based on role
+        // Capture device info on every successful login
+        $deviceInfo = $this->parseUserAgent($request->userAgent() ?? '');
+
+        $user->update([
+            'last_ip' => $request->ip(),
+            'last_device' => $deviceInfo['device'],
+            'last_browser' => $deviceInfo['browser'],
+            'last_os' => $deviceInfo['os'],
+            'last_seen_at' => now(),
+        ]);
+
         if ($user->isAdmin()) {
             return redirect('/admin');
         }
 
         return redirect('/dashboard');
     }
+
     public function contact()
     {
         return Inertia::render('ContactPage');
     }
+
     public function terms()
     {
         return Inertia::render('Terms');
@@ -130,5 +138,58 @@ class webController extends Controller
     public function manageAccount()
     {
         return Inertia::render('ManageAccountForm');
+    }
+
+    private function parseUserAgent(string $ua): array
+    {
+        // Detect OS
+        $os = 'Unknown OS';
+        $osPatterns = [
+            'Windows 11' => 'Windows NT 10.0.*Win64',
+            'Windows 10' => 'Windows NT 10.0',
+            'Windows 8.1' => 'Windows NT 6.3',
+            'Windows 8' => 'Windows NT 6.2',
+            'Windows 7' => 'Windows NT 6.1',
+            'Android' => 'Android',
+            'iPhone (iOS)' => 'iPhone',
+            'iPad (iOS)' => 'iPad',
+            'Mac OS X' => 'Mac OS X',
+            'Linux' => 'Linux',
+            'Chrome OS' => 'CrOS',
+        ];
+        foreach ($osPatterns as $name => $pattern) {
+            if (preg_match('/' . $pattern . '/i', $ua)) {
+                $os = $name;
+                break;
+            }
+        }
+
+        // Detect Browser
+        $browser = 'Unknown Browser';
+        $browserPatterns = [
+            'Edge' => 'Edg\/',
+            'Opera' => 'OPR\/',
+            'Samsung' => 'SamsungBrowser',
+            'Chrome' => 'Chrome\/',
+            'Firefox' => 'Firefox\/',
+            'Safari' => 'Safari\/',
+            'IE' => 'Trident\/',
+        ];
+        foreach ($browserPatterns as $name => $pattern) {
+            if (preg_match('/' . $pattern . '/i', $ua)) {
+                $browser = $name;
+                break;
+            }
+        }
+
+        // Detect Device type
+        $device = 'Desktop';
+        if (preg_match('/iPhone|Android.*Mobile|Windows Phone/i', $ua)) {
+            $device = 'Mobile';
+        } elseif (preg_match('/iPad|Android(?!.*Mobile)|Tablet/i', $ua)) {
+            $device = 'Tablet';
+        }
+
+        return compact('os', 'browser', 'device');
     }
 }

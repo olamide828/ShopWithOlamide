@@ -6,19 +6,33 @@ import {
     FaMinus,
     FaArrowRight,
     FaTimes,
-    FaLock,
     FaCreditCard,
+    FaTruck,
 } from 'react-icons/fa';
 import emptyCart from '/public/empty_cart.png';
 import sadEmoji from '/public/sad_emoji.png';
 import UserDashboard from '../UserDashboard';
 import { toast, Toaster } from 'sonner';
 
+// Format a number as Naira — e.g. 3000 → ₦3,000
+const naira = (amount: number) => `₦${Number(amount).toLocaleString('en-NG')}`;
+
 const Cart = () => {
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { carts, total, auth }: any = usePage().props;
+
+    const {
+        carts,
+        subtotal,
+        total,
+        deliveryFee,
+        freeDeliveryThreshold,
+        auth,
+    }: any = usePage().props;
+
     const isUserTrue = auth.user;
+    const isFreeDelivery = deliveryFee === 0;
+    const amountUntilFree = freeDeliveryThreshold - subtotal;
 
     const [formData, setFormData] = useState({
         email: auth.user?.email || '',
@@ -50,18 +64,13 @@ const Cart = () => {
         }, 5000);
     };
 
-    // --- UPDATED LOGIC HERE ---
     const updateQuantity = (item: any, newQty: number) => {
         if (newQty < 1) return;
-
-        // Logic: You can only add what is in the cart + what is left in stock
         const maxAvailable = item.quantity + item.product.stock_quantity;
-
         if (newQty > maxAvailable) {
             toast.error(`Only ${maxAvailable} total units available`);
             return;
         }
-
         router.put(
             `/cart/${item.id}`,
             { quantity: newQty },
@@ -75,13 +84,11 @@ const Cart = () => {
     };
 
     const removeItem = (id: number) => {
-        // We pass the explicit ID to match our Controller's fixed destroy method
         router.delete(`/cart/${id}`, {
             onSuccess: () => toast.success('Removed from cart'),
             onError: () => toast.error('Could not remove item.'),
         });
     };
-    // --- END UPDATED LOGIC ---
 
     const formatTimeAgo = (dateString: string) => {
         const date = new Date(dateString);
@@ -98,10 +105,10 @@ const Cart = () => {
         <>
             <Toaster richColors position="top-right" />
 
-            {/* --- CHECKOUT MODAL (UNCHANGED UI) --- */}
+            {/* CHECKOUT MODAL */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-                    <div className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl transition-all">
+                    <div className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
                         <div className="flex items-center justify-between bg-gray-900 px-6 py-4 text-white">
                             <div className="flex items-center gap-2">
                                 <FaCreditCard className="text-indigo-400" />
@@ -118,7 +125,7 @@ const Cart = () => {
                         </div>
 
                         <form onSubmit={handleSimulatedPayment} className="p-6">
-                            <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[13px] text-amber-800">
+                            <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[13px] text-amber-800">
                                 <p className="flex items-start gap-2">
                                     <span className="mt-0.5">💡</span>
                                     <span>
@@ -127,6 +134,35 @@ const Cart = () => {
                                     </span>
                                 </p>
                             </div>
+
+                            {/* Order breakdown inside modal */}
+                            <div className="mb-4 rounded-lg border border-gray-100 bg-gray-50 p-3 text-sm">
+                                <div className="flex justify-between text-gray-500">
+                                    <span>Subtotal</span>
+                                    <span>{naira(subtotal)}</span>
+                                </div>
+                                <div className="mt-1 flex justify-between text-gray-500">
+                                    <span className="flex items-center gap-1">
+                                        <FaTruck className="text-xs" /> Delivery
+                                    </span>
+                                    <span
+                                        className={
+                                            isFreeDelivery
+                                                ? 'font-semibold text-green-600'
+                                                : ''
+                                        }
+                                    >
+                                        {isFreeDelivery
+                                            ? 'FREE'
+                                            : naira(deliveryFee)}
+                                    </span>
+                                </div>
+                                <div className="mt-2 flex justify-between border-t border-gray-200 pt-2 font-bold text-gray-900">
+                                    <span>Total</span>
+                                    <span>{naira(total)}</span>
+                                </div>
+                            </div>
+
                             <div className="space-y-4">
                                 <div>
                                     <label className="text-[11px] font-bold tracking-wider text-gray-500 uppercase">
@@ -171,26 +207,28 @@ const Cart = () => {
                                     />
                                 </div>
                             </div>
+
                             <button
                                 disabled={loading}
                                 type="submit"
-                                className="mt-8 flex w-full cursor-pointer items-center justify-center gap-3 rounded-xl bg-indigo-600 py-4 font-bold text-white shadow-lg disabled:opacity-80"
+                                className="mt-6 flex w-full cursor-pointer items-center justify-center gap-3 rounded-xl bg-indigo-600 py-4 font-bold text-white shadow-lg disabled:opacity-80"
                             >
                                 {loading
                                     ? 'Processing...'
-                                    : `Complete Order ($${total})`}
+                                    : `Complete Order (${naira(total)})`}
                             </button>
                         </form>
                     </div>
                 </div>
             )}
 
-            {/* --- CART UI (UNCHANGED UI) --- */}
+            {/* CART UI */}
             {isUserTrue ? (
                 <div className="min-h-screen bg-gray-50 p-6">
                     <h1 className="mb-6 text-center text-3xl font-bold">
                         Your Cart
                     </h1>
+
                     {carts.length === 0 ? (
                         <div className="m-auto flex w-fit flex-col items-center justify-center">
                             <img
@@ -207,7 +245,37 @@ const Cart = () => {
                         </div>
                     ) : (
                         <div className="grid gap-6 lg:grid-cols-3">
+                            {/* Cart items */}
                             <div className="space-y-4 lg:col-span-2">
+                                {/* Free delivery progress banner */}
+                                {!isFreeDelivery && amountUntilFree > 0 && (
+                                    <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+                                        <p className="mb-2 text-sm font-medium text-blue-700">
+                                            <FaTruck className="mr-1 inline" />
+                                            Add{' '}
+                                            <span className="font-bold">
+                                                {naira(amountUntilFree)}
+                                            </span>{' '}
+                                            more for free delivery!
+                                        </p>
+                                        <div className="h-2 w-full overflow-hidden rounded-full bg-blue-200">
+                                            <div
+                                                className="h-full rounded-full bg-blue-500 transition-all duration-500"
+                                                style={{
+                                                    width: `${Math.min((subtotal / freeDeliveryThreshold) * 100, 100)}%`,
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {isFreeDelivery && (
+                                    <div className="rounded-xl border border-green-100 bg-green-50 p-3 text-sm font-medium text-green-700">
+                                        <FaTruck className="mr-1 inline" /> 🎉
+                                        You've unlocked free delivery!
+                                    </div>
+                                )}
+
                                 {carts.map((item: any) => (
                                     <div
                                         key={item.id}
@@ -223,7 +291,7 @@ const Cart = () => {
                                                 {item.product.name}
                                             </h2>
                                             <p className="font-medium text-indigo-600">
-                                                ${item.price}
+                                                {naira(item.price)}
                                             </p>
                                             <div className="mt-3 flex items-center gap-3">
                                                 <button
@@ -262,10 +330,9 @@ const Cart = () => {
                                         </div>
                                         <div className="flex h-24 flex-col justify-between text-right">
                                             <p className="font-bold text-gray-900">
-                                                $
-                                                {(
-                                                    item.price * item.quantity
-                                                ).toFixed(2)}
+                                                {naira(
+                                                    item.price * item.quantity,
+                                                )}
                                             </p>
                                             <button
                                                 onClick={() =>
@@ -283,21 +350,58 @@ const Cart = () => {
                                 ))}
                             </div>
 
+                            {/* Order Summary */}
                             <div className="h-fit rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
                                 <h2 className="mb-4 text-xl font-bold text-gray-800">
                                     Order Summary
                                 </h2>
-                                <div className="mb-6 flex items-center justify-between">
-                                    <span className="font-medium text-gray-600">
-                                        Grand Total
-                                    </span>
-                                    <span className="text-2xl font-bold text-indigo-600">
-                                        ${total}
-                                    </span>
+
+                                <div className="space-y-3 text-sm">
+                                    <div className="flex items-center justify-between text-gray-600">
+                                        <span>Subtotal</span>
+                                        <span className="font-semibold">
+                                            {naira(subtotal)}
+                                        </span>
+                                    </div>
+
+                                    <div className="flex items-center justify-between text-gray-600">
+                                        <span className="flex items-center gap-1.5">
+                                            <FaTruck className="text-xs text-gray-400" />{' '}
+                                            Delivery
+                                        </span>
+                                        {isFreeDelivery ? (
+                                            <span className="font-semibold text-green-600">
+                                                FREE
+                                            </span>
+                                        ) : (
+                                            <span className="font-semibold">
+                                                {naira(deliveryFee)}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {!isFreeDelivery && (
+                                        <p className="text-xs text-gray-400">
+                                            Free delivery on orders over{' '}
+                                            {naira(freeDeliveryThreshold)}
+                                        </p>
+                                    )}
+
+                                    <div className="border-t border-gray-100 pt-3">
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-medium text-gray-600">
+                                                Grand Total
+                                            </span>
+                                            <span className="text-2xl font-bold text-indigo-600">
+                                                {naira(total)}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
+
                                 <button
                                     onClick={() => setIsModalOpen(true)}
-                                    className="w-full cursor-pointer rounded-xl bg-gray-900 py-4 font-bold text-white shadow-lg transition-all hover:bg-black"
+                                    className="mt-6 w-full cursor-pointer rounded-xl bg-gray-900 py-4 font-bold text-white shadow-lg transition-all hover:bg-black"
                                 >
                                     Checkout Now
                                 </button>

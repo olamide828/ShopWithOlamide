@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\Product;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,10 +19,8 @@ class CartController extends Controller
             ->where('user_id', Auth::id())
             ->get();
 
-        // EXACTLY LIKE PRODUCT CONTROLLER
         $carts->transform(function ($cart) {
             if ($cart->product && $cart->product->image) {
-                // If it's already a full URL (external), leave it
                 if (!filter_var($cart->product->image, FILTER_VALIDATE_URL)) {
                     $cart->product->image = Storage::disk('private')->url($cart->product->image);
                 }
@@ -31,11 +30,18 @@ class CartController extends Controller
             return $cart;
         });
 
-        $total = $carts->sum(fn($item) => $item->price * $item->quantity);
+        $subtotal = $carts->sum(fn($item) => $item->price * $item->quantity);
+        $deliveryFee = (int) Setting::get('delivery_fee', 3000);
+        $freeDeliveryThreshold = (int) Setting::get('free_delivery_threshold', 50000);
+        $appliedDeliveryFee = $subtotal >= $freeDeliveryThreshold ? 0 : $deliveryFee;
+        $total = $subtotal + $appliedDeliveryFee;
 
         return Inertia::render('CartPage', [
             'carts' => $carts,
+            'subtotal' => $subtotal,
             'total' => $total,
+            'deliveryFee' => $appliedDeliveryFee,
+            'freeDeliveryThreshold' => $freeDeliveryThreshold,
         ]);
     }
 
@@ -103,14 +109,12 @@ class CartController extends Controller
             $product = Product::lockForUpdate()->find($cart->product_id);
 
             if ($difference > 0) {
-                // Increasing quantity: check if product has enough stock
                 if ($product->stock_quantity < $difference) {
                     DB::rollBack();
                     return back()->withErrors(['message' => "Only {$product->stock_quantity} more left in stock."]);
                 }
                 $product->decrement('stock_quantity', $difference);
             } elseif ($difference < 0) {
-                // Decreasing quantity: return stock to store
                 $product->increment('stock_quantity', abs($difference));
             }
 
@@ -126,7 +130,6 @@ class CartController extends Controller
 
     public function destroy($id)
     {
-        // Using $id instead of Type Hinting ensures we find the record manually to avoid 403 ghost errors
         $cart = Cart::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
 
         DB::transaction(function () use ($cart) {

@@ -9,7 +9,9 @@ import {
     FaUserSlash,
     FaBars,
     FaTimes,
+    FaCog,
 } from 'react-icons/fa';
+import { FiSettings } from 'react-icons/fi';
 
 export default function Dashboard({ children }: PropsWithChildren) {
     const { url } = usePage();
@@ -96,6 +98,13 @@ export default function Dashboard({ children }: PropsWithChildren) {
                         <AdminNavItem
                             href="/admin/manage-users"
                             icon={<FaUserSlash />}
+                            label="Manage Users"
+                            active={isActive('/admin/manage-users')}
+                        />
+
+                        <AdminNavItem
+                            href="/admin/settings"
+                            icon={<FaCog />}
                             label="Manage Users"
                             active={isActive('/admin/manage-users')}
                         />

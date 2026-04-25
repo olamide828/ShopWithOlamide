@@ -6,19 +6,18 @@ import {
     FaMapMarkerAlt,
     FaPhone,
     FaShare,
+    FaTruck,
 } from 'react-icons/fa';
 import { router } from '@inertiajs/react';
 import { toast, Toaster } from 'sonner';
 
-// phone_number lives on the products table, NOT on the user relation.
-// Use product.phone_number directly — product.user only carries id & name.
 const FALLBACK_PHONE = '09070079206';
 
-const ProductDetailsData = () => {
-    const { product, auth }: any = usePage().props;
+const naira = (amount: number) => `₦${Number(amount).toLocaleString('en-NG')}`;
 
-    // FIX 1 & 2: Removed `copied` state and `message` state — both were
-    // duplicating what `toast` already handles. Only `toast` is used now.
+const ProductDetailsData = () => {
+    const { product, auth, deliveryFee, freeDeliveryThreshold }: any = usePage().props;
+
     const [loading, setLoading] = useState(false);
     const [imitateLoading, setImitateLoading] = useState(true);
 
@@ -34,7 +33,6 @@ const ProductDetailsData = () => {
         if (loading) return;
 
         if (!isLoggedIn) {
-            // FIX 2: Only toast fires now — removed duplicate `setMessage(true)`
             toast.error('Login to add this product to cart', {
                 style: { textTransform: 'capitalize' },
             });
@@ -57,9 +55,7 @@ const ProductDetailsData = () => {
                 onSuccess: () => {
                     toast.success(
                         `${product.name} added to cart successfully.`,
-                        {
-                            style: { textTransform: 'capitalize' },
-                        },
+                        { style: { textTransform: 'capitalize' } },
                     );
                 },
                 onError: (errors) => {
@@ -68,11 +64,6 @@ const ProductDetailsData = () => {
                 onFinish: () => setLoading(false),
             },
         );
-    };
-
-    const callSeller = () => {
-        // handled by <a> tag now — this function is no longer needed
-        // kept as no-op to avoid breaking any references
     };
 
     const addToWishlist = () => {
@@ -95,13 +86,9 @@ const ProductDetailsData = () => {
                 preserveScroll: true,
                 preserveState: true,
                 onSuccess: () => {
-                    // FIX 7: Removed orphaned `setLoading(false)` — loading is
-                    // never set to true in this function, so the call was pointless
                     toast.success(
                         `${product.name} added to wishlist successfully`,
-                        {
-                            style: { textTransform: 'capitalize' },
-                        },
+                        { style: { textTransform: 'capitalize' } },
                     );
                 },
                 onError: () => {
@@ -122,7 +109,6 @@ const ProductDetailsData = () => {
 
     const copyLink = () => {
         navigator.clipboard.writeText(window.location.href);
-        // FIX 1: Removed duplicate `setCopied(true)` overlay — toast handles this alone
         toast.info('Link copied to clipboard');
     };
 
@@ -189,16 +175,12 @@ const ProductDetailsData = () => {
                             <div className="h-full w-full animate-pulse rounded-lg bg-gray-300" />
                         ) : (
                             <>
-                                {/* Blurred ambient background — fills whitespace gaps
-                                    with a blurred version of the same image instead
-                                    of a plain white/gray background */}
                                 <img
                                     src={product.image}
                                     alt=""
                                     aria-hidden="true"
                                     className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl brightness-75"
                                 />
-                                {/* Actual product image — fully visible, no cropping */}
                                 <img
                                     src={product.image}
                                     alt={product.slug}
@@ -211,8 +193,6 @@ const ProductDetailsData = () => {
                     {/* DETAILS SECTION */}
                     <div className="flex flex-col space-y-5">
                         {/* Title */}
-                        {/* FIX 6: Changed <h1> to <h2> — can't nest block-level heading inside <p>
-                            Also fixed: Title is now its own element, not inside a <p> */}
                         {imitateLoading ? (
                             <div className="h-8 animate-pulse rounded-lg bg-gray-300" />
                         ) : (
@@ -231,8 +211,6 @@ const ProductDetailsData = () => {
                         </div>
 
                         {/* Stock */}
-                        {/* FIX 5: Replaced <span> wrappers with <div> so skeleton <div> isn't
-                            nested inside an inline element — invalid HTML */}
                         <div className="mb-4 flex items-center justify-between">
                             <div className="text-sm">
                                 {imitateLoading ? (
@@ -301,8 +279,6 @@ const ProductDetailsData = () => {
                                     <h2 className="mb-3 text-xs font-semibold tracking-widest text-gray-400 uppercase">
                                         About this product
                                     </h2>
-                                    {/* Render each newline as its own paragraph — makes long
-                                        descriptions readable instead of one wall of text */}
                                     <div className="flex flex-col gap-3">
                                         {product.description ? (
                                             product.description
@@ -333,6 +309,31 @@ const ProductDetailsData = () => {
                                 </div>
                             )}
                         </div>
+
+                        {/* ── DELIVERY FEE BANNER ── */}
+                        {!imitateLoading && (
+                            <div className="flex items-start gap-2 rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm text-indigo-800">
+                                <FaTruck className="mt-0.5 shrink-0 text-indigo-500" />
+                                <div>
+                                    <p className="font-semibold">Delivery Info</p>
+                                    <p className="mt-0.5 text-indigo-700">
+                                        Flat delivery fee of{' '}
+                                        <span className="font-bold">
+                                            {naira(deliveryFee)}
+                                        </span>
+                                        . Orders above{' '}
+                                        <span className="font-bold">
+                                            {naira(freeDeliveryThreshold)}
+                                        </span>{' '}
+                                        qualify for{' '}
+                                        <span className="font-bold text-green-700">
+                                            free delivery
+                                        </span>
+                                        .
+                                    </p>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Actions */}
                         <div className="flex flex-col gap-3 pt-4">
@@ -372,9 +373,8 @@ const ProductDetailsData = () => {
                                 Share Product
                             </button>
 
-                            {/* Mobile: <a> tag — no phone number shown inline */}
                             {!imitateLoading && (
-                                <a
+                                <a 
                                     href={`tel:${product.phone_number ?? FALLBACK_PHONE}`}
                                     className="flex w-full items-center justify-center gap-3 rounded-lg border border-green-500 bg-green-100 py-3 font-medium text-green-800 transition hover:bg-green-200 lg:hidden"
                                 >
@@ -383,9 +383,9 @@ const ProductDetailsData = () => {
                                 </a>
                             )}
 
-                            {/* Desktop: <a> tag — phone number shown inline */}
                             {!imitateLoading && (
                                 <a
+                                
                                     href={`tel:${product.phone_number ?? FALLBACK_PHONE}`}
                                     className="hidden w-full items-center justify-center gap-3 rounded-lg border border-green-500 bg-green-100 py-3 font-medium text-green-800 transition hover:bg-green-200 lg:flex"
                                 >

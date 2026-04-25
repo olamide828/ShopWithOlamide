@@ -25,6 +25,11 @@ class User extends Authenticatable
         'dateOfBirth',
         'role',
         'is_banned',
+        'last_ip',
+        'last_device',
+        'last_browser',
+        'last_os',
+        'last_seen_at',
     ];
 
     /**
