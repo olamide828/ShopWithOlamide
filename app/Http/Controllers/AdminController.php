@@ -80,7 +80,7 @@ class AdminController extends Controller
         return Inertia::render('ManageUsers', [
             // Only send non-admin users to prevent accidental self-deletion
             'users' => User::where('is_admin', false)->get(),
-             'user' => auth()->user(),
+            'user' => auth()->user(),
         ]);
     }
 
@@ -103,9 +103,10 @@ class AdminController extends Controller
             return back()->with('error', 'You cannot delete yourself.');
         }
 
+
         $user->delete();
 
-        return back()->with('message', 'User deleted successfully.'); 
+        return back()->with('message', 'User deleted successfully.');
     }
 }
 

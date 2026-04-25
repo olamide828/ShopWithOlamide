@@ -70,7 +70,6 @@ const products = [
     },
 ];
 
-
 const GradientText = () => (
     <span
         style={{
@@ -82,10 +81,9 @@ const GradientText = () => (
             color: 'transparent',
         }}
     >
-       Modern Living
+        Modern Living
     </span>
 );
-
 
 const ProductShowcase = () => {
     return (
@@ -101,7 +99,7 @@ const ProductShowcase = () => {
                         Featured Collection
                     </span>
 
-                    <h2 className="mt-6 text-4xl font-black leading-tight text-white md:text-5xl lg:text-6xl">
+                    <h2 className="mt-6 text-4xl leading-tight font-black text-white md:text-5xl lg:text-6xl">
                         Explore Products Built For
                         <span className="block bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                             <GradientText />
@@ -109,9 +107,9 @@ const ProductShowcase = () => {
                     </h2>
 
                     <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-gray-400">
-                        Discover premium essentials, smart technology and lifestyle
-                        products curated to match the same modern experience behind
-                        ShopWithOlamide.
+                        Discover premium essentials, smart technology and
+                        lifestyle products curated to match the same modern
+                        experience behind ShopWithOlamide.
                     </p>
                 </div>
 
@@ -176,9 +174,44 @@ const ProductShowcase = () => {
                     </p>
 
                     <Link href="/shop/u/products">
-                        <button className="group flex cursor-pointer items-center gap-3 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 text-base font-semibold text-white shadow-[0_15px_40px_rgba(99,102,241,0.35)] transition-all duration-300 hover:scale-105 hover:shadow-[0_20px_60px_rgba(99,102,241,0.5)]">
+                        <button
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '12px',
+                                padding: '16px 32px',
+                                borderRadius: '16px',
+                                background:
+                                    'linear-gradient(to right, #2563eb, #9333ea)',
+                                color: 'white',
+                                fontWeight: '600',
+                                fontSize: '1rem',
+                                border: 'none',
+                                cursor: 'pointer',
+                                boxShadow: '0 15px 40px rgba(99,102,241,0.35)',
+                                transition: 'all 0.3s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                                (
+                                    e.currentTarget as HTMLButtonElement
+                                ).style.transform = 'scale(1.05)';
+                                (
+                                    e.currentTarget as HTMLButtonElement
+                                ).style.boxShadow =
+                                    '0 20px 60px rgba(99,102,241,0.5)';
+                            }}
+                            onMouseLeave={(e) => {
+                                (
+                                    e.currentTarget as HTMLButtonElement
+                                ).style.transform = 'scale(1)';
+                                (
+                                    e.currentTarget as HTMLButtonElement
+                                ).style.boxShadow =
+                                    '0 15px 40px rgba(99,102,241,0.35)';
+                            }}
+                        >
                             Explore All Products
-                            <FaArrowRight className="transition duration-300 group-hover:translate-x-1" />
+                            <FaArrowRight />
                         </button>
                     </Link>
                 </div>

@@ -1,10 +1,6 @@
 // Features.tsx
 import React from 'react';
-import {
-    FaArrowLeft,
-    FaDolly,
-    FaShippingFast,
-} from 'react-icons/fa';
+import { FaArrowLeft, FaDolly, FaShippingFast } from 'react-icons/fa';
 import FeatureUtils from '../utils/FeatureUtils';
 
 const Features = () => {
@@ -17,13 +13,23 @@ const Features = () => {
             <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-12">
                 <div className="mb-14 flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-end">
                     <div className="max-w-xl">
-                        <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium uppercase tracking-[0.3em] text-gray-300 backdrop-blur-md">
+                        <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium tracking-[0.3em] text-gray-300 uppercase backdrop-blur-md">
                             Why Choose Us
                         </span>
 
-                        <h2 className="mt-6 text-4xl font-black leading-tight text-white md:text-5xl">
+                        <h2 className="mt-6 text-4xl leading-tight font-black text-white md:text-5xl">
                             Built Around Speed,
-                            <span className="block bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                            <span
+                                style={{
+                                    display: 'block',
+                                    background:
+                                        'linear-gradient(to right, #60a5fa, #c084fc, #f472b6)',
+                                    WebkitBackgroundClip: 'text',
+                                    backgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                    color: 'transparent',
+                                }}
+                            >
                                 Convenience & Trust
                             </span>
                         </h2>
@@ -31,8 +37,8 @@ const Features = () => {
 
                     <p className="max-w-lg text-base leading-8 text-gray-400">
                         Every order is backed by reliable delivery, transparent
-                        service and a shopping experience designed to make things
-                        simple from start to finish.
+                        service and a shopping experience designed to make
+                        things simple from start to finish.
                     </p>
                 </div>
 

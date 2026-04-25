@@ -64,7 +64,17 @@ const AdminRegisterComponent = () => {
 
                         <h1 className="text-5xl leading-tight font-black">
                             Create a new
-                            <span className="block bg-gradient-to-r from-fuchsia-300 to-indigo-300 bg-clip-text text-transparent">
+                            <span
+                                style={{
+                                    display: 'block',
+                                    background:
+                                        'linear-gradient(to right, #e879f9, #a5b4fc)',
+                                    WebkitBackgroundClip: 'text',
+                                    backgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                    color: 'transparent',
+                                }}
+                            >
                                 Admin Account
                             </span>
                         </h1>
