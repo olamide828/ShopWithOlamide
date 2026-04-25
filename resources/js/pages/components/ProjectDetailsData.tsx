@@ -206,7 +206,7 @@ const ProductDetailsData = () => {
                             {imitateLoading ? (
                                 <div className="h-8 w-[150px] animate-pulse rounded-lg bg-gray-300" />
                             ) : (
-                                `$${product.price}`
+                                `₦${product.price}`
                             )}
                         </div>
 
