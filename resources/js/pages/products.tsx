@@ -31,6 +31,7 @@ const CATEGORIES = [
     'Sports',
     'Workspace',
     'Toys',
+    'Kitchen',
     'Uncategorized',
 ];
 
@@ -340,7 +341,7 @@ const Products = () => {
                                     <div className="mt-4 flex gap-2">
                                         <Link
                                             href={`/admin/products/${product.slug}`}
-                                            className="flex-1 rounded-lg bg-gray-900 py-2 text-center w-full text-xs font-semibold text-white transition hover:bg-black"
+                                            className="w-full flex-1 rounded-lg bg-gray-900 py-2 text-center text-xs font-semibold text-white transition hover:bg-black"
                                         >
                                             View
                                         </Link>
