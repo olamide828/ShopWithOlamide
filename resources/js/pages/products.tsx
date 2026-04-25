@@ -28,7 +28,7 @@ const CATEGORIES = [
     'Beauty',
     'Shoes',
     'Lifestyle & Home',
-    'Garden'
+    'Garden',
     'Sports',
     'Workspace',
     'Toys',
