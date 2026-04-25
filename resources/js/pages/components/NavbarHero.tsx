@@ -9,6 +9,21 @@ import {
 } from 'react-icons/fa';
 import { toast, Toaster } from 'sonner';
 
+const GradientLogo = () => (
+    <span
+        style={{
+            display: 'inline-block',
+            background: 'linear-gradient(to right, #3b82f6, #a855f7, #ec4899)',
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            color: 'transparent',
+        }}
+    >
+        ShopWithOlamide
+    </span>
+);
+
 const NavbarHero = () => {
     const [open, setOpen] = useState(false);
     const [mobileNav, setMobileNav] = useState(false);
@@ -18,25 +33,14 @@ const NavbarHero = () => {
 
     const initials = (() => {
         if (!user?.name) return '';
-
-        // 1. Remove emojis & non-letter characters (keep spaces)
         const cleanName = user.name
-            .normalize('NFKD') // handles accents
-            .replace(/[^\p{L}\s]/gu, '') // keep only letters + spaces
+            .normalize('NFKD')
+            .replace(/[^\p{L}\s]/gu, '')
             .trim();
-
-        // 2. Split into words
         const parts = cleanName.split(/\s+/);
-
-        // 3. Get ONLY first and second names
         const first = parts[0] || '';
         const second = parts[1] || '';
-
-        // 4. Extract first letters safely
-        const firstInitial = first.charAt(0);
-        const secondInitial = second.charAt(0);
-
-        return (firstInitial + secondInitial).toUpperCase();
+        return (first.charAt(0) + second.charAt(0)).toUpperCase();
     })();
 
     const logout = () => {
@@ -65,9 +69,7 @@ const NavbarHero = () => {
         const handler = () => {
             setLocalCartCount((prev: number) => prev + 1);
         };
-
         window.addEventListener('cart:added', handler);
-
         return () => window.removeEventListener('cart:added', handler);
     }, []);
 
@@ -77,7 +79,6 @@ const NavbarHero = () => {
         } else {
             document.body.classList.remove('overflow-hidden');
         }
-
         return () => document.body.classList.remove('overflow-hidden');
     }, [mobileNav]);
 
@@ -93,15 +94,8 @@ const NavbarHero = () => {
             <div className="relative z-50 flex items-center justify-between px-6 py-6 lg:px-14">
                 <Link href="/">
                     <div onClick={pageReload} className="cursor-pointer">
-                        <h1
-                            style={{
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                backgroundClip: 'text',
-                            }}
-                            className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-2xl font-extrabold"
-                        >
-                            ShopWithOlamide
+                        <h1 className="text-2xl font-extrabold">
+                            <GradientLogo />
                         </h1>
                         <p className="mt-1 text-xs tracking-[0.35em] text-gray-300 uppercase">
                             Premium Marketplace Experience
@@ -117,7 +111,6 @@ const NavbarHero = () => {
                             className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-gray-200 bg-white text-gray-700 transition hover:border-gray-300 hover:bg-gray-50"
                         >
                             <FaShoppingCart size={18} />
-
                             {localCartCount > 0 && (
                                 <span className="absolute -top-1 -right-1 flex h-5 w-5 animate-bounce items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
                                     {localCartCount}
@@ -133,7 +126,6 @@ const NavbarHero = () => {
                                     Login
                                 </button>
                             </Link>
-
                             <Link href="/register">
                                 <button className="cursor-pointer rounded-2xl bg-linear-to-r from-blue-600 to-purple-600 px-6 py-3 text-sm font-semibold text-white transition hover:scale-105">
                                     Get Started
@@ -149,7 +141,6 @@ const NavbarHero = () => {
                                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-r from-blue-500 to-purple-600 text-sm font-bold text-white">
                                     {initials}
                                 </div>
-
                                 <div className="hidden text-left md:block">
                                     <p className="text-sm font-semibold">
                                         {user.name}
@@ -158,7 +149,6 @@ const NavbarHero = () => {
                                         Welcome back
                                     </p>
                                 </div>
-
                                 <FaChevronDown
                                     size={12}
                                     className={`transition duration-300 ${open ? 'rotate-180' : ''}`}
@@ -175,25 +165,21 @@ const NavbarHero = () => {
                                             {user.name}
                                         </p>
                                     </div>
-
-                                    <>
-                                        {user?.role === 'admin' ? (
-                                            <Link
-                                                href="/admin"
-                                                className="block px-5 py-3 text-sm text-gray-700 transition hover:bg-gray-100"
-                                            >
-                                                Admin Dashboard
-                                            </Link>
-                                        ) : (
-                                            <Link
-                                                href="/dashboard"
-                                                className="block px-5 py-3 text-sm text-gray-700 transition hover:bg-gray-100"
-                                            >
-                                                Dashboard
-                                            </Link>
-                                        )}
-                                    </>
-
+                                    {user?.role === 'admin' ? (
+                                        <Link
+                                            href="/admin"
+                                            className="block px-5 py-3 text-sm text-gray-700 transition hover:bg-gray-100"
+                                        >
+                                            Admin Dashboard
+                                        </Link>
+                                    ) : (
+                                        <Link
+                                            href="/dashboard"
+                                            className="block px-5 py-3 text-sm text-gray-700 transition hover:bg-gray-100"
+                                        >
+                                            Dashboard
+                                        </Link>
+                                    )}
                                     <button
                                         onClick={logout}
                                         className="w-full cursor-pointer px-5 py-3 text-left text-sm font-medium text-red-500 transition hover:bg-red-50"
@@ -219,170 +205,152 @@ const NavbarHero = () => {
                 </button>
             </div>
 
-            {/* Mobile Nav */}
-            {mobileNav && (
-                <section className="fixed inset-0 z-90 lg:hidden">
-                    <div
-                        onClick={() => setMobileNav(false)}
-                        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-                    />
+            {/* Mobile Nav — always mounted, animated with transform */}
+            <section
+                className={`fixed inset-0 z-90 transition-opacity duration-300 lg:hidden ${
+                    mobileNav
+                        ? 'pointer-events-auto opacity-100'
+                        : 'pointer-events-none opacity-0'
+                }`}
+            >
+                {/* Backdrop */}
+                <div
+                    onClick={() => setMobileNav(false)}
+                    className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                />
 
-                    <div className="absolute top-0 right-0 flex h-full w-[85%] max-w-sm flex-col overflow-y-auto border-l border-white/10 bg-[#0B0B12] px-6 py-6 shadow-2xl">
-                        <div className="mb-8 flex items-center justify-between border-b border-white/10 pb-5">
-                            <div>
-                                <h1
-                                    className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-2xl font-extrabold"
-                                    style={{
-                                        WebkitBackgroundClip: 'text',
-                                        WebkitTextFillColor: 'transparent',
-                                        backgroundClip: 'text',
-                                        color: 'transparent',
-                                    }}
-                                >
-                                    ShopWithOlamide
-                                </h1>
-                                <p className="mt-1 text-xs tracking-[0.3em] text-gray-400 uppercase">
-                                    Premium Marketplace
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-col gap-2">
-                            <Link
-                                href="/"
-                                onClick={() => setMobileNav(false)}
-                                className="rounded-2xl px-4 py-4 text-base font-medium text-white transition hover:bg-white/10"
-                            >
-                                Home
-                            </Link>
-
-                            <Link
-                                href="/shop/u/products"
-                                onClick={() => setMobileNav(false)}
-                                className="rounded-2xl px-4 py-4 text-base font-medium text-white transition hover:bg-white/10"
-                            >
-                                Products
-                            </Link>
-
-                            <Link
-                                href="/about"
-                                onClick={() => setMobileNav(false)}
-                                className="rounded-2xl px-4 py-4 text-base font-medium text-white transition hover:bg-white/10"
-                            >
-                                About Us
-                            </Link>
-
-                            <Link
-                                href="/contact"
-                                onClick={() => setMobileNav(false)}
-                                className="rounded-2xl px-4 py-4 text-base font-medium text-white transition hover:bg-white/10"
-                            >
-                                Contact
-                            </Link>
-
-                            {user?.role !== 'admin' && (
-                                <Link
-                                    href="/cart"
-                                    onClick={() => setMobileNav(false)}
-                                    className="mt-2 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-white transition hover:bg-white/10"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <FaShoppingCart size={18} />
-                                        <span className="font-medium">
-                                            Cart
-                                        </span>
-                                    </div>
-
-                                    {localCartCount > 0 && (
-                                        <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-red-500 px-2 text-xs font-bold text-white">
-                                            {localCartCount}
-                                        </span>
-                                    )}
-                                </Link>
-                            )}
-                        </div>
-
-                        <div className="mt-auto border-t border-white/10 pt-6">
-                            {!user ? (
-                                <div className="flex flex-col gap-3">
-                                    <Link
-                                        href="/login"
-                                        onClick={() => setMobileNav(false)}
-                                    >
-                                        <button className="w-full rounded-2xl border border-white/20 bg-white/10 px-5 py-4 text-sm font-medium text-white transition hover:bg-white hover:text-black">
-                                            Login
-                                        </button>
-                                    </Link>
-
-                                    <Link
-                                        href="/register"
-                                        onClick={() => setMobileNav(false)}
-                                    >
-                                        <button className="w-full rounded-2xl bg-linear-to-r from-blue-600 to-purple-600 px-5 py-4 text-sm font-semibold text-white transition hover:scale-[1.02]">
-                                            Get Started
-                                        </button>
-                                    </Link>
-                                </div>
-                            ) : (
-                                <div>
-                                    <div className="mb-4 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-r from-blue-500 to-purple-600 text-sm font-bold text-white">
-                                            {initials}
-                                        </div>
-
-                                        <div>
-                                            <p className="text-sm font-semibold text-white">
-                                                {user.name}
-                                            </p>
-                                            <p className="text-xs text-gray-400">
-                                                Welcome back
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex flex-col gap-3">
-                                        {user?.role === 'admin' ? (
-                                            <Link
-                                                href="/admin"
-                                                onClick={() =>
-                                                    setMobileNav(false)
-                                                }
-                                                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm font-medium text-white transition hover:bg-white/10"
-                                            >
-                                                Admin Dashboard
-                                            </Link>
-                                        ) : (
-                                            <Link
-                                                href="/dashboard"
-                                                onClick={() =>
-                                                    setMobileNav(false)
-                                                }
-                                                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm font-medium text-white transition hover:bg-white/10"
-                                            >
-                                                Dashboard
-                                            </Link>
-                                        )}
-                                        {/* Lorem ipsum dolor sit amet consectetur
-                                        adipisicing elit. Eligendi, voluptatem
-                                        recusandae facilis fugit assumenda
-                                        cupiditate deleniti inventore quasi
-                                        explicabo magni. */}
-                                        <button
-                                            onClick={() => {
-                                                setMobileNav(false);
-                                                logout();
-                                            }}
-                                            className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-4 text-left text-sm font-medium text-red-400 transition hover:bg-red-500/20"
-                                        >
-                                            Logout
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
+                {/* Drawer */}
+                <div
+                    className={`absolute top-0 right-0 flex h-full w-[85%] max-w-sm flex-col overflow-y-auto border-l border-white/10 bg-[#0B0B12] px-6 py-6 shadow-2xl transition-transform duration-300 ease-out will-change-transform ${mobileNav ? 'translate-x-0' : 'translate-x-full'}`}
+                >
+                    <div className="mb-8 flex items-center justify-between border-b border-white/10 pb-5">
+                        <div>
+                            <h1 className="text-2xl font-extrabold">
+                                <GradientLogo />
+                            </h1>
+                            <p className="mt-1 text-xs tracking-[0.3em] text-gray-400 uppercase">
+                                Premium Marketplace
+                            </p>
                         </div>
                     </div>
-                </section>
-            )}
+
+                    <div className="flex flex-col gap-2">
+                        <Link
+                            href="/"
+                            onClick={() => setMobileNav(false)}
+                            className="rounded-2xl px-4 py-4 text-base font-medium text-white transition hover:bg-white/10"
+                        >
+                            Home
+                        </Link>
+                        <Link
+                            href="/shop/u/products"
+                            onClick={() => setMobileNav(false)}
+                            className="rounded-2xl px-4 py-4 text-base font-medium text-white transition hover:bg-white/10"
+                        >
+                            Products
+                        </Link>
+                        <Link
+                            href="/about"
+                            onClick={() => setMobileNav(false)}
+                            className="rounded-2xl px-4 py-4 text-base font-medium text-white transition hover:bg-white/10"
+                        >
+                            About Us
+                        </Link>
+                        <Link
+                            href="/contact"
+                            onClick={() => setMobileNav(false)}
+                            className="rounded-2xl px-4 py-4 text-base font-medium text-white transition hover:bg-white/10"
+                        >
+                            Contact
+                        </Link>
+
+                        {user?.role !== 'admin' && (
+                            <Link
+                                href="/cart"
+                                onClick={() => setMobileNav(false)}
+                                className="mt-2 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-white transition hover:bg-white/10"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <FaShoppingCart size={18} />
+                                    <span className="font-medium">Cart</span>
+                                </div>
+                                {localCartCount > 0 && (
+                                    <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-red-500 px-2 text-xs font-bold text-white">
+                                        {localCartCount}
+                                    </span>
+                                )}
+                            </Link>
+                        )}
+                    </div>
+
+                    <div className="mt-auto border-t border-white/10 pt-6">
+                        {!user ? (
+                            <div className="flex flex-col gap-3">
+                                <Link
+                                    href="/login"
+                                    onClick={() => setMobileNav(false)}
+                                >
+                                    <button className="w-full rounded-2xl border border-white/20 bg-white/10 px-5 py-4 text-sm font-medium text-white transition hover:bg-white hover:text-black">
+                                        Login
+                                    </button>
+                                </Link>
+                                <Link
+                                    href="/register"
+                                    onClick={() => setMobileNav(false)}
+                                >
+                                    <button className="w-full rounded-2xl bg-linear-to-r from-blue-600 to-purple-600 px-5 py-4 text-sm font-semibold text-white transition hover:scale-[1.02]">
+                                        Get Started
+                                    </button>
+                                </Link>
+                            </div>
+                        ) : (
+                            <div>
+                                <div className="mb-4 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-r from-blue-500 to-purple-600 text-sm font-bold text-white">
+                                        {initials}
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-white">
+                                            {user.name}
+                                        </p>
+                                        <p className="text-xs text-gray-400">
+                                            Welcome back
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-3">
+                                    {user?.role === 'admin' ? (
+                                        <Link
+                                            href="/admin"
+                                            onClick={() => setMobileNav(false)}
+                                            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm font-medium text-white transition hover:bg-white/10"
+                                        >
+                                            Admin Dashboard
+                                        </Link>
+                                    ) : (
+                                        <Link
+                                            href="/dashboard"
+                                            onClick={() => setMobileNav(false)}
+                                            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm font-medium text-white transition hover:bg-white/10"
+                                        >
+                                            Dashboard
+                                        </Link>
+                                    )}
+                                    <button
+                                        onClick={() => {
+                                            setMobileNav(false);
+                                            logout();
+                                        }}
+                                        className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-4 text-left text-sm font-medium text-red-400 transition hover:bg-red-500/20"
+                                    >
+                                        Logout
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </section>
 
             {/* Hero Content */}
             <div className="relative z-40 flex min-h-[calc(100vh-100px)] items-center px-6 lg:px-14">
@@ -390,20 +358,17 @@ const NavbarHero = () => {
                     <div className="mb-6 inline-flex items-center rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm text-gray-200 backdrop-blur-md">
                         Trusted by thousands of shoppers nationwide
                     </div>
-
                     <h2 className="max-w-4xl text-5xl leading-tight font-black text-white md:text-6xl lg:text-7xl">
                         Discover Products That Match
                         <span className="block bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                             Your Lifestyle
                         </span>
                     </h2>
-
                     <p className="mt-8 max-w-2xl text-lg leading-8 text-gray-300 md:text-xl">
                         ShopWithOlamide brings you a modern marketplace
                         experience with premium products, unbeatable prices, and
                         fast delivery.
                     </p>
-
                     <div className="mt-10 flex flex-col gap-4 sm:flex-row">
                         <Link href="/shop/u/products">
                             <button className="flex cursor-pointer items-center justify-center gap-3 rounded-2xl bg-linear-to-r from-blue-600 to-purple-600 px-8 py-4 text-base font-semibold text-white transition hover:scale-105">
@@ -411,7 +376,6 @@ const NavbarHero = () => {
                                 <FaArrowRight />
                             </button>
                         </Link>
-
                         <Link href="/about">
                             <button className="cursor-pointer rounded-2xl border border-white/20 bg-white/10 px-8 py-4 text-base font-semibold text-white backdrop-blur-md transition hover:bg-white hover:text-black">
                                 Learn More

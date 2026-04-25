@@ -20,7 +20,7 @@ return new class extends Migration
         $table->integer('stock_quantity')->default(0); // Tracking inventory
         $table->text('image')->nullable();
         $table->string('location')->nullable();
-        $table->string('phone_number');
+        $table->string('phone_number')->nullable();
         
         $table->timestamps();
     });
