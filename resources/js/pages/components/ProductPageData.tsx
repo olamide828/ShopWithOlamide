@@ -175,10 +175,10 @@ const ProductPageData = () => {
 
                     {/* Right - Controls */}
                     <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm text-gray-500 md:block">
+                        {search && <p className="text-sm text-gray-500 md:block">
                             {sortedProducts.length}{' '}
                             {sortedProducts.length === 1 ? 'item' : 'items'}
-                        </p>
+                        </p>}
 
                         <div className="relative">
                             <button
