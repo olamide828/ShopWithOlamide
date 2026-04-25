@@ -22,6 +22,9 @@ const ProductDetailsData = () => {
     const [loading, setLoading] = useState(false);
     const [imitateLoading, setImitateLoading] = useState(true);
 
+    // State to handle the "Read More" toggle
+    const [showFullDescription, setShowFullDescription] = useState(false);
+
     useEffect(() => {
         setTimeout(() => {
             setImitateLoading(false);
@@ -147,7 +150,7 @@ const ProductDetailsData = () => {
                 )}
 
                 <div className="grid gap-10 lg:grid-cols-2">
-                    {/* IMAGE SECTION — no border, no blur bg, no scale on mobile */}
+                    {/* IMAGE SECTION */}
                     <div className="relative w-full overflow-hidden rounded-xl bg-gray-50">
                         {imitateLoading ? (
                             <div className="h-72 w-full animate-pulse rounded-xl bg-gray-300 lg:h-105" />
@@ -210,7 +213,7 @@ const ProductDetailsData = () => {
                             </div>
                         )}
 
-                        {/* Description */}
+                        {/* Description Section with Read More Logic */}
                         <div className="leading-relaxed text-gray-600">
                             {imitateLoading ? (
                                 <div className="h-32 animate-pulse rounded-lg bg-gray-300" />
@@ -221,25 +224,55 @@ const ProductDetailsData = () => {
                                     </h2>
                                     <div className="flex flex-col gap-3">
                                         {product.description ? (
-                                            product.description
-                                                .split('\n')
-                                                .filter(
-                                                    (line: string) =>
-                                                        line.trim() !== '',
-                                                )
-                                                .map(
-                                                    (
-                                                        paragraph: string,
-                                                        i: number,
-                                                    ) => (
-                                                        <p
-                                                            key={i}
-                                                            className="text-sm leading-relaxed text-gray-600"
-                                                        >
-                                                            {paragraph}
-                                                        </p>
-                                                    ),
-                                                )
+                                            <>
+                                                {product.description
+                                                    .split('\n')
+                                                    .filter(
+                                                        (line: string) =>
+                                                            line.trim() !== '',
+                                                    )
+                                                    // Truncate logic: slice the array based on toggle state
+                                                    .slice(
+                                                        0,
+                                                        showFullDescription
+                                                            ? undefined
+                                                            : 3,
+                                                    )
+                                                    .map(
+                                                        (
+                                                            paragraph: string,
+                                                            i: number,
+                                                        ) => (
+                                                            <p
+                                                                key={i}
+                                                                className="text-sm leading-relaxed text-gray-600"
+                                                            >
+                                                                {paragraph}
+                                                            </p>
+                                                        ),
+                                                    )}
+
+                                                {/* Only show "Read More" button if description is longer than 3 lines */}
+                                                {product.description
+                                                    .split('\n')
+                                                    .filter(
+                                                        (l: string) =>
+                                                            l.trim() !== '',
+                                                    ).length > 3 && (
+                                                    <button
+                                                        onClick={() =>
+                                                            setShowFullDescription(
+                                                                !showFullDescription,
+                                                            )
+                                                        }
+                                                        className="mt-1 w-fit text-left text-sm font-bold text-indigo-600 transition-colors hover:text-indigo-800"
+                                                    >
+                                                        {showFullDescription
+                                                            ? 'Show Less'
+                                                            : 'Read More...'}
+                                                    </button>
+                                                )}
+                                            </>
                                         ) : (
                                             <p className="text-sm text-gray-400 italic">
                                                 No description provided.
@@ -250,7 +283,7 @@ const ProductDetailsData = () => {
                             )}
                         </div>
 
-                        {/* Date info — same placement as products.tsx cards */}
+                        {/* Date info */}
                         {!imitateLoading && (
                             <div className="space-y-0.5 border-t border-gray-100 pt-3">
                                 <p className="text-xs text-black/60">
