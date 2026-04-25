@@ -87,7 +87,7 @@ class ProductController extends Controller
         $deliveryFee = \App\Models\Setting::getValue('delivery_fee', 3000);
         $freeDeliveryThreshold = \App\Models\Setting::getValue('free_delivery_threshold', 50000);
 
-        return Inertia::render('ProductDetailsData', [
+        return Inertia::render('components/ProjectDetailsData', [
             'product' => $product,
             'deliveryFee' => $deliveryFee !== null ? (int) $deliveryFee : 3000,
             'freeDeliveryThreshold' => $freeDeliveryThreshold !== null ? (int) $freeDeliveryThreshold : 50000,

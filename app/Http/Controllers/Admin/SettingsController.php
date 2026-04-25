@@ -11,7 +11,7 @@ class SettingsController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Admin/Settings', [
+        return Inertia::render('Admin/AdminSettings', [
             'deliveryFee' => (int) Setting::getValue('delivery_fee', 3000),
             'freeDeliveryThreshold' => (int) Setting::getValue('free_delivery_threshold', 50000),
         ]);
