@@ -310,7 +310,7 @@ const Navbar = () => {
                         ) : (
                             <div>
                                 <div className="mb-4 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-sm font-bold text-white">
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-r from-blue-500 to-purple-600 text-sm font-bold text-white">
                                         {initials}
                                     </div>
                                     <div>

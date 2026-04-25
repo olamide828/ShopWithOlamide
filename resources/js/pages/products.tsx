@@ -340,18 +340,18 @@ const Products = () => {
                                     <div className="mt-4 flex gap-2">
                                         <Link
                                             href={`/admin/products/${product.slug}`}
-                                            className="flex-1 rounded-lg bg-gray-900 py-2 text-center text-xs font-semibold text-white transition hover:bg-black"
+                                            className="flex-1 rounded-lg bg-gray-900 py-2 text-center w-full text-xs font-semibold text-white transition hover:bg-black"
                                         >
                                             View
                                         </Link>
-                                        <button
+                                        {/* <button
                                             onClick={() =>
                                                 confirmDelete(product)
                                             }
                                             className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-500 transition hover:bg-red-100"
                                         >
                                             <FaTrash />
-                                        </button>
+                                        </button> */}
                                     </div>
                                 </div>
                             </div>

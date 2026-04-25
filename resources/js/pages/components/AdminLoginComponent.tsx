@@ -185,21 +185,75 @@ const AdminLoginComponent = () => {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className={`group flex ${processing ? 'cursor-not-allowed' : 'cursor-pointer'} w-full cursor-pointer items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 py-4 text-sm font-bold tracking-[0.18em] text-white uppercase shadow-[0_12px_30px_rgba(49,46,129,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(79,70,229,0.45)] disabled:cursor-not-allowed disabled:opacity-70`}
+                                style={{
+                                    display: 'flex',
+                                    width: '100%',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '12px',
+                                    borderRadius: '16px',
+                                    background:
+                                        'linear-gradient(to right, #0f172a, #1e1b4b, #0f172a)',
+                                    padding: '16px',
+                                    fontSize: '0.875rem',
+                                    fontWeight: '700',
+                                    letterSpacing: '0.18em',
+                                    color: '#ffffff',
+                                    textTransform: 'uppercase',
+                                    boxShadow:
+                                        '0 12px 30px rgba(49,46,129,0.35)',
+                                    border: 'none',
+                                    cursor: processing
+                                        ? 'not-allowed'
+                                        : 'pointer',
+                                    opacity: processing ? 0.7 : 1,
+                                    transition: 'all 0.3s ease',
+                                }}
+                                onMouseEnter={(e) => {
+                                    if (!processing) {
+                                        e.currentTarget.style.transform =
+                                            'translateY(-2px)';
+                                        e.currentTarget.style.boxShadow =
+                                            '0 18px 40px rgba(79,70,229,0.45)';
+                                    }
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.transform =
+                                        'translateY(0)';
+                                    e.currentTarget.style.boxShadow =
+                                        '0 12px 30px rgba(49,46,129,0.35)';
+                                }}
                             >
                                 {processing
                                     ? 'Authenticating...'
                                     : 'Access Dashboard'}
-                                {!processing && (
-                                    <FaArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
-                                )}
+                                {!processing && <FaArrowRight />}
                             </button>
                         </form>
 
                         <div className="mt-10 border-t border-slate-200 pt-6 text-center">
                             <button
                                 onClick={() => router.get('/admin/register')}
-                                className="cursor-pointer text-sm font-semibold text-indigo-600 transition hover:text-indigo-800 hover:underline"
+                                style={{
+                                    cursor: 'pointer',
+                                    fontSize: '0.875rem',
+                                    fontWeight: '600',
+                                    color: '#4f46e5',
+                                    background: 'none',
+                                    border: 'none',
+                                    padding: 0,
+                                    textDecoration: 'none',
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.color = '#3730a3';
+                                    e.currentTarget.style.textDecoration =
+                                        'underline';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.color = '#4f46e5';
+                                    e.currentTarget.style.textDecoration =
+                                        'none';
+                                }}
                             >
                                 Create Admin Account
                             </button>

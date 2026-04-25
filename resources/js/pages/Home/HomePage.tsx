@@ -6,7 +6,7 @@ import Footer from '../components/Footer';
 import Rating from '../components/Rating';
 import Features from '../components/Features';
 import NavbarHero from '../components/NavbarHero';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
 
 const HomePage = () => {
     const { products } = usePage().props;
@@ -62,6 +62,7 @@ const HomePage = () => {
     return (
         <section>
             <Head title="ShopWithOlamide"></Head>
+            <Toaster richColors position="bottom-right" />
             <NavbarHero />
             <ProductShowcase products={products} />
             <Features />
