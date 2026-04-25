@@ -12,15 +12,15 @@ class SettingsController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Settings', [
-            'deliveryFee'           => (int) Setting::get('delivery_fee', 3000),
-            'freeDeliveryThreshold' => (int) Setting::get('free_delivery_threshold', 50000),
+            'deliveryFee' => (int) Setting::getValue('delivery_fee', 3000),
+            'freeDeliveryThreshold' => (int) Setting::getValue('free_delivery_threshold', 50000),
         ]);
     }
 
     public function update(Request $request)
     {
         $request->validate([
-            'delivery_fee'            => 'required|numeric|min:0',
+            'delivery_fee' => 'required|numeric|min:0',
             'free_delivery_threshold' => 'required|numeric|min:0',
         ]);
 

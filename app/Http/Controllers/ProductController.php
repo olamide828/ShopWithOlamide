@@ -74,16 +74,23 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
+    // app/Http/Controllers/ProductController.php — show()
+
     public function show($slug)
     {
-        $product = Product::where('slug', $slug)->with('user:id,name')->firstOrFail();
+        $product = Product::with('user:id,name')->where('slug', $slug)->firstOrFail();
 
-        if ($product->image) {
+        if ($product->image && !filter_var($product->image, FILTER_VALIDATE_URL)) {
             $product->image = Storage::disk('private')->url($product->image);
         }
 
-        return Inertia::render('ProductDetails', [
+        $deliveryFee = \App\Models\Setting::getValue('delivery_fee', 3000);
+        $freeDeliveryThreshold = \App\Models\Setting::getValue('free_delivery_threshold', 50000);
+
+        return Inertia::render('ProductDetailsData', [
             'product' => $product,
+            'deliveryFee' => $deliveryFee !== null ? (int) $deliveryFee : 3000,
+            'freeDeliveryThreshold' => $freeDeliveryThreshold !== null ? (int) $freeDeliveryThreshold : 50000,
         ]);
     }
 

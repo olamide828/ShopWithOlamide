@@ -106,7 +106,7 @@ export default function Dashboard({ children }: PropsWithChildren) {
                             href="/admin/settings"
                             icon={<FaCog />}
                             label="Settings"
-                            active={isActive('/admin/manage-users')}
+                            active={isActive('/admin/settings')}
                         />
                     </nav>
 
