@@ -93,7 +93,7 @@ export default function Dashboard({ children }: PropsWithChildren) {
                             href="/admin/orders"
                             icon={<FaUsers />}
                             label="Orders"
-                            active={isActive('/admin/users')}
+                            active={isActive('/admin/orders')}
                         />
                         <AdminNavItem
                             href="/admin/manage-users"
