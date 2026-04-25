@@ -20,7 +20,6 @@ const CATEGORIES = [
     'Accessories',
     'Gaming',
     'Entertainment',
-    'Lifestyle',
     'Fitness',
     'Tech',
     'Automobiles',
