@@ -105,7 +105,7 @@ export default function Dashboard({ children }: PropsWithChildren) {
                         <AdminNavItem
                             href="/admin/settings"
                             icon={<FaCog />}
-                            label="Manage Users"
+                            label="Settings"
                             active={isActive('/admin/manage-users')}
                         />
                     </nav>
