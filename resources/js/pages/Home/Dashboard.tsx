@@ -34,7 +34,15 @@ export default function Dashboard({ children }: PropsWithChildren) {
         <div className="flex min-h-screen bg-gray-50">
             {/* Mobile Header (Sticky) */}
             <div className="fixed top-0 right-0 left-0 z-30 flex items-center justify-between border-b bg-white px-4 py-3 md:hidden">
-                <h1 className="bg-gradient-to-r from-blue-400 to-pink-400 bg-clip-text text-lg font-extrabold text-transparent">
+                <h1
+                    className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-2xl font-extrabold"
+                    style={{
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                        color: 'transparent',
+                    }}
+                >
                     ShopWithOlamide
                 </h1>
                 <button
@@ -111,12 +119,12 @@ export default function Dashboard({ children }: PropsWithChildren) {
 
             {/* Main Content Area */}
             <main className="flex w-full flex-col transition-all duration-300 md:ml-64">
-                <header className="items-center justify-between border-b bg-white px-8 py-4 md:flex">
+                <header className="hidden items-center justify-between border-b bg-white px-8 py-4 md:flex">
                     <div className="flex flex-col">
-                        <h1 className="pt-10 text-lg lg:text-2xl font-bold text-gray-900 lg:pt-0">
+                        <h1 className="pt-10 text-lg font-bold text-gray-900 lg:pt-0 lg:text-2xl">
                             Welcome back Admin, {auth.user?.name}!
                         </h1>
-                        <p className="text-gray-500 text-sm lg:text-base">
+                        <p className="text-sm text-gray-500 lg:text-base">
                             Control users, list products and manage analytics on
                             your admin dashboard.
                         </p>

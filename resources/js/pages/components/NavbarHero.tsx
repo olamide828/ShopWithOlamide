@@ -17,27 +17,27 @@ const NavbarHero = () => {
     const user = auth?.user || null;
 
     const initials = (() => {
-    if (!user?.name) return '';
+        if (!user?.name) return '';
 
-    // 1. Remove emojis & non-letter characters (keep spaces)
-    const cleanName = user.name
-        .normalize('NFKD') // handles accents
-        .replace(/[^\p{L}\s]/gu, '') // keep only letters + spaces
-        .trim();
+        // 1. Remove emojis & non-letter characters (keep spaces)
+        const cleanName = user.name
+            .normalize('NFKD') // handles accents
+            .replace(/[^\p{L}\s]/gu, '') // keep only letters + spaces
+            .trim();
 
-    // 2. Split into words
-    const parts = cleanName.split(/\s+/);
+        // 2. Split into words
+        const parts = cleanName.split(/\s+/);
 
-    // 3. Get ONLY first and second names
-    const first = parts[0] || '';
-    const second = parts[1] || '';
+        // 3. Get ONLY first and second names
+        const first = parts[0] || '';
+        const second = parts[1] || '';
 
-    // 4. Extract first letters safely
-    const firstInitial = first.charAt(0);
-    const secondInitial = second.charAt(0);
+        // 4. Extract first letters safely
+        const firstInitial = first.charAt(0);
+        const secondInitial = second.charAt(0);
 
-    return (firstInitial + secondInitial).toUpperCase();
-})();
+        return (firstInitial + secondInitial).toUpperCase();
+    })();
 
     const logout = () => {
         router.post(
@@ -230,7 +230,15 @@ const NavbarHero = () => {
                     <div className="absolute top-0 right-0 flex h-full w-[85%] max-w-sm flex-col overflow-y-auto border-l border-white/10 bg-[#0B0B12] px-6 py-6 shadow-2xl">
                         <div className="mb-8 flex items-center justify-between border-b border-white/10 pb-5">
                             <div>
-                                <h1 className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-2xl font-extrabold text-transparent [-webkit-background-clip:text] [-webkit-text-fill-color:transparent]">
+                                <h1
+                                    className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-2xl font-extrabold"
+                                    style={{
+                                        WebkitBackgroundClip: 'text',
+                                        WebkitTextFillColor: 'transparent',
+                                        backgroundClip: 'text',
+                                        color: 'transparent',
+                                    }}
+                                >
                                     ShopWithOlamide
                                 </h1>
                                 <p className="mt-1 text-xs tracking-[0.3em] text-gray-400 uppercase">
