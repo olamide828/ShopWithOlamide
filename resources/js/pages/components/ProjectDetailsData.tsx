@@ -71,8 +71,8 @@ const ProductDetailsData = () => {
     };
 
     const callSeller = () => {
-        // phone_number is on the product directly, not on product.user
-        window.location.href = `tel:${product.phone_number ?? FALLBACK_PHONE}`;
+        // handled by <a> tag now — this function is no longer needed
+        // kept as no-op to avoid breaking any references
     };
 
     const addToWishlist = () => {
@@ -183,17 +183,28 @@ const ProductDetailsData = () => {
                         }
                         className={`group relative h-105 w-full overflow-hidden rounded-xl ${
                             imitateLoading ? 'border-none' : 'border'
-                        } bg-white`}
+                        } bg-gray-100`}
                     >
                         {imitateLoading ? (
                             <div className="h-full w-full animate-pulse rounded-lg bg-gray-300" />
                         ) : (
-                            <img
-                                src={product.image}
-                                alt={product.slug}
-                                // FIX 4: Removed stray colon from `group-hover:scale-150:`
-                                className="h-full w-full cursor-zoom-in object-contain object-center transition-transform duration-300 group-hover:scale-150 lg:object-contain"
-                            />
+                            <>
+                                {/* Blurred ambient background — fills whitespace gaps
+                                    with a blurred version of the same image instead
+                                    of a plain white/gray background */}
+                                <img
+                                    src={product.image}
+                                    alt=""
+                                    aria-hidden="true"
+                                    className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl brightness-75"
+                                />
+                                {/* Actual product image — fully visible, no cropping */}
+                                <img
+                                    src={product.image}
+                                    alt={product.slug}
+                                    className="relative h-full w-full cursor-zoom-in object-contain transition-transform duration-300 group-hover:scale-110"
+                                />
+                            </>
                         )}
                     </div>
 
@@ -361,27 +372,27 @@ const ProductDetailsData = () => {
                                 Share Product
                             </button>
 
-                            {/* Mobile: no phone number shown */}
+                            {/* Mobile: <a> tag — no phone number shown inline */}
                             {!imitateLoading && (
-                                <button
-                                    onClick={callSeller}
-                                    className="flex w-full cursor-pointer flex-row items-center justify-center gap-3 rounded-lg bg-black py-3 text-white transition hover:bg-gray-800 lg:hidden"
+                                <a
+                                    href={`tel:${product.phone_number ?? FALLBACK_PHONE}`}
+                                    className="flex w-full items-center justify-center gap-3 rounded-lg border border-green-500 bg-green-100 py-3 font-medium text-green-800 transition hover:bg-green-200 lg:hidden"
                                 >
                                     <FaPhone />
                                     Call Seller
-                                </button>
+                                </a>
                             )}
 
-                            {/* Desktop: phone number shown */}
+                            {/* Desktop: <a> tag — phone number shown inline */}
                             {!imitateLoading && (
-                                <button
-                                    onClick={callSeller}
-                                    className="hidden w-full cursor-pointer flex-row items-center justify-center gap-3 rounded-lg bg-black py-3 text-white transition hover:bg-gray-800 lg:flex"
+                                <a
+                                    href={`tel:${product.phone_number ?? FALLBACK_PHONE}`}
+                                    className="hidden w-full items-center justify-center gap-3 rounded-lg border border-green-500 bg-green-100 py-3 font-medium text-green-800 transition hover:bg-green-200 lg:flex"
                                 >
                                     <FaPhone />
                                     Call Seller ·{' '}
                                     {product.phone_number ?? FALLBACK_PHONE}
-                                </button>
+                                </a>
                             )}
                         </div>
                     </div>

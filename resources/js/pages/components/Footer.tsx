@@ -32,6 +32,21 @@ const Footer = () => {
     //     if (error) return <p>Error: {error}</p>;
     //     if (!address) return <p>Loading...</p>;
 
+    const GradientLogo = () => (
+    <span
+        style={{
+            display: 'inline-block',
+            background: 'linear-gradient(to right, #3b82f6, #a855f7, #ec4899)',
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            color: 'transparent',
+        }}
+    >
+        ShopWithOlamide
+    </span>
+);
+
     const year = new Date().getFullYear();
 
     return (
@@ -90,16 +105,8 @@ const Footer = () => {
                     {/* Brand */}
                     <div className="lg:col-span-2">
                         <Link href="/" className="inline-block">
-                            <h1
-                                className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-2xl font-extrabold"
-                                style={{
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
-                                    backgroundClip: 'text',
-                                    color: 'transparent',
-                                }}
-                            >
-                                ShopWithOlamide
+                              <h1 className="text-2xl font-extrabold">
+                                <GradientLogo />
                             </h1>
                         </Link>
 

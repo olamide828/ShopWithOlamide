@@ -33,6 +33,22 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
 
     const logout = () => router.post('/logout');
 
+    const GradientLogo = () => (
+        <span
+            style={{
+                display: 'inline-block',
+                background:
+                    'linear-gradient(to right, #3b82f6, #a855f7, #ec4899)',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                color: 'transparent',
+            }}
+        >
+            ShopWithOlamide
+        </span>
+    );
+
     const statusClasses = {
         pending: 'text-yellow-700 bg-yellow-100',
         shipped: 'text-blue-700 bg-blue-100',
@@ -64,16 +80,8 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                 }`}
             >
                 <div className="p-6">
-                    <h1
-                        className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-2xl font-extrabold"
-                        style={{
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                            backgroundClip: 'text',
-                            color: 'transparent',
-                        }}
-                    >
-                        ShopWithOlamide
+                    <h1 className="text-2xl font-extrabold">
+                        <GradientLogo />
                     </h1>
                     <p className="mt-1 text-[8px] tracking-[0.35em] text-gray-300 uppercase">
                         Premium Marketplace Experience

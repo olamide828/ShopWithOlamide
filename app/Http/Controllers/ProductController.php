@@ -175,8 +175,10 @@ class ProductController extends Controller
             'price' => 'required|numeric',
             'stock_quantity' => 'required|integer',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'category' => 'nullable|string',
+            'location' => 'nullable|string|max:255',
+            'phone_number' => 'nullable|string|min:10|max:15',
         ]);
 
         $slug = Str::slug($validated['name']);

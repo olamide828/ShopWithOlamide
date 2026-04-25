@@ -71,6 +71,21 @@ const products = [
 ];
 
 
+const GradientText = () => (
+    <span
+        style={{
+            display: 'inline-block',
+            background: 'linear-gradient(to right, #3b82f6, #a855f7, #ec4899)',
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            color: 'transparent',
+        }}
+    >
+       Modern Living
+    </span>
+);
+
 
 const ProductShowcase = () => {
     return (
@@ -89,7 +104,7 @@ const ProductShowcase = () => {
                     <h2 className="mt-6 text-4xl font-black leading-tight text-white md:text-5xl lg:text-6xl">
                         Explore Products Built For
                         <span className="block bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                            Modern Living
+                            <GradientText />
                         </span>
                     </h2>
 

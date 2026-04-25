@@ -21,6 +21,7 @@ import {
     FaCouch,
     FaTv,
     FaBriefcase,
+    FaTag,
 } from 'react-icons/fa';
 import { Toaster } from 'sonner';
 
@@ -61,7 +62,7 @@ const ProductPageData = () => {
         setLoadingMore(true);
         try {
             const res = await fetch(
-                `/shop/products/load-more?offset=${allProducts.length}`,
+                `/shop/u/products/load-more?offset=${allProducts.length}`,
             );
             const data = await res.json();
             setAllProducts((prev: any[]) => [...prev, ...data.products]);
@@ -231,7 +232,8 @@ const ProductPageData = () => {
                                         loading="lazy"
                                         className="h-full w-full object-cover transition"
                                     />
-                                    <span className="absolute top-2 left-2 rounded-full bg-black/70 px-2 py-1 text-xs font-medium text-white backdrop-blur">
+                                    <span className="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur-sm">
+                                        <FaTag className="text-[8px]" />
                                         {product.category || 'General'}
                                     </span>
                                 </div>

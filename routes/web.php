@@ -25,6 +25,7 @@ Route::get('/forgotten-password', [webController::class, 'forgottenPassword']);
 Route::get('/update-password', [webController::class, 'updatePassword']);
 Route::get('/verify-email', [webController::class, 'verifyEmail']);
 Route::get('/shop/u/products', [ProductController::class, 'productPage']);
+Route::get('/shop/products/load-more', [ProductController::class, 'loadMoreProducts']);
 Route::post('/shop/u/products', [ProductController::class, 'store']);
 Route::put('/shop/u/products/{product}', [ProductController::class, 'update'])->name('products.update');
 Route::delete('/shop/u/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');

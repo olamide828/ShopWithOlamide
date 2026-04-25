@@ -16,6 +16,22 @@ export default function Dashboard({ children }: PropsWithChildren) {
     const { auth }: any = usePage().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
+    const GradientLogo = () => (
+        <span
+            style={{
+                display: 'inline-block',
+                background:
+                    'linear-gradient(to right, #3b82f6, #a855f7, #ec4899)',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                color: 'transparent',
+            }}
+        >
+            ShopWithOlamide
+        </span>
+    );
+
     const avatarName = auth.user.name
         .split(' ')
         .map((n: string) => n[0])
@@ -34,16 +50,8 @@ export default function Dashboard({ children }: PropsWithChildren) {
         <div className="flex min-h-screen bg-gray-50">
             {/* Mobile Header (Sticky) */}
             <div className="fixed top-0 right-0 left-0 z-30 flex items-center justify-between border-b bg-white px-4 py-3 md:hidden">
-                <h1
-                    className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-2xl font-extrabold"
-                    style={{
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text',
-                        color: 'transparent',
-                    }}
-                >
-                    ShopWithOlamide
+                <h1 className="text-2xl font-extrabold">
+                    <GradientLogo />
                 </h1>
                 <button
                     onClick={() => setSidebarOpen(!sidebarOpen)}

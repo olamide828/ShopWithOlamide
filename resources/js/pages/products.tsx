@@ -101,7 +101,6 @@ const Products = () => {
                 description: selectedProduct.description || '',
                 category: selectedProduct.category || '',
                 location: selectedProduct.location || '',
-                // FIX: was `phone_mumber` (typo) — phone never pre-filled on edit
                 phone_number: selectedProduct.phone_number || '',
             });
             setImagePreview(selectedProduct.image || null);
