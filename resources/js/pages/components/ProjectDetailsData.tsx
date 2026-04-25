@@ -16,7 +16,8 @@ const FALLBACK_PHONE = '09070079206';
 const naira = (amount: number) => `₦${Number(amount).toLocaleString('en-NG')}`;
 
 const ProductDetailsData = () => {
-    const { product, auth, deliveryFee, freeDeliveryThreshold }: any = usePage().props;
+    const { product, auth, deliveryFee, freeDeliveryThreshold }: any =
+        usePage().props;
 
     const [loading, setLoading] = useState(false);
     const [imitateLoading, setImitateLoading] = useState(true);
@@ -98,15 +99,6 @@ const ProductDetailsData = () => {
         );
     };
 
-    const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        const { left, top, width, height } =
-            e.currentTarget.getBoundingClientRect();
-        const x = (e.clientX - left) / width;
-        const y = (e.clientY - top) / height;
-        setMousePosition({ x, y });
-    };
-
     const copyLink = () => {
         navigator.clipboard.writeText(window.location.href);
         toast.info('Link copied to clipboard');
@@ -117,7 +109,6 @@ const ProductDetailsData = () => {
         const seconds = Math.floor(
             (new Date().getTime() - date.getTime()) / 1000,
         );
-
         const intervals: [number, string][] = [
             [31536000, 'year'],
             [2592000, 'month'],
@@ -126,13 +117,11 @@ const ProductDetailsData = () => {
             [60, 'minute'],
             [1, 'second'],
         ];
-
         for (const [secs, label] of intervals) {
             const value = Math.floor(seconds / secs);
             if (value >= 1)
                 return `${value} ${label}${value !== 1 ? 's' : ''} ago`;
         }
-
         return 'just now';
     };
 
@@ -158,35 +147,16 @@ const ProductDetailsData = () => {
                 )}
 
                 <div className="grid gap-10 lg:grid-cols-2">
-                    {/* IMAGE SECTION */}
-                    <div
-                        onMouseMove={handleMouseMove}
-                        style={
-                            {
-                                '--x': mousePosition.x,
-                                '--y': mousePosition.y,
-                            } as React.CSSProperties
-                        }
-                        className={`group relative h-105 w-full overflow-hidden rounded-xl ${
-                            imitateLoading ? 'border-none' : 'border'
-                        } bg-gray-100`}
-                    >
+                    {/* IMAGE SECTION — no border, no blur bg, no scale on mobile */}
+                    <div className="relative w-full overflow-hidden rounded-xl bg-gray-50">
                         {imitateLoading ? (
-                            <div className="h-full w-full animate-pulse rounded-lg bg-gray-300" />
+                            <div className="h-72 w-full animate-pulse rounded-xl bg-gray-300 lg:h-105" />
                         ) : (
-                            <>
-                                <img
-                                    src={product.image}
-                                    alt=""
-                                    aria-hidden="true"
-                                    className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl brightness-75"
-                                />
-                                <img
-                                    src={product.image}
-                                    alt={product.slug}
-                                    className="relative h-full w-full cursor-zoom-in object-contain transition-transform duration-300 group-hover:scale-110"
-                                />
-                            </>
+                            <img
+                                src={product.image}
+                                alt={product.slug}
+                                className="h-72 w-full object-contain lg:h-105 lg:cursor-zoom-in lg:transition-transform lg:duration-300 lg:hover:scale-110"
+                            />
                         )}
                     </div>
 
@@ -211,47 +181,17 @@ const ProductDetailsData = () => {
                         </div>
 
                         {/* Stock */}
-                        <div className="mb-4 flex items-center justify-between">
-                            <div className="text-sm">
-                                {imitateLoading ? (
-                                    <div className="h-8 w-[150px] animate-pulse rounded-lg bg-gray-300" />
-                                ) : product.stock_quantity > 0 ? (
-                                    <span className="font-medium text-green-600">
-                                        In Stock: {product.stock_quantity}
-                                    </span>
-                                ) : (
-                                    <span className="font-medium text-red-500">
-                                        Out of stock
-                                    </span>
-                                )}
-                            </div>
-
-                            <div className="text-sm font-semibold text-gray-400">
-                                {imitateLoading ? (
-                                    <div className="h-8 w-[150px] animate-pulse rounded-lg bg-gray-300" />
-                                ) : (
-                                    <p className="text-black/70">
-                                        Date Listed:{' '}
-                                        <span className="text-gray-400">
-                                            {new Date(
-                                                product.created_at,
-                                            ).toLocaleDateString()}
-                                        </span>
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="text-sm font-semibold text-gray-400">
+                        <div className="text-sm">
                             {imitateLoading ? (
                                 <div className="h-8 w-[150px] animate-pulse rounded-lg bg-gray-300" />
+                            ) : product.stock_quantity > 0 ? (
+                                <span className="font-medium text-green-600">
+                                    In Stock: {product.stock_quantity}
+                                </span>
                             ) : (
-                                <p className="text-black/70">
-                                    Last Updated:{' '}
-                                    <span className="text-gray-400">
-                                        {formatTimeAgo(product.updated_at)}
-                                    </span>
-                                </p>
+                                <span className="font-medium text-red-500">
+                                    Out of stock
+                                </span>
                             )}
                         </div>
 
@@ -310,12 +250,32 @@ const ProductDetailsData = () => {
                             )}
                         </div>
 
-                        {/* ── DELIVERY FEE BANNER ── */}
+                        {/* Date info — same placement as products.tsx cards */}
+                        {!imitateLoading && (
+                            <div className="space-y-0.5 border-t border-gray-100 pt-3">
+                                <p className="text-xs text-black/60">
+                                    Date Listed:{' '}
+                                    <span className="text-gray-400">
+                                        {formatTimeAgo(product.created_at)}
+                                    </span>
+                                </p>
+                                <p className="text-xs text-black/60">
+                                    Last Updated:{' '}
+                                    <span className="text-gray-400">
+                                        {formatTimeAgo(product.updated_at)}
+                                    </span>
+                                </p>
+                            </div>
+                        )}
+
+                        {/* Delivery Fee Banner */}
                         {!imitateLoading && (
                             <div className="flex items-start gap-2 rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm text-indigo-800">
                                 <FaTruck className="mt-0.5 shrink-0 text-indigo-500" />
                                 <div>
-                                    <p className="font-semibold">Delivery Info</p>
+                                    <p className="font-semibold">
+                                        Delivery Info
+                                    </p>
                                     <p className="mt-0.5 text-indigo-700">
                                         Flat delivery fee of{' '}
                                         <span className="font-bold">
@@ -374,7 +334,7 @@ const ProductDetailsData = () => {
                             </button>
 
                             {!imitateLoading && (
-                                <a 
+                                <a
                                     href={`tel:${product.phone_number ?? FALLBACK_PHONE}`}
                                     className="flex w-full items-center justify-center gap-3 rounded-lg border border-green-500 bg-green-100 py-3 font-medium text-green-800 transition hover:bg-green-200 lg:hidden"
                                 >
@@ -385,7 +345,6 @@ const ProductDetailsData = () => {
 
                             {!imitateLoading && (
                                 <a
-                                
                                     href={`tel:${product.phone_number ?? FALLBACK_PHONE}`}
                                     className="hidden w-full items-center justify-center gap-3 rounded-lg border border-green-500 bg-green-100 py-3 font-medium text-green-800 transition hover:bg-green-200 lg:flex"
                                 >

@@ -271,12 +271,12 @@ const Products = () => {
                                 key={product.id}
                                 className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:shadow-md"
                             >
-                                {/* Image */}
-                                <div className="relative h-44 w-full overflow-hidden bg-gray-50">
+                                {/* Image — no scale, no border, blends with bg */}
+                                <div className="relative h-44 w-full overflow-hidden bg-white">
                                     <img
                                         src={product.image}
                                         alt={product.slug}
-                                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                                        className="h-full w-full object-cover"
                                     />
                                     {/* Category badge */}
                                     <span className="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur-sm">
@@ -296,12 +296,10 @@ const Products = () => {
 
                                 {/* Content */}
                                 <div className="flex flex-1 flex-col p-4">
-                                    {/* Name — truncated to 1 line */}
                                     <h2 className="truncate text-sm font-semibold text-gray-800 capitalize">
                                         {product.name}
                                     </h2>
 
-                                    {/* Description — truncated to 2 lines */}
                                     {product.description && (
                                         <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-gray-400">
                                             {product.description}
@@ -312,7 +310,7 @@ const Products = () => {
                                         ₦{product.price}
                                     </p>
 
-                                    {/* Meta row */}
+                                    {/* Stock */}
                                     <div className="mt-1 flex items-center justify-between text-xs text-gray-400">
                                         <span>
                                             Stock:{' '}
@@ -321,9 +319,6 @@ const Products = () => {
                                             >
                                                 {product.stock_quantity}
                                             </span>
-                                        </span>
-                                        <span>
-                                            {formatTimeAgo(product.created_at)}
                                         </span>
                                     </div>
 
@@ -337,6 +332,26 @@ const Products = () => {
                                         </div>
                                     )}
 
+                                    {/* Date info — same style as ProductDetailsData */}
+                                    <div className="mt-2 space-y-0.5 border-t border-gray-50 pt-2">
+                                        <p className="text-[11px] text-black/60">
+                                            Listed:{' '}
+                                            <span className="text-gray-400">
+                                                {formatTimeAgo(
+                                                    product.created_at,
+                                                )}
+                                            </span>
+                                        </p>
+                                        <p className="text-[11px] text-black/60">
+                                            Updated:{' '}
+                                            <span className="text-gray-400">
+                                                {formatTimeAgo(
+                                                    product.updated_at,
+                                                )}
+                                            </span>
+                                        </p>
+                                    </div>
+
                                     {/* Actions */}
                                     <div className="mt-4 flex gap-2">
                                         <Link
@@ -345,14 +360,6 @@ const Products = () => {
                                         >
                                             View
                                         </Link>
-                                        {/* <button
-                                            onClick={() =>
-                                                confirmDelete(product)
-                                            }
-                                            className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-500 transition hover:bg-red-100"
-                                        >
-                                            <FaTrash />
-                                        </button> */}
                                     </div>
                                 </div>
                             </div>
@@ -387,7 +394,6 @@ const Products = () => {
                         onClick={(e) => e.stopPropagation()}
                         className="flex max-h-[92dvh] w-full flex-col rounded-t-3xl bg-white sm:max-w-lg sm:rounded-2xl"
                     >
-                        {/* Modal header — sticky */}
                         <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
                             <h2 className="text-lg font-bold text-gray-900">
                                 {selectedProduct
@@ -402,7 +408,6 @@ const Products = () => {
                             </button>
                         </div>
 
-                        {/* Scrollable form body */}
                         <div className="overflow-y-auto px-6 py-4">
                             <form onSubmit={handleSubmit} className="space-y-3">
                                 {/* Image Upload */}
@@ -452,7 +457,6 @@ const Products = () => {
                                     )}
                                 </div>
 
-                                {/* 2-col row: Name + Price */}
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="col-span-2">
                                         <input
@@ -484,7 +488,6 @@ const Products = () => {
                                     />
                                 </div>
 
-                                {/* Category */}
                                 <select
                                     name="category"
                                     required
@@ -500,7 +503,6 @@ const Products = () => {
                                     ))}
                                 </select>
 
-                                {/* 2-col row: Location + Phone */}
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="relative">
                                         <FaMapMarkerAlt className="absolute top-1/2 left-3 -translate-y-1/2 text-xs text-gray-400" />
@@ -526,7 +528,6 @@ const Products = () => {
                                     </div>
                                 </div>
 
-                                {/* Description */}
                                 <textarea
                                     name="description"
                                     value={formData.description}
@@ -536,7 +537,6 @@ const Products = () => {
                                     className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
                                 />
 
-                                {/* Submit — sticky at bottom of form */}
                                 <button
                                     type="submit"
                                     className="w-full rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 active:scale-[0.98]"
