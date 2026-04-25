@@ -18,9 +18,9 @@ return new class extends Migration
         $table->text('description')->nullable(); // Detailed info
         $table->decimal('price', 8, 2); // Price with 2 decimal places
         $table->integer('stock_quantity')->default(0); // Tracking inventory
-        $table->text('image')->nullable(); // URL or path to product image
-        // Optional: link to a categories table if you have one
-        // $table->foreignId('category_id')->constrained()->cascadeOnDelete();
+        $table->text('image')->nullable();
+        $table->string('location')->nullable();
+        $table->string('phone_number');
         
         $table->timestamps();
     });

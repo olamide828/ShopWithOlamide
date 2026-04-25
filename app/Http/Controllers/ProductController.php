@@ -1,372 +1,212 @@
 <?php
 
-
-
 namespace App\Http\Controllers;
 
-
-
 use App\Models\Product;
-
 use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\Auth;
-
 use Illuminate\Support\Facades\Storage;
-
 use Illuminate\Support\Str;
-
 use Inertia\Inertia;
-
-
 
 class ProductController extends Controller
 {
-
     /**
-
      * Display a listing of the resource.
-
      */
-
     public function index()
     {
-
         //
-
     }
-
-
-
-
-
-
 
     public function product()
     {
-
         $products = Product::where('user_id', auth()->id())
-
             ->orWhereNull('user_id')
-
             ->latest()
-
             ->paginate(6);
 
-
-
         // Transform the products to include the full Cloud URL
-
         $products->getCollection()->transform(function ($product) {
-
             if ($product->image) {
-
                 $product->image = Storage::disk('private')->url($product->image);
-
             }
-
             return $product;
-
         });
 
-
-
         return Inertia::render("products", [
-
             "products" => $products
-
         ]);
-
     }
 
-
-
-
-
     /**
-
-     * Show the form for creating a new resource.
-
-     */
-
-    /**
-
      * Store a newly created resource in storage.
-
      */
-
     public function store(Request $request)
     {
-
         $validated = $request->validate([
-
             'name' => 'required|string|max:255',
-
             'price' => 'required|numeric',
-
             'stock_quantity' => 'required|integer',
-
             'description' => 'nullable|string',
-
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'category' => 'nullable|string',
-
+            'location' => 'nullable|string|max:255',
+            'phone_number' => 'nullable|string|min:10|max:15',
         ]);
 
-
-
         $slug = Str::slug($validated['name']);
-
         $count = Product::where('slug', 'LIKE', "{$slug}%")->count();
-
         $validated['slug'] = $count ? "{$slug}-{$count}" : $slug;
 
-
-
         if ($request->hasFile('image')) {
-
-            // 1. Store on 'private' instead of 'public'
-
             $path = $request->file('image')->store('products', 'private');
-
-
-
-            // 2. Store just the path (e.g., "products/image.jpg")
-
-            // DO NOT add '/storage/' here anymore
-
             $validated['image'] = $path;
-
         }
-
-
 
         $validated['user_id'] = Auth::id();
 
-
-
         Product::create($validated);
 
-
-
         return redirect()->back()->with('success', 'Product created');
-
     }
 
     /**
-
      * Display the specified resource.
-
      */
-
     public function show($slug)
     {
-
         $product = Product::where('slug', $slug)->with('user:id,name')->firstOrFail();
 
-
-
-        // Convert path to full Cloud URL
-
         if ($product->image) {
-
             $product->image = Storage::disk('private')->url($product->image);
-
         }
 
-
-
         return Inertia::render('ProductDetails', [
-
-            'product' => $product
-
+            'product' => $product,
         ]);
-
     }
-
-
 
     public function adminViewProduct($slug)
     {
-
         $product = Product::where('slug', $slug)->firstOrFail();
 
-
-
-        // Convert path to full Cloud URL
-
         if ($product->image) {
-
             $product->image = Storage::disk('private')->url($product->image);
-
         }
-
-
 
         return Inertia::render('components/ViewProduct', [
-
-            'product' => $product
-
+            'product' => $product,
         ]);
-
     }
 
-
-
-
-
+    /**
+     * Public product listing — sends the first 10 products to the page.
+     * The frontend uses loadMoreProducts() to fetch the rest on demand.
+     */
     public function productPage()
     {
+        $perPage = 10;
+        $total = Product::count();
 
-        $products = Product::latest()->get();
-
-
-
-        // Loop through each product and change the image path to a full URL
+        $products = Product::latest()->take($perPage)->get();
 
         $products->transform(function ($product) {
-
-            if ($product->image) {
-
-                // This generates the full https://... link to your bucket
-
-                $product->image = Storage::disk('private')->url($product->image);
-
-            } else {
-
-                // Optional: Fallback image if no image exists
-
-                $product->image = 'https://placehold.co';
-
-            }
-
+            $product->image = $product->image
+                ? Storage::disk('private')->url($product->image)
+                : 'https://placehold.co';
             return $product;
-
         });
 
-
-
         return Inertia::render("ProductPage", [
-
-            "products" => $products
-
+            "products" => $products,
+            // tells the frontend whether there are more products to load
+            "hasMore" => $total > $perPage,
         ]);
-
     }
 
+    /**
+     * JSON endpoint — called by the "Show More" button on the frontend.
+     * Accepts ?offset=10 and returns the next batch of products.
+     *
+     * Add this route in web.php:
+     *   Route::get('/shop/products/load-more', [ProductController::class, 'loadMoreProducts']);
+     */
+    public function loadMoreProducts(Request $request)
+    {
+        $offset = (int) $request->query('offset', 0);
+        $perPage = 10; // how many to load each time "Show More" is pressed
+        $total = Product::count();
 
+        $products = Product::latest()
+            ->skip($offset)
+            ->take($perPage)
+            ->get();
 
+        $products->transform(function ($product) {
+            $product->image = $product->image
+                ? Storage::disk('private')->url($product->image)
+                : 'https://placehold.co';
+            return $product;
+        });
 
+        return response()->json([
+            'products' => $products,
+            // true = there are still more products after this batch
+            'hasMore' => ($offset + $perPage) < $total,
+        ]);
+    }
 
     /**
-
      * Show the form for editing the specified resource.
-
      */
-
     public function edit(string $id)
     {
-
         //
-
     }
 
-
-
     /**
-
      * Update the specified resource in storage.
-
      */
-
     public function update(Request $request, Product $product)
     {
-
         $validated = $request->validate([
-
             'name' => 'required|string|max:255',
-
             'price' => 'required|numeric',
-
             'stock_quantity' => 'required|integer',
-
             'description' => 'nullable|string',
-
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-
             'category' => 'nullable|string',
-
         ]);
 
-
-
         $slug = Str::slug($validated['name']);
-
         $count = Product::where('slug', 'LIKE', "{$slug}%")->where('id', '<>', $product->id)->count();
-
         $validated['slug'] = $count ? "{$slug}-{$count}" : $slug;
 
-
-
         if ($request->hasFile('image')) {
-
-            // Delete the old image from private if it exists
-
             if ($product->image) {
-
                 Storage::disk('private')->delete($product->image);
-
             }
-
-            // Store new image on private
-
             $path = $request->file('image')->store('products', 'private');
-
             $validated['image'] = $path;
-
         }
-
-
 
         $product->update($validated);
 
-
-
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully');
-
     }
 
-
-
     /**
-
      * Remove the specified resource from storage.
-
      */
-
     public function destroy(Product $product)
     {
-
-        // Delete image from cloud before deleting record
-
         if ($product->image) {
-
             Storage::disk('private')->delete($product->image);
-
         }
-
-
 
         $product->delete();
 
-
-
         return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully');
-
     }
-
-
-
 }
-

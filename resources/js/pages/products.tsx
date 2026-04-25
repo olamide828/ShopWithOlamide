@@ -16,6 +16,8 @@ const Products = () => {
         stock_quantity: '',
         description: '',
         category: '',
+        location: '',
+        phone_number: '',
     });
 
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -68,6 +70,8 @@ const Products = () => {
                 stock_quantity: selectedProduct.stock_quantity || '',
                 description: selectedProduct.description || '',
                 category: selectedProduct.category || '', // ✅ Set category for edit
+                location: selectedProduct.location || '',
+                phone_number: selectedProduct.phone_mumber || '',
             });
             setImagePreview(selectedProduct.image || null);
         } else {
@@ -77,6 +81,8 @@ const Products = () => {
                 stock_quantity: '',
                 description: '',
                 category: '', // ✅ Reset category
+                location: '',
+                phone_number: '',
             });
             setImagePreview(null);
         }
@@ -105,7 +111,9 @@ const Products = () => {
         data.append('price', formData.price);
         data.append('stock_quantity', formData.stock_quantity);
         data.append('description', formData.description);
-        data.append('category', formData.category); // ✅ Submit category
+        data.append('category', formData.category); 
+        data.append('location', formData.location); 
+        data.append('phone_number', formData.phone_number); // ✅ Submit category
 
         // if (formData.stock_quantity === 0) {
         //     toast.error('Stock cannnot be lesser than 1');
@@ -254,7 +262,7 @@ const Products = () => {
                     </div>
 
                     {/* Products Grid */}
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid grid-cols-2 gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {filteredProducts.map((product: any) => (
                             <div
                                 key={product.id}
@@ -407,6 +415,7 @@ const Products = () => {
                                 placeholder="Stock Quantity"
                                 className="w-full rounded-lg border px-4 py-2 focus:ring-2 focus:ring-indigo-500"
                             />
+
                             {/* ✅ Category Select */}
                             <select
                                 name="category"
@@ -450,6 +459,22 @@ const Products = () => {
                                     Uncategorized
                                 </option>
                             </select>
+                            <input
+                                name="location"
+                                value={formData.location}
+                                onChange={handleChange}
+                                type="text"
+                                placeholder="Location"
+                                className="w-full rounded-lg border px-4 py-2 focus:ring-2 focus:ring-indigo-500"
+                            />
+                            <input
+                                name="phone_number"
+                                value={formData.phone_number}
+                                onChange={handleChange}
+                                type="tel"
+                                placeholder="Phone Number"
+                                className="w-full rounded-lg border px-4 py-2 focus:ring-2 focus:ring-indigo-500"
+                            />
                             <textarea
                                 name="description"
                                 value={formData.description}

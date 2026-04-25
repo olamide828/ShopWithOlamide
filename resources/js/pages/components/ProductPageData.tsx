@@ -24,7 +24,6 @@ import {
 } from 'react-icons/fa';
 import { Toaster } from 'sonner';
 
-// 1. Icon Mapper - Matches your database category values to React Icons
 const categoryIcons: Record<string, React.ReactNode> = {
     All: <FaBox />,
     Electronics: <FaLaptop />,
@@ -43,12 +42,36 @@ const categoryIcons: Record<string, React.ReactNode> = {
     'Home & Garden': <FaHome />,
     Sports: <FaBasketballBall />,
     Workspace: <FaBriefcase />,
-    Toys: <FaGamepad />, // Or use a different one
+    Toys: <FaGamepad />,
     Uncategorized: <FaBox />,
 };
 
 const ProductPageData = () => {
-    const { products }: any = usePage().props;
+    // products = first 10 from server via Inertia prop
+    // hasMore  = whether the server has more beyond the first 10
+    const { products: initialProducts, hasMore: initialHasMore }: any =
+        usePage().props;
+
+    const [allProducts, setAllProducts] = React.useState(initialProducts);
+    const [hasMore, setHasMore] = React.useState(initialHasMore);
+    const [loadingMore, setLoadingMore] = React.useState(false);
+
+    const loadMore = async () => {
+        if (loadingMore || !hasMore) return;
+        setLoadingMore(true);
+        try {
+            const res = await fetch(
+                `/shop/products/load-more?offset=${allProducts.length}`,
+            );
+            const data = await res.json();
+            setAllProducts((prev: any[]) => [...prev, ...data.products]);
+            setHasMore(data.hasMore);
+        } catch {
+            // silently fail — user can retry by pressing the button again
+        } finally {
+            setLoadingMore(false);
+        }
+    };
 
     const [search, setSearch] = React.useState('');
     const [sortOption, setSortOption] = React.useState('default');
@@ -57,14 +80,12 @@ const ProductPageData = () => {
 
     const trimmedSearch = search.trim();
 
-    // Extract unique categories
     const categories = [
         'All',
-        ...Array.from(new Set(products.map((p: any) => p.category))),
+        ...Array.from(new Set(allProducts.map((p: any) => p.category))),
     ];
 
-    // Filter by search & category
-    let filteredProducts = products.filter((product: any) => {
+    let filteredProducts = allProducts.filter((product: any) => {
         const matchesSearch = product.name
             .toLowerCase()
             .includes(trimmedSearch.toLowerCase());
@@ -73,7 +94,6 @@ const ProductPageData = () => {
         return matchesSearch && matchesCategory;
     });
 
-    // Sort
     const sortedProducts = [...filteredProducts].sort((a: any, b: any) => {
         switch (sortOption) {
             case 'az':
@@ -130,7 +150,6 @@ const ProductPageData = () => {
                                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                             }`}
                         >
-                            {/* 2. Display the icon here */}
                             <span className="opacity-80">
                                 {categoryIcons[cat] || <FaBox />}
                             </span>
@@ -192,8 +211,12 @@ const ProductPageData = () => {
                     </div>
                 </div>
 
-                {/* Products Grid */}
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {/* Products Grid
+                    - mobile:  2 columns, tighter gap (like Temu / Jumia)
+                    - tablet+: 2 columns with sm (already covered by base grid-cols-2)
+                    - desktop: 4 columns
+                */}
+                <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-6">
                     {sortedProducts.length > 0 ? (
                         sortedProducts.map((product: any) => (
                             <div
@@ -201,11 +224,11 @@ const ProductPageData = () => {
                                 className="flex flex-col overflow-hidden rounded-xl border bg-white shadow-sm transition hover:shadow-md"
                             >
                                 {/* Image */}
-                                <div className="relative h-44 w-full overflow-hidden bg-gray-100">
+                                <div className="relative h-36 w-full overflow-hidden bg-gray-100 sm:h-44">
                                     <img
                                         src={product.image}
                                         alt={product.slug}
-                                        loading='lazy'
+                                        loading="lazy"
                                         className="h-full w-full object-cover transition"
                                     />
                                     <span className="absolute top-2 left-2 rounded-full bg-black/70 px-2 py-1 text-xs font-medium text-white backdrop-blur">
@@ -214,16 +237,16 @@ const ProductPageData = () => {
                                 </div>
 
                                 {/* Content */}
-                                <div className="flex flex-1 flex-col p-4">
-                                    <h2 className="line-clamp-2 min-h-10 text-sm font-medium text-gray-800">
+                                <div className="flex flex-1 flex-col p-3 sm:p-4">
+                                    <h2 className="line-clamp-2 min-h-8 text-xs font-medium text-gray-800 sm:min-h-10 sm:text-sm">
                                         {product.name}
                                     </h2>
 
-                                    <p className="mt-2 text-lg font-bold text-gray-900">
+                                    <p className="mt-2 text-base font-bold text-gray-900 sm:text-lg">
                                         ${product.price}
                                     </p>
 
-                                    <div className="text-sm">
+                                    <div className="text-xs sm:text-sm">
                                         {product.stock_quantity > 0 ? (
                                             <span className="font-medium text-green-600">
                                                 In Stock
@@ -237,10 +260,10 @@ const ProductPageData = () => {
 
                                     <div className="flex-1" />
 
-                                    <div className="mt-4 flex gap-2">
+                                    <div className="mt-3 flex gap-2 sm:mt-4">
                                         <Link
                                             href={`/shop/u/products/${product.slug}`}
-                                            className="flex-1 rounded-md bg-indigo-600 py-2 text-center text-sm font-medium text-white hover:bg-indigo-700"
+                                            className="flex-1 rounded-md bg-indigo-600 py-2 text-center text-xs font-medium text-white hover:bg-indigo-700 sm:text-sm"
                                         >
                                             View
                                         </Link>
@@ -259,6 +282,19 @@ const ProductPageData = () => {
                         </div>
                     )}
                 </div>
+
+                {/* Show More — only visible when the server has more products to load */}
+                {hasMore && (
+                    <div className="mt-10 flex justify-center">
+                        <button
+                            onClick={loadMore}
+                            disabled={loadingMore}
+                            className="rounded-lg border border-indigo-600 px-8 py-3 text-sm font-medium text-indigo-600 transition hover:bg-indigo-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            {loadingMore ? 'Loading...' : 'Show More'}
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

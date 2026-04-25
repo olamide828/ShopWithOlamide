@@ -17,6 +17,8 @@ class Product extends Model
         'image',
         'category',
         'user_id',
+        'location',
+        'phone_number',
     ];
 
     public function user(): BelongsTo
