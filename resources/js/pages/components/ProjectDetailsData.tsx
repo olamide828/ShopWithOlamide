@@ -289,7 +289,7 @@ const ProductDetailsData = () => {
                                 <p className="text-xs text-black/60">
                                     Date Listed:{' '}
                                     <span className="text-gray-400">
-                                        {formatTimeAgo(product.created_at)}
+                                        {new Date(product.created_at).toLocaleDateString()}
                                     </span>
                                 </p>
                                 <p className="text-xs text-black/60">
