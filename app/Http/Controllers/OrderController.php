@@ -19,7 +19,7 @@ class OrderController extends Controller
             ->latest()
             ->get();
 
-        return inertia('Orders', ['orders' => $orders]);
+        return inertia('OrdersPage', ['orders' => $orders]);
     }
 
     public function checkout(Request $request)
