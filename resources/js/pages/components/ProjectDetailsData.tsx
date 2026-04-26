@@ -301,7 +301,7 @@ const ProductDetailsData = () => {
                             </div>
                         )}
 
-                        {/* Delivery Fee Banner */}
+
                         {!imitateLoading && (
                             <div className="flex items-start gap-2 rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm text-indigo-800">
                                 <FaTruck className="mt-0.5 shrink-0 text-indigo-500" />

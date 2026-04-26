@@ -245,7 +245,7 @@ const ProductPageData = () => {
                                     </h2>
 
                                     <p className="mt-2 text-base font-bold text-gray-900 sm:text-lg">
-                                        ${product.price}
+                                        ₦{product.price}
                                     </p>
 
                                     <div className="text-xs sm:text-sm">
