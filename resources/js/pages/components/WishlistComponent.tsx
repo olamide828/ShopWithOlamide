@@ -3,6 +3,7 @@ import { Link, router, usePage } from '@inertiajs/react';
 import { toast, Toaster } from 'sonner';
 
 export default function WishlistComponent() {
+    const naira = (amount: number) => `₦${Number(amount).toLocaleString('en-NG')}`;
     const { wishlist = [] }: any = usePage().props;
 
     return (
@@ -52,7 +53,7 @@ export default function WishlistComponent() {
                                 </h2>
 
                                 <p className="mb-4 text-xl font-bold text-indigo-600">
-                                    ${item.product.price}
+                                    {naira(item.product.price)}
                                 </p>
 
                                 <div className="flex gap-3">

@@ -151,7 +151,7 @@ const ProductDetailsData = () => {
 
                 <div className="grid gap-10 lg:grid-cols-2">
                     {/* IMAGE SECTION */}
-                    <div className="relative w-full overflow-hidden rounded-xl bg-gray-50">
+                    <div className="relative w-full overflow-hidden rounded-xl bg-white">
                         {imitateLoading ? (
                             <div className="h-72 w-full animate-pulse rounded-xl bg-gray-300 lg:h-105" />
                         ) : (
@@ -179,7 +179,7 @@ const ProductDetailsData = () => {
                             {imitateLoading ? (
                                 <div className="h-8 w-[150px] animate-pulse rounded-lg bg-gray-300" />
                             ) : (
-                                `₦${product.price}`
+                                `${naira(product.price)}`
                             )}
                         </div>
 

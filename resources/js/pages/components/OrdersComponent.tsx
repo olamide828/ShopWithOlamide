@@ -1,6 +1,8 @@
 import { Link, router, usePage } from '@inertiajs/react';
 
 export default function OrdersComponent() {
+
+    const naira = (amount: number) => `₦${Number(amount).toLocaleString('en-NG')}`;
     const { orders }: any = usePage().props;
 
     const back = () => {
@@ -70,7 +72,7 @@ export default function OrdersComponent() {
                                             {order.status}
                                         </span>
                                         <span className="text-lg font-bold text-gray-900">
-                                            ${order.total}
+                                            {naira(order.total)}
                                         </span>
                                     </div>
                                 </div>
@@ -109,7 +111,7 @@ export default function OrdersComponent() {
                                             </div>
 
                                             <p className="font-bold text-gray-900">
-                                                ${item.price}
+                                                {naira(item.price)}
                                             </p>
                                         </div>
                                     ))}

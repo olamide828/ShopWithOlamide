@@ -14,6 +14,7 @@ import {
 import { toast, Toaster } from 'sonner';
 
 const ViewProduct = () => {
+    const naira = (amount: number) => `₦${Number(amount).toLocaleString('en-NG')}`;
     const { product }: any = usePage().props;
 
     const [editing, setEditing] = useState(false);
@@ -197,7 +198,7 @@ const ViewProduct = () => {
                                         type="number"
                                         value={formData.price}
                                         onChange={handleChange}
-                                        placeholder="Price ($)"
+                                        placeholder="Price (₦)"
                                         required
                                         className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
                                     />
@@ -296,7 +297,7 @@ const ViewProduct = () => {
                                 {/* Price + Stock */}
                                 <div className="flex items-center justify-between">
                                     <p className="text-3xl font-black text-indigo-600">
-                                        ${product.price}
+                                        {naira(product.price)}
                                     </p>
                                     <span
                                         className={`rounded-full px-3 py-1 text-xs font-bold ${

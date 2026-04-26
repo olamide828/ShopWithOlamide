@@ -18,6 +18,8 @@ import {
 import { useForm } from '@inertiajs/react';
 
 const UserDashboard = ({ children }: PropsWithChildren) => {
+    const naira = (amount: number) =>
+        `₦${Number(amount).toLocaleString('en-NG')}`;
     const {
         auth,
         carts = [],
@@ -182,13 +184,13 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                     />
                     <StatCard
                         label="Total Spent"
-                        value={`$${total || '0.00'}`}
+                        value={`${naira(total as number) || naira(0.00)}`}
                         icon={<FaWallet className="text-green-600" />}
                         color="bg-green-50"
                     />
                     <StatCard
                         label="Cart Total"
-                        value={`$${cartTotal || '0.00'}`}
+                        value={`${naira(cartTotal as number) || naira(0.00)}`}
                         icon={<FaShoppingBag className="text-purple-600" />}
                         color="bg-purple-50"
                     />
@@ -268,7 +270,7 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                                                 ).toLocaleTimeString()}
                                             </td>
                                             <td className="py-4 text-right font-bold">
-                                                ${order.total}
+                                                {naira(order.total)}
                                             </td>
                                         </tr>
                                     ))}
@@ -292,7 +294,7 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                                             {item.product.name}
                                         </p>
                                         <p className="text-xs text-gray-500">
-                                            ${item.price} x {item.quantity}
+                                            {naira(item.price)} x {item.quantity}
                                         </p>
                                     </div>
                                     <p className="text-sm text-gray-600">
@@ -315,7 +317,7 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                                         Subtotal
                                     </span>
                                     <span className="font-bold text-gray-900">
-                                        ${cartTotal}
+                                        {naira(cartTotal as number)}
                                     </span>
                                 </div>
                                 <button
@@ -364,7 +366,7 @@ const UserDashboard = ({ children }: PropsWithChildren) => {
                                             {item.product.name}
                                         </p>
                                         <p className="text-sm font-bold text-gray-900">
-                                            ${item.product.price}
+                                            {naira(item.product.price)}
                                         </p>
                                     </div>
 

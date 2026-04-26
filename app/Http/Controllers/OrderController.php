@@ -33,8 +33,8 @@ class OrderController extends Controller
         }
 
         $subtotal = $carts->sum(fn($item) => $item->price * $item->quantity);
-        $deliveryFee = (int) Setting::get('delivery_fee', 3000);
-        $freeDeliveryThreshold = (int) Setting::get('free_delivery_threshold', 50000);
+        $deliveryFee = (int) Setting::getValue('delivery_fee', 3000);
+        $freeDeliveryThreshold = (int) Setting::getValue('free_delivery_threshold', 50000);
         $appliedDeliveryFee = $subtotal >= $freeDeliveryThreshold ? 0 : $deliveryFee;
         $total = $subtotal + $appliedDeliveryFee;
 

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\SellerController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Auth;
@@ -102,8 +102,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::patch('/orders/{order}', [AdminOrderController::class, 'update'])->name('orders.update');
     // web.php — inside Route::middleware(['auth', 'admin'])->prefix('admin')->group(...)
 
-Route::get('/settings',  [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('admin.settings');
-Route::put('/settings',  [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('admin.settings.update');
+    Route::get('/settings', [SettingsController::class, 'index'])->name('admin.settings');
+    Route::put('/settings', [SettingsController::class, 'update'])->name('admin.settings.update');
 
     // The actions (Post for changing data, Delete for removing)
     // Route::post('/users/{user}/toggle-ban', [AdminController::class, 'toggleBan']);

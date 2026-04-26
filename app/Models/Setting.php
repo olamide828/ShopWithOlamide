@@ -13,4 +13,11 @@ class Setting extends Model
         $setting = static::where('key', $key)->first();
         return $setting ? $setting->value : $default;
     }
+
+    // Temporary debug — remove after finding the culprit
+    public static function get($columns = ['*'])
+    {
+        \Log::error('Setting::get() called from: ' . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5)));
+        return parent::get($columns);
+    }
 }

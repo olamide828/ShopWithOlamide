@@ -271,7 +271,7 @@ const Cart = () => {
 
                                 {isFreeDelivery && (
                                     <div className="rounded-xl border border-green-100 bg-green-50 p-3 text-sm font-medium text-green-700">
-                                        <FaTruck className="mr-1 inline" /> 🎉
+                                        <FaTruck className="mr-1 inline" />
                                         You've unlocked free delivery!
                                     </div>
                                 )}

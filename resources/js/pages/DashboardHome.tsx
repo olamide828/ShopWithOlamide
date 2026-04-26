@@ -13,6 +13,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import Dashboard from './Home/Dashboard'; // Ensure path is correct
 
 const DashboardHome = ({ stats, activities }) => {
+    const naira = (amount: number) => `₦${Number(amount).toLocaleString('en-NG')}`;
     return (
         <div className="max-w-full space-y-8">
             <Head title="Admin Dashboard Overview - ShopWithOlamide"></Head>
@@ -49,13 +50,13 @@ const DashboardHome = ({ stats, activities }) => {
                 />
                 <AdminStatCard
                     label="Monthly Sales"
-                    value={`$${stats?.monthlySales || '0.00'}`}
+                    value={`${naira(stats?.monthlySales) || naira(0.00)}`}
                     icon={<FaChartLine className="text-yellow-600" />}
                     color="bg-yellow-50"
                 />
                 <AdminStatCard
                     label="Total Sales"
-                    value={`$${stats?.sales || '0.00'}`}
+                    value={`${naira(stats?.sales) || naira(0.00)}`}
                     icon={<FaDollarSign className="text-green-600" />}
                     color="bg-green-50"
                 />

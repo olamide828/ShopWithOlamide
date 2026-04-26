@@ -48,6 +48,7 @@ const categoryIcons: Record<string, React.ReactNode> = {
 };
 
 const ProductPageData = () => {
+    const naira = (amount: number) => `₦${Number(amount).toLocaleString('en-NG')}`;
     // products = first 10 from server via Inertia prop
     // hasMore  = whether the server has more beyond the first 10
     const { products: initialProducts, hasMore: initialHasMore }: any =
@@ -245,7 +246,7 @@ const ProductPageData = () => {
                                     </h2>
 
                                     <p className="mt-2 text-base font-bold text-gray-900 sm:text-lg">
-                                        ₦{product.price}
+                                        {naira(product.price)}
                                     </p>
 
                                     <div className="text-xs sm:text-sm">

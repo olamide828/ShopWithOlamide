@@ -36,6 +36,8 @@ const CATEGORIES = [
 ];
 
 const Products = () => {
+    const naira = (amount: number) =>
+        `₦${Number(amount).toLocaleString('en-NG')}`;
     const [dialogueBox, setDialogueBox] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [deleteModal, setDeleteModal] = useState(false);
@@ -307,7 +309,7 @@ const Products = () => {
                                     )}
 
                                     <p className="mt-2 text-lg font-bold text-indigo-600">
-                                        ₦{product.price}
+                                        {naira(product.price)}
                                     </p>
 
                                     {/* Stock */}

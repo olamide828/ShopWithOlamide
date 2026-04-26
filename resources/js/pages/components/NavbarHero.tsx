@@ -7,7 +7,7 @@ import {
     FaHamburger,
     FaTimes,
 } from 'react-icons/fa';
-import { toast, Toaster } from 'sonner';
+// import { toast, Toaster } from 'sonner';
 
 const GradientLogo = () => (
     <span
@@ -44,15 +44,7 @@ const NavbarHero = () => {
     })();
 
     const logout = () => {
-        router.post(
-            '/logout',
-            {},
-            {
-                onSuccess: () => {
-                    toast.success('Successfully signed out');
-                },
-            },
-        );
+        router.post('/logout');
     };
 
     const [localCartCount, setLocalCartCount] = useState(cartCount || 0);
@@ -84,7 +76,7 @@ const NavbarHero = () => {
 
     return (
         <section className='relative min-h-screen overflow-hidden bg-[url("https://images.unsplash.com/photo-1668104130113-b86b10423cb0?w=1200&auto=format&fit=crop&q=80")] bg-cover bg-center'>
-            <Toaster richColors position="top-right" />
+            {/* <Toaster richColors position="top-right" /> */}
 
             <div className="absolute inset-0 bg-black/70" />
             <div className="absolute top-0 left-0 h-96 w-96 rounded-full bg-blue-600/20 blur-3xl" />

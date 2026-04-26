@@ -5,6 +5,7 @@ import { FaChevronDown } from 'react-icons/fa';
 import { toast, Toaster } from 'sonner';
 
 const AdminOrder = ({ orders }: any) => {
+    const naira = (amount: number) => `₦${Number(amount).toLocaleString('en-NG')}`;
     return (
         <div className="p-4 md:p-6">
             <Toaster richColors position="top-right" />
@@ -100,7 +101,7 @@ const AdminOrder = ({ orders }: any) => {
                                     </td>
 
                                     <td className="p-3 text-sm font-bold text-gray-900">
-                                        ${order.total}
+                                        {naira(order.total)}
                                     </td>
 
                                     <td className="p-3 text-sm">
