@@ -19,6 +19,11 @@ class OrderController extends Controller
             ->latest()
             ->get();
 
+        // Filter out items whose product has been deleted
+        $orders->each(function ($order) {
+            $order->setRelation('items', $order->items->filter(fn($item) => $item->product !== null)->values());
+        });
+
         return inertia('OrdersPage', ['orders' => $orders]);
     }
 
