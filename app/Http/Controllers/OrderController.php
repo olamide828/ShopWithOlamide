@@ -9,6 +9,7 @@ use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
@@ -19,9 +20,21 @@ class OrderController extends Controller
             ->latest()
             ->get();
 
-        // Filter out items whose product has been deleted
+        // Filter deleted products and resolve image URLs
         $orders->each(function ($order) {
-            $order->setRelation('items', $order->items->filter(fn($item) => $item->product !== null)->values());
+            $order->setRelation(
+                'items',
+                $order->items
+                    ->filter(fn($item) => $item->product !== null)
+                    ->each(function ($item) {
+                        if ($item->product->image && !filter_var($item->product->image, FILTER_VALIDATE_URL)) {
+                            $item->product->image = Storage::disk('private')->url($item->product->image);
+                        } elseif (!$item->product->image) {
+                            $item->product->image = 'https://placehold.co/600x400';
+                        }
+                    })
+                    ->values()
+            );
         });
 
         return inertia('OrdersPage', ['orders' => $orders]);
