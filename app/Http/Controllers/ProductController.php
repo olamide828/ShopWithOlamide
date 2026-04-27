@@ -125,13 +125,19 @@ class ProductController extends Controller
             return $product;
         });
 
+        // 👇 Add this — fetches all unique categories from the DB
+        $categories = Product::whereNotNull('category')
+            ->where('category', '!=', '')
+            ->distinct()
+            ->pluck('category')
+            ->values();
+
         return Inertia::render("ProductPage", [
             "products" => $products,
-            // tells the frontend whether there are more products to load
             "hasMore" => $total > $perPage,
+            "categories" => $categories, // 👈 pass it here
         ]);
     }
-
     /**
      * JSON endpoint — called by the "Show More" button on the frontend.
      * Accepts ?offset=10 and returns the next batch of products.
