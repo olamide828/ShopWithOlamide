@@ -47,13 +47,14 @@ const categoryIcons: Record<string, React.ReactNode> = {
     Uncategorized: <FaBox />,
 };
 
+const naira = (amount: number) => `₦${Number(amount).toLocaleString('en-NG')}`;
+
 const ProductPageData = () => {
-    const naira = (amount: number) =>
-        `₦${Number(amount).toLocaleString('en-NG')}`;
-    // products = first 10 from server via Inertia prop
-    // hasMore  = whether the server has more beyond the first 10
-    const { products: initialProducts, hasMore: initialHasMore }: any =
-        usePage().props;
+    const {
+        products: initialProducts,
+        hasMore: initialHasMore,
+        categories: serverCategories,
+    }: any = usePage().props;
 
     const [allProducts, setAllProducts] = React.useState(initialProducts);
     const [hasMore, setHasMore] = React.useState(initialHasMore);
@@ -70,7 +71,6 @@ const ProductPageData = () => {
             setAllProducts((prev: any[]) => [...prev, ...data.products]);
             setHasMore(data.hasMore);
         } catch {
-            // silently fail — user can retry by pressing the button again
         } finally {
             setLoadingMore(false);
         }
@@ -83,12 +83,11 @@ const ProductPageData = () => {
 
     const trimmedSearch = search.trim();
 
-    const categories = [
-        'All',
-        ...Array.from(new Set(allProducts.map((p: any) => p.category))),
-    ];
+    // FIX 2: All categories come from server — always complete regardless of
+    // how many products have been loaded via Show More
+    const categories = ['All', ...(serverCategories ?? [])];
 
-    let filteredProducts = allProducts.filter((product: any) => {
+    const filteredProducts = allProducts.filter((product: any) => {
         const matchesSearch = product.name
             .toLowerCase()
             .includes(trimmedSearch.toLowerCase());
@@ -129,9 +128,7 @@ const ProductPageData = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             <Toaster richColors position="top-right" />
-
             <div className="mx-auto max-w-7xl px-4 py-8">
-                {/* Header */}
                 <div className="mb-6">
                     <h1 className="text-3xl font-bold text-gray-900">
                         Explore Products
@@ -162,56 +159,66 @@ const ProductPageData = () => {
                 </div>
 
                 {/* Toolbar */}
-                {/* Right - Controls */}
-                <div
-                    className={`flex items-center gap-3 ${!search ? 'w-full justify-end' : 'justify-between'}`}
-                >
-                    {search && (
-                        <p className="text-sm text-gray-500 md:block">
-                            {sortedProducts.length}{' '}
-                            {sortedProducts.length === 1 ? 'item' : 'items'}
-                        </p>
-                    )}
+                <div className="sticky top-18 z-40 mb-6 rounded-xl bg-white p-4 shadow-sm">
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        {/* Search */}
+                        <div className="relative w-full md:w-80">
+                            <FaSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-gray-400" />
+                            <input
+                                type="text"
+                                placeholder="Search for products..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="w-full rounded-lg border bg-gray-50 py-2 pr-4 pl-10 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                            />
+                        </div>
 
-                    {/* This wrapper will now naturally stay on the right if search is false */}
-                    <div
-                        className={`relative ${!search ? 'ml-auto md:ml-0' : ''}`}
-                    >
-                        <button
-                            onClick={() => setShowFilter(!showFilter)}
-                            className="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-sm shadow-sm hover:bg-gray-100"
-                        >
-                            <FaFilter />
-                            Sort
-                        </button>
-
-                        {showFilter && (
-                            <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border bg-white shadow-xl">
-                                {filterOptions.map((option) => (
-                                    <button
-                                        key={option.value}
-                                        onClick={() => {
-                                            setSortOption(option.value);
-                                            setShowFilter(false);
-                                        }}
-                                        className="flex w-full items-center justify-between px-4 py-2 text-sm hover:bg-gray-100"
-                                    >
-                                        {option.label}
-                                        {sortOption === option.value && (
-                                            <FaCheck className="text-xs text-indigo-600" />
-                                        )}
-                                    </button>
-                                ))}
+                        {/* FIX 1: Sort button always anchored left in its own flex row.
+                            Item count sits beside it and never causes the button to shift. */}
+                        <div className="flex items-center gap-3">
+                            <div className="relative">
+                                <button
+                                    onClick={() => setShowFilter(!showFilter)}
+                                    className="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-sm shadow-sm hover:bg-gray-100"
+                                >
+                                    <FaFilter /> Sort
+                                </button>
+                                {showFilter && (
+                                    <div className="absolute left-0 mt-2 w-56 overflow-hidden rounded-xl border bg-white shadow-xl">
+                                        {filterOptions.map((option) => (
+                                            <button
+                                                key={option.value}
+                                                onClick={() => {
+                                                    setSortOption(option.value);
+                                                    setShowFilter(false);
+                                                }}
+                                                className="flex w-full items-center justify-between px-4 py-2 text-sm hover:bg-gray-100"
+                                            >
+                                                {option.label}
+                                                {sortOption ===
+                                                    option.value && (
+                                                    <FaCheck className="text-xs text-indigo-600" />
+                                                )}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                        )}
+
+                            {/* Only show count when searching */}
+                            {trimmedSearch && (
+                                <p className="text-sm text-gray-500">
+                                    {sortedProducts.length}{' '}
+                                    {sortedProducts.length === 1
+                                        ? 'item'
+                                        : 'items'}
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </div>
 
-                {/* Products Grid
-                    - mobile:  2 columns, tighter gap (like Temu / Jumia)
-                    - tablet+: 2 columns with sm (already covered by base grid-cols-2)
-                    - desktop: 4 columns
-                */}
+                {/* Products Grid */}
                 <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-6">
                     {sortedProducts.length > 0 ? (
                         sortedProducts.map((product: any) => (
@@ -219,7 +226,6 @@ const ProductPageData = () => {
                                 key={product.id}
                                 className="flex flex-col overflow-hidden rounded-xl border bg-white shadow-sm transition hover:shadow-md"
                             >
-                                {/* Image */}
                                 <div className="relative h-36 w-full overflow-hidden bg-gray-100 sm:h-44">
                                     <img
                                         src={product.image}
@@ -232,17 +238,13 @@ const ProductPageData = () => {
                                         {product.category || 'General'}
                                     </span>
                                 </div>
-
-                                {/* Content */}
                                 <div className="flex flex-1 flex-col p-3 sm:p-4">
                                     <h2 className="line-clamp-2 min-h-8 text-xs font-medium text-gray-800 sm:min-h-10 sm:text-sm">
                                         {product.name}
                                     </h2>
-
                                     <p className="mt-2 text-base font-bold text-gray-900 sm:text-lg">
                                         {naira(product.price)}
                                     </p>
-
                                     <div className="text-xs sm:text-sm">
                                         {product.stock_quantity > 0 ? (
                                             <span className="font-medium text-green-600">
@@ -254,9 +256,7 @@ const ProductPageData = () => {
                                             </span>
                                         )}
                                     </div>
-
                                     <div className="flex-1" />
-
                                     <div className="mt-3 flex gap-2 sm:mt-4">
                                         <Link
                                             href={`/shop/u/products/${product.slug}`}
@@ -280,7 +280,7 @@ const ProductPageData = () => {
                     )}
                 </div>
 
-                {/* Show More — only visible when the server has more products to load */}
+                {/* Show More */}
                 {hasMore && (
                     <div className="mt-10 flex justify-center">
                         <button
