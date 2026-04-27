@@ -54,7 +54,8 @@ const Cart = () => {
                         setLoading(false);
                         setIsModalOpen(false);
                     },
-                    onSuccess: () => toast.success('Payment Successful!'),
+                    onSuccess: () => { router.get('/orders')
+                        toast.success('Payment Successful!')},
                     onError: () => {
                         setLoading(false);
                         toast.error('An error occurred during checkout.');
