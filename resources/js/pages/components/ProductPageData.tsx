@@ -49,6 +49,15 @@ const categoryIcons: Record<string, React.ReactNode> = {
 
 const naira = (amount: number) => `₦${Number(amount).toLocaleString('en-NG')}`;
 
+const filterOptions = [
+    { label: 'Default', value: 'default' },
+    { label: 'Name (A - Z)', value: 'az' },
+    { label: 'Name (Z - A)', value: 'za' },
+    { label: 'Price (Low → High)', value: 'price_low' },
+    { label: 'Price (High → Low)', value: 'price_high' },
+    { label: 'Latest', value: 'latest' },
+];
+
 const ProductPageData = () => {
     const {
         products: initialProducts,
@@ -59,71 +68,73 @@ const ProductPageData = () => {
     const [allProducts, setAllProducts] = React.useState(initialProducts);
     const [hasMore, setHasMore] = React.useState(initialHasMore);
     const [loadingMore, setLoadingMore] = React.useState(false);
-
-    const loadMore = async () => {
-        if (loadingMore || !hasMore) return;
-        setLoadingMore(true);
-        try {
-            const res = await fetch(
-                `/shop/u/products/load-more?offset=${allProducts.length}`,
-            );
-            const data = await res.json();
-            setAllProducts((prev: any[]) => [...prev, ...data.products]);
-            setHasMore(data.hasMore);
-        } catch {
-        } finally {
-            setLoadingMore(false);
-        }
-    };
-
     const [search, setSearch] = React.useState('');
     const [sortOption, setSortOption] = React.useState('default');
     const [showFilter, setShowFilter] = React.useState(false);
     const [selectedCategory, setSelectedCategory] = React.useState('All');
 
-    const trimmedSearch = search.trim();
+    // Debounce search so we don't fire on every keystroke
+    const [debouncedSearch, setDebouncedSearch] = React.useState('');
+    React.useEffect(() => {
+        const t = setTimeout(() => setDebouncedSearch(search.trim()), 350);
+        return () => clearTimeout(t);
+    }, [search]);
 
-    // FIX 2: All categories come from server — always complete regardless of
-    // how many products have been loaded via Show More
-    const categories = ['All', ...(serverCategories ?? [])];
+    // Build the query string for the API call
+    const buildParams = (offset: number) => {
+        const p = new URLSearchParams();
+        p.set('offset', String(offset));
+        if (selectedCategory !== 'All') p.set('category', selectedCategory);
+        if (debouncedSearch) p.set('search', debouncedSearch);
+        if (sortOption !== 'default') p.set('sort', sortOption);
+        return p.toString();
+    };
 
-    const filteredProducts = allProducts.filter((product: any) => {
-        const matchesSearch = product.name
-            .toLowerCase()
-            .includes(trimmedSearch.toLowerCase());
-        const matchesCategory =
-            selectedCategory === 'All' || product.category === selectedCategory;
-        return matchesSearch && matchesCategory;
-    });
+    // Re-fetch from offset=0 whenever filters/sort/search change
+    React.useEffect(() => {
+        let cancelled = false;
 
-    const sortedProducts = [...filteredProducts].sort((a: any, b: any) => {
-        switch (sortOption) {
-            case 'az':
-                return a.name.localeCompare(b.name);
-            case 'za':
-                return b.name.localeCompare(a.name);
-            case 'price_low':
-                return a.price - b.price;
-            case 'price_high':
-                return b.price - a.price;
-            case 'latest':
-                return (
-                    new Date(b.created_at).getTime() -
-                    new Date(a.created_at).getTime()
+        const refetch = async () => {
+            try {
+                const res = await fetch(
+                    `/shop/u/products/load-more?${buildParams(0)}`,
                 );
-            default:
-                return 0;
-        }
-    });
+                const data = await res.json();
+                if (!cancelled) {
+                    setAllProducts(data.products);
+                    setHasMore(data.hasMore);
+                }
+            } catch {
+                /* silent */
+            }
+        };
 
-    const filterOptions = [
-        { label: 'Default', value: 'default' },
-        { label: 'Name (A - Z)', value: 'az' },
-        { label: 'Name (Z - A)', value: 'za' },
-        { label: 'Price (Low → High)', value: 'price_low' },
-        { label: 'Price (High → Low)', value: 'price_high' },
-        { label: 'Latest', value: 'latest' },
-    ];
+        refetch();
+        return () => {
+            cancelled = true;
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedCategory, debouncedSearch, sortOption]);
+
+    // Append next page when "Show More" is clicked
+    const loadMore = async () => {
+        if (loadingMore || !hasMore) return;
+        setLoadingMore(true);
+        try {
+            const res = await fetch(
+                `/shop/u/products/load-more?${buildParams(allProducts.length)}`,
+            );
+            const data = await res.json();
+            setAllProducts((prev: any[]) => [...prev, ...data.products]);
+            setHasMore(data.hasMore);
+        } catch {
+            /* silent */
+        } finally {
+            setLoadingMore(false);
+        }
+    };
+
+    const categories = ['All', ...(serverCategories ?? [])];
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -140,7 +151,7 @@ const ProductPageData = () => {
 
                 {/* Category Tabs */}
                 <div className="mb-6 flex flex-wrap gap-2">
-                    {categories.map((cat: any) => (
+                    {categories.map((cat: string) => (
                         <button
                             key={cat}
                             onClick={() => setSelectedCategory(cat)}
@@ -173,8 +184,7 @@ const ProductPageData = () => {
                             />
                         </div>
 
-                        {/* FIX 1: Sort button always anchored left in its own flex row.
-                            Item count sits beside it and never causes the button to shift. */}
+                        {/* Sort */}
                         <div className="flex items-center gap-3">
                             <div className="relative">
                                 <button
@@ -205,11 +215,10 @@ const ProductPageData = () => {
                                 )}
                             </div>
 
-                            {/* Only show count when searching */}
-                            {trimmedSearch && (
+                            {debouncedSearch && (
                                 <p className="text-sm text-gray-500">
-                                    {sortedProducts.length}{' '}
-                                    {sortedProducts.length === 1
+                                    {allProducts.length}{' '}
+                                    {allProducts.length === 1
                                         ? 'item'
                                         : 'items'}
                                 </p>
@@ -220,8 +229,8 @@ const ProductPageData = () => {
 
                 {/* Products Grid */}
                 <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-6">
-                    {sortedProducts.length > 0 ? (
-                        sortedProducts.map((product: any) => (
+                    {allProducts.length > 0 ? (
+                        allProducts.map((product: any) => (
                             <div
                                 key={product.id}
                                 className="flex flex-col overflow-hidden rounded-xl border bg-white shadow-sm transition hover:shadow-md"
@@ -280,9 +289,9 @@ const ProductPageData = () => {
                     )}
                 </div>
 
-                {/* Show More */}
-                {hasMore && (
-                    <div className="mt-10 flex justify-center">
+                {/* Show More / End of Results */}
+                <div className="mt-10 flex justify-center">
+                    {hasMore ? (
                         <button
                             onClick={loadMore}
                             disabled={loadingMore}
@@ -290,8 +299,12 @@ const ProductPageData = () => {
                         >
                             {loadingMore ? 'Loading...' : 'Show More'}
                         </button>
-                    </div>
-                )}
+                    ) : allProducts.length > 0 ? (
+                        <p className="text-sm text-gray-400">
+                            — You've reached the end —
+                        </p>
+                    ) : null}
+                </div>
             </div>
         </div>
     );

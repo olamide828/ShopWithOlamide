@@ -110,65 +110,96 @@ class ProductController extends Controller
     /**
      * Public product listing — sends the first 10 products to the page.
      * The frontend uses loadMoreProducts() to fetch the rest on demand.
-     */
-    public function productPage()
-    {
-        $perPage = 10;
-        $total = Product::count();
+      */
+    //  * JSON endpoint — called by the "Show More" button on the frontend.
+    //  * Accepts ?offset=10 and returns the next batch of products.
+    //  *
+    //  * Add this route in web.php:
+    //  *   Route::get('/shop/products/load-more', [ProductController::class, 'loadMoreProducts']);
+    //  */
+    public function productPage(Request $request)
+{
+    $perPage = 10;
 
-        $products = Product::latest()->take($perPage)->get();
+    $query = $this->buildProductQuery($request);
+    $total = (clone $query)->count();
 
-        $products->transform(function ($product) {
-            $product->image = $product->image
-                ? Storage::disk('private')->url($product->image)
-                : 'https://placehold.co';
-            return $product;
-        });
+    $products = $query->take($perPage)->get();
 
-        // 👇 Add this — fetches all unique categories from the DB
-        $categories = Product::whereNotNull('category')
-            ->where('category', '!=', '')
-            ->distinct()
-            ->pluck('category')
-            ->values();
+    $products->transform(function ($product) {
+        $product->image = $product->image
+            ? Storage::disk('private')->url($product->image)
+            : 'https://placehold.co';
+        return $product;
+    });
 
-        return Inertia::render("ProductPage", [
-            "products" => $products,
-            "hasMore" => $total > $perPage,
-            "categories" => $categories, // 👈 pass it here
-        ]);
+    $categories = Product::whereNotNull('category')
+        ->where('category', '!=', '')
+        ->distinct()
+        ->pluck('category')
+        ->values();
+
+    return Inertia::render("ProductPage", [
+        "products"   => $products,
+        "hasMore"    => $total > $perPage,
+        "categories" => $categories,
+    ]);
+}
+
+/**
+ * JSON endpoint — called by "Show More" and whenever filters change.
+ * Accepts ?offset=, ?category=, ?search=, ?sort=
+ */
+public function loadMoreProducts(Request $request)
+{
+    $offset  = (int) $request->query('offset', 0);
+    $perPage = 10;
+
+    $query = $this->buildProductQuery($request);
+    $total = (clone $query)->count();
+
+    $products = $query->skip($offset)->take($perPage)->get();
+
+    $products->transform(function ($product) {
+        $product->image = $product->image
+            ? Storage::disk('private')->url($product->image)
+            : 'https://placehold.co';
+        return $product;
+    });
+
+    return response()->json([
+        'products' => $products,
+        'hasMore'  => ($offset + $perPage) < $total,
+    ]);
+}
+
+
+private function buildProductQuery(Request $request)
+{
+    $query = Product::latest();
+
+    $category = $request->query('category');
+    if ($category && $category !== 'All') {
+        $query->where('category', $category);
     }
-    /**
-     * JSON endpoint — called by the "Show More" button on the frontend.
-     * Accepts ?offset=10 and returns the next batch of products.
-     *
-     * Add this route in web.php:
-     *   Route::get('/shop/products/load-more', [ProductController::class, 'loadMoreProducts']);
-     */
-    public function loadMoreProducts(Request $request)
-    {
-        $offset = (int) $request->query('offset', 0);
-        $perPage = 10; // how many to load each time "Show More" is pressed
-        $total = Product::count();
 
-        $products = Product::latest()
-            ->skip($offset)
-            ->take($perPage)
-            ->get();
-
-        $products->transform(function ($product) {
-            $product->image = $product->image
-                ? Storage::disk('private')->url($product->image)
-                : 'https://placehold.co';
-            return $product;
-        });
-
-        return response()->json([
-            'products' => $products,
-            // true = there are still more products after this batch
-            'hasMore' => ($offset + $perPage) < $total,
-        ]);
+    $search = trim($request->query('search', ''));
+    if ($search !== '') {
+        $query->where('name', 'LIKE', "%{$search}%");
     }
+
+    $sort = $request->query('sort', 'default');
+    match ($sort) {
+        'az'         => $query->reorder('name', 'asc'),
+        'za'         => $query->reorder('name', 'desc'),
+        'price_low'  => $query->reorder('price', 'asc'),
+        'price_high' => $query->reorder('price', 'desc'),
+        'latest'     => $query->reorder('created_at', 'desc'),
+        default      => null,
+    };
+
+    return $query;
+}
 
     /**
      * Show the form for editing the specified resource.
